@@ -1,0 +1,55 @@
+import type { Request, Response, NextFunction, RequestHandler } from "express";
+
+export type AsyncRequestHandler<P = Record<string, any>> = (
+    req: Request<P>,
+    res: Response,
+    next: NextFunction
+) => Promise<void>;
+
+export const asyncHandler = <P = Record<string, any>>(fn: AsyncRequestHandler<P>): RequestHandler => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        Promise.resolve(fn(req as Request<P>, res, next)).catch(next);
+    };
+};
+
+export function undefinedToNullDeep<T>(v: T): T {
+    if (v === undefined) return null as T;
+
+    if (v === null || typeof v !== 'object') return v;
+
+    if (Array.isArray(v)) {
+        return v.map((x) => undefinedToNullDeep(x)) as T;
+    }
+
+    const out: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(v as Record<string, unknown>)) {
+        out[key] = undefinedToNullDeep(val);
+    }
+
+    return out as T;
+}
+
+export function normalizeString(string: string) {
+    if (typeof string !== "string") throw new TypeError(`Expected string value, recieved ${typeof string}`);
+    if (string.length === 0) return "";
+
+    const invisibleCharsRegex = /[\u200B\u200C\u200D\u200E\u200F\u2060\u202F\uFEFF]/g;
+    const removedinvisibleChars = string.replace(invisibleCharsRegex, "");
+    const collapedWhiteSpaceRegex = /\s+/g; // matches consecutive white space
+    const collapsedWhiteSpace = removedinvisibleChars.replace(collapedWhiteSpaceRegex, " "); // replace consecutive whitespaces with single space
+    const trimmed = collapsedWhiteSpace.trim();
+    const normalized = trimmed.normalize("NFC");
+    return normalized;
+}
+
+export function buildUserAvatarURLs(avatarId: string): AvatarURLs {
+    if (avatarId.length === 0) throw new Error('You must pass a valid string greater than 0 in length');
+    return [
+        `https://sleepercdn.com/avatars/thumbs/${avatarId}`,
+        `https://sleepercdn.com/avatars/${avatarId}`
+    ] satisfies AvatarURLs;
+}
+
+type ThumbURL = `https://sleepercdn.com/avatars/thumbs/${string}`;
+type FullURL = `https://sleepercdn.com/avatars/${string}`;
+type AvatarURLs = [ThumbURL, FullURL];

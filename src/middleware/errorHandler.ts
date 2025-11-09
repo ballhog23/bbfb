@@ -1,38 +1,40 @@
 import type { Request, Response, NextFunction } from 'express';
+import { respondWithError } from '../lib/json.js';
 import {
 	BadRequestError,
 	UserNotAuthenticatedError,
 	UserForbiddenError,
 	NotFoundError,
-} from '../lib/errors';
-import { respondWithError } from '../lib/json';
+} from '../lib/errors.js';
+import { DrizzleError, DrizzleQueryError } from "drizzle-orm";
 
-export async function errorHandler(
-	err: Error,
-	_: Request,
-	res: Response,
-	__: NextFunction
-) {
+export async function errorHandler(err: Error, _: Request, res: Response, __: NextFunction) {
 	let message = 'There was an issue on our end.';
 	let statusCode = 500;
 
 	if (err instanceof BadRequestError) {
 		message = err.message;
 		statusCode = 400;
+		console.error(err);
 	} else if (err instanceof UserNotAuthenticatedError) {
 		message = err.message;
 		statusCode = 401;
+		console.error(err);
 	} else if (err instanceof UserForbiddenError) {
 		message = err.message;
 		statusCode = 403;
+		console.error(err);
 	} else if (err instanceof NotFoundError) {
 		message = err.message;
 		statusCode = 404;
+		console.error(err);
+	} else if (err instanceof DrizzleError || err instanceof DrizzleQueryError) {
+		console.error(err.cause);
+		message = `CAUSE: ${err.cause}`;
 	}
 
 	if (statusCode >= 500) {
-		console.log(err.message);
+		console.error(err.message);
 	}
-
 	respondWithError(res, statusCode, message);
 }
