@@ -8,11 +8,6 @@ export function envOrThrow(key: string) {
 	return value;
 }
 
-export type Config = {
-	api: APIConfig;
-	league: LeagueConfig;
-};
-
 type APIConfig = {
 	platform: string;
 	port: number;
@@ -20,6 +15,24 @@ type APIConfig = {
 
 type LeagueConfig = {
 	id: string;
+};
+
+type DBConfig = {
+	url: string;
+	max: number;
+	idleTimeoutMillis: number;
+	connectionTimeoutMillis: number;
+	maxLifetimeSeconds: number;
+	host?: string;
+	dbname?: string;
+	user?: string;
+	password?: string;
+};
+
+export type Config = {
+	api: APIConfig;
+	league: LeagueConfig;
+	db: DBConfig;
 };
 
 export const config: Config = {
@@ -30,4 +43,11 @@ export const config: Config = {
 	league: {
 		id: envOrThrow('LEAGUEID'),
 	},
+	db: {
+		url: envOrThrow('DB_URL'),
+		max: 20,
+		idleTimeoutMillis: 30000,
+		connectionTimeoutMillis: 2000,
+		maxLifetimeSeconds: 60
+	}
 };

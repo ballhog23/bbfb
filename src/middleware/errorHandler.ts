@@ -1,11 +1,11 @@
 import type { Request, Response, NextFunction } from 'express';
+import { respondWithError } from '../lib/json.js';
 import {
 	BadRequestError,
 	UserNotAuthenticatedError,
 	UserForbiddenError,
 	NotFoundError,
-} from '../lib/errors';
-import { respondWithError } from '../lib/json';
+} from '../lib/errors.js';
 
 export async function errorHandler(
 	err: Error,
