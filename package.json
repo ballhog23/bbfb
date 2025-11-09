@@ -7,9 +7,11 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/main.js",
-    "dev": "npx tsc && node dist/main.js",
+    "dev": "tsc --watch & node --watch dist/index.js",
     "test": "vitest --run",
-    "tee": "npm run dev | tee info.log"
+    "tee": "npm run dev | tee info.log",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate"
   },
   "keywords": [],
   "author": "",
@@ -17,10 +19,14 @@
   "devDependencies": {
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
+    "drizzle-kit": "^0.31.6",
     "typescript": "^5.9.3",
     "vitest": "^4.0.8"
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "drizzle-orm": "^0.44.7",
+    "express": "^5.1.0",
+    "postgres": "^3.4.7",
+    "zod": "^4.1.12"
   }
 }
