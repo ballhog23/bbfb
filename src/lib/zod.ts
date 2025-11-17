@@ -299,4 +299,3 @@ export type RefinedNFLPlayer = {
     position: string | null
     team: string | null
 }
-
