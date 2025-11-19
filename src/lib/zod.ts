@@ -155,7 +155,7 @@ export const leagueSchema = z.looseObject({
     loser_bracket_overrides_id: z.null(),
     roster_positions: z.array(z.string()),
     total_rosters: z.number()
-});
+})
 export type LeagueSchema = z.infer<typeof leagueSchema>;
 
 export const rosterSchema = z.looseObject({
@@ -177,7 +177,7 @@ export const rosterSchema = z.looseObject({
     players: z.array(z.string()),
     owner_id: z.string(),
     league_id: z.string()
-});
+})
 export type RosterSchema = z.infer<typeof rosterSchema>;
 
 export const leagueUserSchema = z.looseObject({
@@ -225,13 +225,14 @@ export const leagueUserSchema = z.looseObject({
     }),
     settings: z.null(),
     user_id: z.string()
-});
-export type LeagueUserSchema = z.infer<typeof leagueUserSchema>;
-export type LeagueUser = {
+})
+export type LeagueUser = z.infer<typeof leagueUserSchema>;
+export type RefinedLeagueUser = {
     displayName: string,
     teamName: string | null,
-    userId: string
-};
+    userId: string,
+    avatarId: string
+}
 const NFLPlayerKeys = z.union([z.string(), z.number(), z.symbol()]);
 export const NFLPlayerSchema = z.looseObject({
     position: nullishString,
@@ -287,7 +288,7 @@ export const NFLPlayerSchema = z.looseObject({
     competitions: nullishUnknownArray,
     injury_notes: nullishString,
     number: nullishNumber
-});
+})
 
 export type NFLPlayer = z.infer<typeof NFLPlayerSchema>
 export type RefinedNFLPlayer = {
@@ -299,3 +300,54 @@ export type RefinedNFLPlayer = {
     position: string | null
     team: string | null
 }
+
+export const matchupSchema = z.looseObject({
+    starters: z.array(z.string()),
+    roster_id: z.number(),
+    players: z.array(z.string()),
+    matchup_id: z.number(),
+    points: z.number(),
+    custom_points: nullishNumber
+})
+export type Matchup = z.infer<typeof matchupSchema>
+export type RefinedMatchup = {
+    starters: string[]
+    rosterId: number
+    players: string[]
+    matchupId: number
+    points: number
+    customPoints: number | null
+}
+export const NFLStateSchema = z.looseObject({
+    week: z.number(),
+    season_type: z.string(),
+    season_start_date: z.string(),
+    season: z.string(),
+    previous_season: z.string(),
+    leg: z.number(),
+    league_season: z.string(),
+    league_create_season: z.string(),
+    display_week: z.number()
+})
+
+export type NFLState = z.infer<typeof NFLStateSchema>
+
+export const bracketSourceSchema = z.object({
+    w: nullishNumber,
+    l: nullishNumber,
+});
+
+export const bracketSchema = z.object({
+    m: z.number(),
+    r: z.number(),
+    l: nullishNumber,
+    w: nullishNumber,
+    p: nullishNumber,
+    t1: nullishNumber,
+    t2: nullishNumber,
+    t1_from: bracketSourceSchema.nullish(),
+    t2_from: bracketSourceSchema.nullish(),
+});
+
+export type BracketSource = z.infer<typeof bracketSourceSchema>;
+export type Bracket = z.infer<typeof bracketSchema>;

@@ -3,9 +3,13 @@ import { config } from '../config.js';
 import { NotFoundError } from './errors.js';
 import {
     leagueUserSchema, leagueSchema,
-    type LeagueUser, LeagueUserSchema,
+    matchupSchema, NFLStateSchema,
+    bracketSchema,
+    type RefinedLeagueUser,
     LeagueSchema, RosterSchema, rosterSchema,
-    NFLPlayer, NFLPlayerSchema, RefinedNFLPlayer
+    NFLPlayerSchema, RefinedNFLPlayer,
+    NFLState, Bracket,
+    RefinedMatchup
 } from "./zod.js";
 
 
@@ -20,9 +24,7 @@ export class Sleeper {
         const url = `https://api.sleeper.app/v1/league/${leagueId}`;
         const leagueData = await this.fetchJSON(url);
 
-        if (typeof leagueData !== 'object' || leagueData === null) {
-            throw new Error(`Expected Object from ${url}`);
-        }
+        this.assertObject(leagueData);
 
         const looseValidatedLeagueData = leagueSchema.parse(leagueData);
         return this.undefinedToNullDeep(looseValidatedLeagueData);
@@ -32,30 +34,27 @@ export class Sleeper {
         const url = `https://api.sleeper.app/v1/league/${this.leagueId}/rosters`;
         const rosterData = await this.fetchJSON(url);
 
-        if (!Array.isArray(rosterData)) {
-            throw new Error(`Expected array from ${url}`);
-        }
+        this.assertArray(rosterData);
 
         const looseValidatedRosterData = rosterData.map((roster: RosterSchema) => rosterSchema.parse(roster));
         return this.undefinedToNullDeep(looseValidatedRosterData);
     }
 
-    async getLeagueUsers(): Promise<LeagueUser[]> {
+    async getLeagueUsers(): Promise<RefinedLeagueUser[]> {
         const url = `https://api.sleeper.app/v1/league/${this.leagueId}/users`;
         const leagueUsers = await this.fetchJSON(url);
 
-        if (!Array.isArray(leagueUsers)) {
-            throw new Error(`Expected array from ${url}`);
-        }
+        this.assertArray(leagueUsers);
 
-        const looseLeagueUsers = leagueUsers.map((user: LeagueUserSchema) => leagueUserSchema.parse(user));
+        const looseLeagueUsers = leagueUsers.map((user) => leagueUserSchema.parse(user));
         const strictLeagueUsers = this.undefinedToNullDeep(looseLeagueUsers);
-        const validatedUserData = strictLeagueUsers.map((user: LeagueUserSchema) => {
+        const validatedUserData = strictLeagueUsers.map((user) => {
             return {
                 displayName: user.display_name,
                 userId: user.user_id,
-                teamName: user.metadata.team_name
-            } as LeagueUser;
+                teamName: user.metadata.team_name ?? null,
+                avatarId: user.avatar
+            } satisfies RefinedLeagueUser;
         });
 
         return validatedUserData;
@@ -65,14 +64,12 @@ export class Sleeper {
         const url = `https://api.sleeper.app/v1/players/nfl`;
         const allPlayers = await this.fetchJSON(url);
 
-        if (typeof allPlayers !== 'object' || allPlayers === null) {
-            throw new Error(`Expected Object from url`);
-        }
+        this.assertObject(allPlayers);
 
-        const allPlayersArray = Object.values(allPlayers) as NFLPlayer[];
-        const looseAllPlayers = allPlayersArray.map((player: NFLPlayer) => NFLPlayerSchema.parse(player));
+        const allPlayersArray = Object.values(allPlayers);
+        const looseAllPlayers = allPlayersArray.map((player) => NFLPlayerSchema.parse(player));
         const strictAllPlayers = this.undefinedToNullDeep(looseAllPlayers);
-        const refinedPlayerData: RefinedNFLPlayer[] = strictAllPlayers.map((player) => {
+        const refinedPlayerData = strictAllPlayers.map((player) => {
             return {
                 playerId: player.player_id,
                 firstName: player.first_name,
@@ -81,30 +78,61 @@ export class Sleeper {
                 fantasyPositions: player.fantasy_positions ?? null,
                 position: player.position ?? null,
                 team: player.team ?? null
-            }
-        })
+            } satisfies RefinedNFLPlayer
+        });
 
         return refinedPlayerData;
     }
 
-    async getThisWeeksLeagueMatchups(week: number) {
+    async getThisWeeksLeagueMatchups(week: number): Promise<RefinedMatchup[]> {
         const url = `https://api.sleeper.app/v1/league/${this.leagueId}/matchups/${week}`;
         const leagueMatchups = await this.fetchJSON(url);
-        return leagueMatchups;
+
+        this.assertArray(leagueMatchups);
+
+        const looseMatchupData = leagueMatchups.map((matchup) => matchupSchema.parse(matchup));
+        const strictMatchupData = this.undefinedToNullDeep(looseMatchupData);
+        const normalizedMatchupData = strictMatchupData.map((matchup) => {
+            return {
+                starters: matchup.starters,
+                rosterId: matchup.roster_id,
+                players: matchup.players,
+                matchupId: matchup.matchup_id,
+                points: matchup.points,
+                customPoints: matchup.custom_points ?? null,
+            } satisfies RefinedMatchup
+        });
+
+        return normalizedMatchupData;
     }
 
-    async getLeaguePlayoffBracket(bracket: "winners_bracket" | "losers_bracket") {
+    async getLeaguePlayoffBracket(bracket: "winners_bracket" | "losers_bracket"): Promise<Bracket[]> {
         const url = `https://api.sleeper.app/v1/league/${this.leagueId}/${bracket}`;
         const playoffBracket = await this.fetchJSON(url);
-        return playoffBracket;
+
+        this.assertArray(playoffBracket);
+
+        const loosePlayoffBracket = playoffBracket.map((bracket) => bracketSchema.parse(bracket));
+        return this.undefinedToNullDeep(loosePlayoffBracket);
     }
 
-    async getNFLState() {
+    async getNFLState(): Promise<NFLState> {
         const url = `https://api.sleeper.app/v1/state/nfl`;
-        const nflState = await this.fetchJSON(url);
-        return nflState;
+        const NFLState = await this.fetchJSON(url);
+
+        this.assertObject(NFLState)
+
+        const looseNFLState = NFLStateSchema.parse(NFLState);
+        return this.undefinedToNullDeep(looseNFLState);
     }
 
+    public buildUserAvatarURLs(avatarId: string) {
+        const fullSizeURL = `https://sleepercdn.com/avatars/${avatarId}`;
+        const thumbnailURL = `https://sleepercdn.com/avatars/thumbs/${avatarId}`;
+        return [fullSizeURL, thumbnailURL]
+    }
+
+    // private data normalization helpers
     private undefinedToNullDeep<T>(v: T): T {
         // if value is undefined, return null as T
         if (v === undefined) return null as T;
@@ -121,6 +149,18 @@ export class Sleeper {
         }
 
         return out as T;
+    }
+
+    private assertObject(value: unknown): asserts value is Record<string | symbol, unknown> {
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error(`Expected Object, received ${typeof value}`);
+        }
+    }
+
+    private assertArray(value: unknown): asserts value is [] {
+        if (!Array.isArray(value)) {
+            throw new Error(`Expected Array, received ${typeof value}`);
+        }
     }
 
     private async fetchJSON<T>(url: string): Promise<T> {

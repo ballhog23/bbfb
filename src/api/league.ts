@@ -4,8 +4,9 @@ import { Sleeper } from '../lib/sleeper.js';
 export async function handlerLeague(_: Request, res: Response) {
 	const sleeper = new Sleeper();
 	const league = await sleeper.getLeague();
+	const nflState = await sleeper.getNFLState()
 	const data = {
-		league
+		nflState
 	};
 
 	res.send(data);
