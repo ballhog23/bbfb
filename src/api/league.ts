@@ -1,12 +1,16 @@
 import type { Request, Response } from "express";
 import { Sleeper } from '../lib/sleeper.js';
+import * as db from '../db/index.js';
 
 export async function handlerLeague(_: Request, res: Response) {
 	const sleeper = new Sleeper();
 	const league = await sleeper.getLeague();
-	const nflState = await sleeper.getNFLState()
+	const nflState = await sleeper.getNFLState();
+	const currentVersionQuery = (await db.query(`SELECT version();`)).rows[0].version
 	const data = {
-		nflState
+		nflState,
+		currentVersionQuery,
+
 	};
 
 	res.send(data);
