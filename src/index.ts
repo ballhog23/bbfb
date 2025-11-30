@@ -1,5 +1,4 @@
 import express from 'express';
-import os from "node:os";
 import { config } from './config.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { handlerLeague } from './api/league.js';

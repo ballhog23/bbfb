@@ -1,28 +1,28 @@
 // class to interact with sleeper api
-import { unknown } from "zod";
 import { config } from '../config.js';
 import { NotFoundError } from './errors.js';
 import {
     leagueUserSchema, leagueSchema,
     matchupSchema, NFLStateSchema,
     bracketSchema,
-    type RefinedLeagueUser,
-    LeagueSchema, RosterSchema, rosterSchema,
-    NFLPlayerSchema, RefinedNFLPlayer,
+    type LeagueSchema, RosterSchema, rosterSchema,
+    NFLPlayerSchema,
     NFLState, Bracket,
-    RefinedMatchup
 } from "./zod.js";
+import { type InsertLeagueUser, RefinedMatchup, InsertNFLPlayer } from "../db/schema.js";
 
 
 export class Sleeper {
     readonly leagueId = config.league.id;
+    readonly baseURL = `https://api.sleeper.app/v1/`;
 
     constructor() {
         this.leagueId = config.league.id;
+        this.baseURL = `https://api.sleeper.app/v1/`;
     }
 
     async getLeague(leagueId = this.leagueId): Promise<LeagueSchema> {
-        const url = `https://api.sleeper.app/v1/league/${leagueId}`;
+        const url = `${this.baseURL}/league/${leagueId}`;
         const leagueData = await this.fetchJSON(url);
 
         this.assertObject(leagueData);
@@ -32,7 +32,7 @@ export class Sleeper {
     }
 
     async getLeagueRosters(): Promise<RosterSchema[]> {
-        const url = `https://api.sleeper.app/v1/league/${this.leagueId}/rosters`;
+        const url = `${this.baseURL}${this.leagueId}/rosters`;
         const rosterData = await this.fetchJSON(url);
 
         this.assertArray(rosterData);
@@ -41,8 +41,8 @@ export class Sleeper {
         return this.undefinedToNullDeep(looseValidatedRosterData);
     }
 
-    async getLeagueUsers(): Promise<RefinedLeagueUser[]> {
-        const url = `https://api.sleeper.app/v1/league/${this.leagueId}/users`;
+    async getLeagueUsers(): Promise<InsertLeagueUser[]> {
+        const url = `${this.baseURL}league/${this.leagueId}/users`;
         const leagueUsers = await this.fetchJSON(url);
 
         this.assertArray(leagueUsers);
@@ -55,14 +55,14 @@ export class Sleeper {
                 userId: user.user_id,
                 teamName: user.metadata.team_name ?? null,
                 avatarId: user.avatar,
-            } satisfies RefinedLeagueUser;
+            } satisfies InsertLeagueUser;
         });
 
         return validatedUserData;
     }
 
-    async getAllPlayers(): Promise<RefinedNFLPlayer[]> {
-        const url = `https://api.sleeper.app/v1/players/nfl`;
+    async getAllPlayers(): Promise<InsertNFLPlayer[]> {
+        const url = `${this.baseURL}/players/nfl`;
         const allPlayers = await this.fetchJSON(url);
 
         this.assertObject(allPlayers);
@@ -79,14 +79,14 @@ export class Sleeper {
                 fantasyPositions: player.fantasy_positions ?? null,
                 position: player.position ?? null,
                 team: player.team ?? null
-            } satisfies RefinedNFLPlayer;
+            } satisfies InsertNFLPlayer;
         });
 
         return refinedPlayerData;
     }
 
     async getThisWeeksLeagueMatchups(week: number): Promise<RefinedMatchup[]> {
-        const url = `https://api.sleeper.app/v1/league/${this.leagueId}/matchups/${week}`;
+        const url = `${this.baseURL}/league/${this.leagueId}/matchups/${week}`;
         const leagueMatchups = await this.fetchJSON(url);
 
         this.assertArray(leagueMatchups);
@@ -108,7 +108,7 @@ export class Sleeper {
     }
 
     async getLeaguePlayoffBracket(bracket: "winners_bracket" | "losers_bracket"): Promise<Bracket[]> {
-        const url = `https://api.sleeper.app/v1/league/${this.leagueId}/${bracket}`;
+        const url = `${this.baseURL}league/${this.leagueId}/${bracket}`;
         const playoffBracket = await this.fetchJSON(url);
 
         this.assertArray(playoffBracket);
@@ -118,7 +118,7 @@ export class Sleeper {
     }
 
     async getNFLState(): Promise<NFLState> {
-        const url = `https://api.sleeper.app/v1/state/nfl`;
+        const url = `${this.baseURL}state/nfl`;
         const NFLState = await this.fetchJSON(url);
 
         this.assertObject(NFLState);
@@ -127,6 +127,20 @@ export class Sleeper {
         return this.undefinedToNullDeep(looseNFLState);
     }
 
+    public async getPreviousLeagues(league: LeagueSchema): Promise<LeagueSchema[] | null> {
+        if (!league.previous_league_id) return null;
+
+        const prevLeagues = [];
+        while (league) {
+            if (!league.previous_league_id) break;
+            league = await this.getLeague(league.previous_league_id);
+            prevLeagues.push(league);
+        }
+
+        return prevLeagues;
+    }
+
+    // data normalization helpers
     public buildUserAvatarURLs(avatarId: string): [
         `https://sleepercdn.com/avatars/thumbs/${string}`,
         `https://sleepercdn.com/avatars/${string}`
@@ -138,7 +152,6 @@ export class Sleeper {
         return [thumbnailURL, fullSizeURL];
     }
 
-    // private data normalization helpers
     private undefinedToNullDeep<T>(v: T): T {
         // if value is undefined, return null as T
         if (v === undefined) return null as T;

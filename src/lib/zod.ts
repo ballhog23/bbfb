@@ -227,12 +227,6 @@ export const leagueUserSchema = z.looseObject({
     user_id: z.string()
 });
 export type LeagueUser = z.infer<typeof leagueUserSchema>;
-export type RefinedLeagueUser = {
-    userId: string,
-    displayName: string,
-    teamName: string | null,
-    avatarId: string,
-};
 
 export const NFLPlayerSchema = z.looseObject({
     position: nullishString,
@@ -290,15 +284,6 @@ export const NFLPlayerSchema = z.looseObject({
     number: nullishNumber
 });
 export type NFLPlayer = z.infer<typeof NFLPlayerSchema>;
-export type RefinedNFLPlayer = {
-    playerId: string;
-    firstName: string;
-    lastName: string;
-    active: boolean;
-    fantasyPositions: string[] | null;
-    position: string | null;
-    team: string | null;
-};
 
 export const matchupSchema = z.looseObject({
     starters: z.array(z.string()),
@@ -309,14 +294,6 @@ export const matchupSchema = z.looseObject({
     custom_points: nullishNumber
 });
 export type Matchup = z.infer<typeof matchupSchema>;
-export type RefinedMatchup = {
-    starters: string[];
-    rosterId: number;
-    players: string[];
-    matchupId: number;
-    points: number;
-    customPoints: number | null;
-};
 
 export const NFLStateSchema = z.looseObject({
     week: z.number(),
@@ -331,11 +308,11 @@ export const NFLStateSchema = z.looseObject({
 });
 export type NFLState = z.infer<typeof NFLStateSchema>;
 
-export const bracketMatchupSchema = z.object({
+export const bracketMatchupSchema = z.looseObject({
     w: nullishNumber,
     l: nullishNumber,
 });
-export const bracketSchema = z.object({
+export const bracketSchema = z.looseObject({
     m: z.number(),
     r: z.number(),
     l: nullishNumber,

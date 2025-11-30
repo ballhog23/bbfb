@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import type { InsertLeagueUser } from "../db/schema.js";
 import { Sleeper } from '../lib/sleeper.js';
 import { respondWithJSON } from "../lib/json.js";
 import { insertLeagueUser, selectAllLeagueUsers, dropAllLeagueUsers } from "../db/queries/users.js";
