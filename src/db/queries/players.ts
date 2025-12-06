@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "../index.js";
-import { InsertNFLPlayer, NFLPlayersTable, SelectNFLPlayer } from "../schema.js";
+import { InsertNFLPlayer, NFLPlayersTable } from "../schema.js";
 import { DrizzleQueryError } from "drizzle-orm";
 
 export async function insertNFLPlayers(players: InsertNFLPlayer[]) {

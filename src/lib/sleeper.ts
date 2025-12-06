@@ -9,7 +9,7 @@ import {
     NFLPlayerSchema,
     NFLState, Bracket,
 } from "./zod.js";
-import { type InsertLeagueUser, RefinedMatchup, InsertNFLPlayer } from "../db/schema.js";
+import { type InsertLeagueUser, RefinedMatchup, InsertNFLPlayer, InsertLeague } from "../db/schema.js";
 
 
 export class Sleeper {
@@ -21,14 +21,39 @@ export class Sleeper {
         this.baseURL = `https://api.sleeper.app/v1/`;
     }
 
-    async getLeague(leagueId = this.leagueId): Promise<LeagueSchema> {
+    async getLeague(leagueId = this.leagueId): Promise<InsertLeague> {
         const url = `${this.baseURL}/league/${leagueId}`;
         const leagueData = await this.fetchJSON(url);
 
         this.assertObject(leagueData);
 
         const looseValidatedLeagueData = leagueSchema.parse(leagueData);
-        return this.undefinedToNullDeep(looseValidatedLeagueData);
+        const strictLeagueData = this.undefinedToNullDeep(looseValidatedLeagueData);
+        return {
+            leagueId: strictLeagueData.league_id,
+            status: strictLeagueData.status === 'in_season' ? true : false,
+            season: strictLeagueData.season,
+            leagueName: strictLeagueData.name,
+            avatarId: strictLeagueData.avatar,
+            previousLeagueId: strictLeagueData.previous_league_id || null,
+            rosterPositions: strictLeagueData.roster_positions,
+            totalRosters: strictLeagueData.total_rosters,
+        } satisfies InsertLeague;
+    }
+
+    public async getPreviousLeagues(league: InsertLeague): Promise<InsertLeague[] | null> {
+        if (!league.previousLeagueId) return null;
+
+        const prevLeagues: InsertLeague[] = [];
+        let current: string | null = league.previousLeagueId;
+
+        while (current !== null) {
+            const prevLeague = await this.getLeague(league.previousLeagueId);
+            prevLeagues.push(prevLeague);
+            current = prevLeague.previousLeagueId || null;
+        }
+
+        return prevLeagues;
     }
 
     async getLeagueRosters(): Promise<RosterSchema[]> {
@@ -125,19 +150,6 @@ export class Sleeper {
 
         const looseNFLState = NFLStateSchema.parse(NFLState);
         return this.undefinedToNullDeep(looseNFLState);
-    }
-
-    public async getPreviousLeagues(league: LeagueSchema): Promise<LeagueSchema[] | null> {
-        if (!league.previous_league_id) return null;
-
-        const prevLeagues = [];
-        while (league) {
-            if (!league.previous_league_id) break;
-            league = await this.getLeague(league.previous_league_id);
-            prevLeagues.push(league);
-        }
-
-        return prevLeagues;
     }
 
     // data normalization helpers

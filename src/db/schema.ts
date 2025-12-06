@@ -31,6 +31,21 @@ export const NFLPlayersTable = pgTable("nfl_players", {
 export type SelectNFLPlayer = typeof NFLPlayersTable.$inferSelect;
 export type InsertNFLPlayer = Omit<SelectNFLPlayer, "createdAt" | "updatedAt"> & Timestamps;
 
+export const leaguesTable = pgTable("leagues", {
+    leagueId: text().primaryKey().notNull(),
+    status: boolean().notNull(),
+    season: text().notNull(),
+    leagueName: text().notNull(),
+    avatarId: text().notNull(),
+    previousLeagueId: text(),
+    rosterPositions: text().array(),
+    totalRosters: integer().notNull(),
+    ...timestamps
+});
+
+export type SelectLeague = typeof leaguesTable.$inferSelect;
+export type InsertLeague = Omit<SelectLeague, "createdAt" | "updatedAt"> & Timestamps;
+
 export type RefinedMatchup = {
     starters: string[];
     rosterId: number;
