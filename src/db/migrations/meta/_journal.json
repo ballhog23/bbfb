@@ -15,6 +15,13 @@
       "when": 1765064714186,
       "tag": "0001_lonely_slapstick",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765112562284,
+      "tag": "0002_lame_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }
