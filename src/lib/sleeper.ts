@@ -56,16 +56,6 @@ export class Sleeper {
         return prevLeagues;
     }
 
-    async getLeagueRosters(): Promise<RosterSchema[]> {
-        const url = `${this.baseURL}${this.leagueId}/rosters`;
-        const rosterData = await this.fetchJSON(url);
-
-        this.assertArray(rosterData);
-
-        const looseValidatedRosterData = rosterData.map((roster) => rosterSchema.parse(roster));
-        return this.undefinedToNullDeep(looseValidatedRosterData);
-    }
-
     async getLeagueUsers(): Promise<InsertLeagueUser[]> {
         const url = `${this.baseURL}league/${this.leagueId}/users`;
         const leagueUsers = await this.fetchJSON(url);
@@ -108,6 +98,16 @@ export class Sleeper {
         });
 
         return refinedPlayerData;
+    }
+
+    async getLeagueRosters(): Promise<RosterSchema[]> {
+        const url = `${this.baseURL}${this.leagueId}/rosters`;
+        const rosterData = await this.fetchJSON(url);
+
+        this.assertArray(rosterData);
+
+        const looseValidatedRosterData = rosterData.map((roster) => rosterSchema.parse(roster));
+        return this.undefinedToNullDeep(looseValidatedRosterData);
     }
 
     async getThisWeeksLeagueMatchups(week: number): Promise<RefinedMatchup[]> {

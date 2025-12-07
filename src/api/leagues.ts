@@ -5,7 +5,7 @@ import { insertLeague, selectAllLeagues, selectLeague } from "../db/queries/leag
 import { NotFoundError } from "../lib/errors.js";
 
 
-export async function handlerLeagues(_: Request, res: Response) {
+export async function handlerGetLeagues(_: Request, res: Response) {
 	const leagues = await selectAllLeagues();
 
 	if (!leagues) {
@@ -48,6 +48,6 @@ export async function handlerInsertLeagues(_: Request, res: Response) {
 	respondWithJSON(res, 200, data);
 }
 
-type LeagueParams = {
+export type LeagueParams = {
 	leagueId: string;
 };

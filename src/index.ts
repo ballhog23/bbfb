@@ -1,8 +1,8 @@
 import express from 'express';
 import { config } from './config.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import { handlerLeagues, handlerInsertLeagues, handlerGetLeague } from './api/leagues.js';
-import { handlerPlayers, handlerInsertPlayers } from './api/players.js';
+import { handlerGetLeagues, handlerInsertLeagues, handlerGetLeague } from './api/leagues.js';
+import { handlerGetPlayers, handlerGetPlayer, handlerInsertPlayers } from './api/players.js';
 import { handlerMatchups } from './api/matchups.js';
 import { handlerPlayoffs } from './api/playoffs.js';
 import { handlerRosters } from './api/rosters.js';
@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 
 app.get('/leagues', (req, res, next) => {
-	Promise.resolve(handlerLeagues(req, res)).catch(next);
+	Promise.resolve(handlerGetLeagues(req, res)).catch(next);
 });
 
 app.get('/leagues/:leagueId', (req, res, next) => {
@@ -25,10 +25,14 @@ app.post('/leagues', (req, res, next) => {
 });
 
 app.get('/players', (req, res, next) => {
-	Promise.resolve(handlerPlayers(req, res)).catch(next);
+	Promise.resolve(handlerGetPlayers(req, res)).catch(next);
 });
 
-app.post('/players/insert', (req, res, next) => {
+app.get('/players/:playerId', (req, res, next) => {
+	Promise.resolve(handlerGetPlayer(req, res)).catch(next);
+});
+
+app.post('/players', (req, res, next) => {
 	Promise.resolve(handlerInsertPlayers(req, res)).catch(next);
 });
 
