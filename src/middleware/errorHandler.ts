@@ -6,6 +6,7 @@ import {
 	UserForbiddenError,
 	NotFoundError,
 } from '../lib/errors.js';
+import { error } from "console";
 
 export async function errorHandler(
 	err: Error,

@@ -48,7 +48,7 @@ export class Sleeper {
         let current: string | null = league.previousLeagueId;
 
         while (current !== null) {
-            const prevLeague = await this.getLeague(league.previousLeagueId);
+            const prevLeague = await this.getLeague(current);
             prevLeagues.push(prevLeague);
             current = prevLeague.previousLeagueId || null;
         }

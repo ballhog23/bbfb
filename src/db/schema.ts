@@ -38,7 +38,7 @@ export const leaguesTable = pgTable("leagues", {
     leagueName: text().notNull(),
     avatarId: text().notNull(),
     previousLeagueId: text(),
-    rosterPositions: text().array(),
+    rosterPositions: text().array().notNull(),
     totalRosters: integer().notNull(),
     ...timestamps
 });

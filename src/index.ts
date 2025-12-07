@@ -1,7 +1,7 @@
 import express from 'express';
 import { config } from './config.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import { handlerLeague } from './api/league.js';
+import { handlerLeagues, handlerInsertLeagues, handlerGetLeague } from './api/leagues.js';
 import { handlerPlayers, handlerInsertPlayers } from './api/players.js';
 import { handlerMatchups } from './api/matchups.js';
 import { handlerPlayoffs } from './api/playoffs.js';
@@ -12,8 +12,16 @@ import { handlerUsers, handlerUsersDelete, handlerUsersInsert } from './api/user
 const app = express();
 app.use(express.json());
 
-app.get('/league', (req, res, next) => {
-	Promise.resolve(handlerLeague(req, res)).catch(next);
+app.get('/leagues', (req, res, next) => {
+	Promise.resolve(handlerLeagues(req, res)).catch(next);
+});
+
+app.get('/leagues/:leagueId', (req, res, next) => {
+	Promise.resolve(handlerGetLeague(req, res)).catch(next);
+});
+
+app.post('/leagues', (req, res, next) => {
+	Promise.resolve(handlerInsertLeagues(req, res)).catch(next);
 });
 
 app.get('/players', (req, res, next) => {
