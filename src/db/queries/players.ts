@@ -5,7 +5,7 @@ import { InsertNFLPlayer, NFLPlayersTable } from "../schema.js";
 
 export async function insertNFLPlayers(players: InsertNFLPlayer[]) {
     const chunkLength = 1000;
-    for (let i = 0, j = 0; i < players.length; i += chunkLength, j++) {
+    for (let i = 0; i < players.length; i += chunkLength) {
         const currentChunk = players.slice(i, i + chunkLength);
         await insertNFLPlayerChunk(currentChunk);
     }
