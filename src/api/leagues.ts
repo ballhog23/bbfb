@@ -37,12 +37,7 @@ export async function handlerInsertLeagues(_: Request, res: Response) {
 	const sleeper = new Sleeper();
 	const league = await sleeper.getLeague();
 	const prevLeagues = await sleeper.getPreviousLeagues(league);
-	const allLeagues = [league];
-
-	if (prevLeagues) {
-		allLeagues.push(...prevLeagues);
-	}
-
+	const allLeagues = [league, ...(prevLeagues ?? [])];
 	const result = await insertLeague(allLeagues);
 
 	const data = {
