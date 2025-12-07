@@ -5,7 +5,7 @@ import { handlerGetLeagues, handlerInsertLeagues, handlerGetLeague } from './api
 import { handlerGetPlayers, handlerGetPlayer, handlerInsertPlayers } from './api/players.js';
 import { handlerMatchups } from './api/matchups.js';
 import { handlerPlayoffs } from './api/playoffs.js';
-import { handlerRosters } from './api/rosters.js';
+import { handlerGetRosters, handlerGetRoster, handlerInsertRosters } from './api/rosters.js';
 import { handlerUsers, handlerUsersDelete, handlerUsersInsert } from './api/users.js';
 
 
@@ -45,7 +45,15 @@ app.get('/playoffs', (req, res, next) => {
 });
 
 app.get('/rosters', (req, res, next) => {
-	Promise.resolve(handlerRosters(req, res)).catch(next);
+	Promise.resolve(handlerGetRosters(req, res)).catch(next);
+});
+
+app.get('/rosters/:rosterId', (req, res, next) => {
+	Promise.resolve(handlerGetRoster(req, res)).catch(next);
+});
+
+app.post('/rosters', (req, res, next) => {
+	Promise.resolve(handlerInsertRosters(req, res)).catch(next);
 });
 
 app.get('/users', (req, res, next) => {

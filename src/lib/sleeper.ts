@@ -1,15 +1,22 @@
 // class to interact with sleeper api
-import { config } from '../config.js';
-import { NotFoundError } from './errors.js';
+import {
+    type InsertLeagueUser,
+    RefinedMatchup,
+    InsertNFLPlayer,
+    InsertLeague,
+    InsertRoster,
+    SelectLeague
+} from "../db/schema.js";
 import {
     leagueUserSchema, leagueSchema,
     matchupSchema, NFLStateSchema,
-    bracketSchema,
-    type LeagueSchema, RosterSchema, rosterSchema,
-    NFLPlayerSchema,
-    NFLState, Bracket,
+    bracketSchema, NFLPlayerSchema,
+    rosterSchema,
+    type NFLState,
+    Bracket,
 } from "./zod.js";
-import { type InsertLeagueUser, RefinedMatchup, InsertNFLPlayer, InsertLeague } from "../db/schema.js";
+import { config } from '../config.js';
+import { NotFoundError } from './errors.js';
 
 
 export class Sleeper {
@@ -62,9 +69,9 @@ export class Sleeper {
 
         this.assertArray(leagueUsers);
 
-        const looseLeagueUsers = leagueUsers.map((user) => leagueUserSchema.parse(user));
+        const looseLeagueUsers = leagueUsers.map(user => leagueUserSchema.parse(user));
         const strictLeagueUsers = this.undefinedToNullDeep(looseLeagueUsers);
-        const validatedUserData = strictLeagueUsers.map((user) => {
+        const validatedUserData = strictLeagueUsers.map(user => {
             return {
                 displayName: user.display_name,
                 userId: user.user_id,
@@ -83,9 +90,9 @@ export class Sleeper {
         this.assertObject(allPlayers);
 
         const allPlayersArray = Object.values(allPlayers);
-        const looseAllPlayers = allPlayersArray.map((player) => NFLPlayerSchema.parse(player));
+        const looseAllPlayers = allPlayersArray.map(player => NFLPlayerSchema.parse(player));
         const strictAllPlayers = this.undefinedToNullDeep(looseAllPlayers);
-        const refinedPlayerData = strictAllPlayers.map((player) => {
+        const refinedPlayerData = strictAllPlayers.map(player => {
             return {
                 playerId: player.player_id,
                 firstName: player.first_name,
@@ -100,14 +107,52 @@ export class Sleeper {
         return refinedPlayerData;
     }
 
-    async getLeagueRosters(): Promise<RosterSchema[]> {
-        const url = `${this.baseURL}${this.leagueId}/rosters`;
+    private async getLeagueRosters(leagueId = this.leagueId): Promise<Array<Omit<InsertRoster, "season">>> {
+        const url = `${this.baseURL}league/${leagueId}/rosters`;
         const rosterData = await this.fetchJSON(url);
 
         this.assertArray(rosterData);
 
-        const looseValidatedRosterData = rosterData.map((roster) => rosterSchema.parse(roster));
-        return this.undefinedToNullDeep(looseValidatedRosterData);
+        const looseRosterData = rosterData.map((roster) => rosterSchema.parse(roster));
+        const strictRosterData = this.undefinedToNullDeep(looseRosterData);
+        const refinedRosterData = strictRosterData.map(roster => {
+            return {
+                rosterId: roster.roster_id,
+                ownerId: roster.owner_id,
+                leagueId: roster.league_id,
+                starters: roster.starters,
+                wins: roster.settings.wins,
+                ties: roster.settings.ties,
+                losses: roster.settings.losses,
+                fptsAgainst: roster.settings.fpts_against,
+                fpts: roster.settings.fpts,
+                players: roster.players,
+                reserve: roster.reserve ?? null,
+                streak: roster.metadata?.streak ?? null,
+                record: roster.metadata?.record ?? null,
+            } satisfies Omit<InsertRoster, "season">;
+        });
+
+        return refinedRosterData;
+    }
+
+    public async getAllRosters(leagues: SelectLeague[]): Promise<InsertRoster[]> {
+        const allLeagueRosters: InsertRoster[] = [];
+
+        for (const league of leagues) {
+            const leagueRosters = await this.getLeagueRosters(league.leagueId);
+            allLeagueRosters.push(
+                ...leagueRosters.map(roster => {
+                    return {
+                        ...roster,
+                        season: league.season
+                    } satisfies InsertRoster;
+                })
+            );
+
+        }
+
+        return allLeagueRosters;
     }
 
     async getThisWeeksLeagueMatchups(week: number): Promise<RefinedMatchup[]> {

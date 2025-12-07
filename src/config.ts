@@ -41,7 +41,7 @@ export const config: Config = {
 		port: Number(envOrThrow('PORT')),
 	},
 	league: {
-		id: envOrThrow('LEAGUEID'),
+		id: envOrThrow('LEAGUE_ID'),
 	},
 	db: {
 		url: envOrThrow('DB_URL'),

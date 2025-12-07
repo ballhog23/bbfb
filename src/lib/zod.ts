@@ -24,14 +24,14 @@ const nullishNumber = z.nullish(z.number());
 export const leagueSchema = z.looseObject({
     name: z.string(),
     status: z.string(),
-    metadata: z.object({
+    metadata: z.looseObject({
         auto_continue: nullishString,
         division_1: z.string(),
         division_2: z.string(),
         keeper_deadline: nullishString,
         squad_id: z.string()
     }),
-    settings: z.object({
+    settings: z.looseObject({
         best_ball: z.number(),
         last_report: z.number(),
         waiver_budget: z.number(),
@@ -91,7 +91,7 @@ export const leagueSchema = z.looseObject({
     season: z.string(),
     season_type: z.string(),
     sport: z.string(),
-    scoring_settings: z.object({
+    scoring_settings: z.looseObject({
         sack: z.number(),
         fgm_40_49: z.number(),
         pass_int: z.number(),
@@ -160,7 +160,7 @@ export type LeagueSchema = z.infer<typeof leagueSchema>;
 
 export const rosterSchema = z.looseObject({
     starters: z.array(z.string()),
-    settings: z.object({
+    settings: z.looseObject({
         wins: z.number(),
         waiver_position: z.number(),
         waiver_budget_used: z.number(),
@@ -176,7 +176,11 @@ export const rosterSchema = z.looseObject({
     reserve: nullishStringArray,
     players: z.array(z.string()),
     owner_id: z.string(),
-    league_id: z.string()
+    league_id: z.string(),
+    metadata: z.looseObject({
+        record: nullishString,
+        streak: nullishString
+    }),
 });
 export type RosterSchema = z.infer<typeof rosterSchema>;
 
@@ -186,7 +190,7 @@ export const leagueUserSchema = z.looseObject({
     is_bot: z.boolean(),
     is_owner: z.boolean(),
     league_id: z.string(),
-    metadata: z.object({
+    metadata: z.looseObject({
         allow_pn: z.string(),
         mascot_item_type_id_leg_13: nullishString,
         team_name_update: nullishString,
