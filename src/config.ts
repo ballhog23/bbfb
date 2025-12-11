@@ -19,10 +19,6 @@ type LeagueConfig = {
 
 type DBConfig = {
 	url: string;
-	max: number;
-	idleTimeoutMillis: number;
-	connectionTimeoutMillis: number;
-	maxLifetimeSeconds: number;
 	host?: string;
 	dbname?: string;
 	user?: string;
@@ -45,9 +41,5 @@ export const config: Config = {
 	},
 	db: {
 		url: envOrThrow('DB_URL'),
-		max: 20,
-		idleTimeoutMillis: 30000,
-		connectionTimeoutMillis: 2000,
-		maxLifetimeSeconds: 60
 	}
 };
