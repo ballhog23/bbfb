@@ -6,7 +6,7 @@ import {
 	UserForbiddenError,
 	NotFoundError,
 } from '../lib/errors.js';
-import { error } from "console";
+import { DrizzleError, DrizzleQueryError } from "drizzle-orm";
 
 export async function errorHandler(
 	err: Error,
@@ -29,11 +29,13 @@ export async function errorHandler(
 	} else if (err instanceof NotFoundError) {
 		message = err.message;
 		statusCode = 404;
+	} else if (err instanceof DrizzleError || err instanceof DrizzleQueryError) {
+		console.error(err.cause);
+		message = `CAUSE: ${err.cause}`;
 	}
 
 	if (statusCode >= 500) {
-		console.log(err.message);
+		console.error(err.message);
 	}
-
 	respondWithError(res, statusCode, message);
 }

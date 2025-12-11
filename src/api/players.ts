@@ -1,12 +1,11 @@
 import type { Request, Response } from "express";
-import { Sleeper } from '../lib/sleeper.js';
 import { respondWithJSON } from "../lib/json.js";
-import { insertNFLPlayers, selectAllNFLPlayers, selectNFLPlayer } from "../db/queries/players.js";
 import { NotFoundError } from "../lib/errors.js";
+import { dropAllNFLPlayers, insertNFLPlayers, selectAllNFLPlayers, selectNFLPlayer } from "../db/queries/players.js";
+import { buildAllNFLPlayers } from "../services/playersService.js";
 
 export async function handlerInsertPlayers(_: Request, res: Response) {
-    const sleeper = new Sleeper();
-    const players = await sleeper.getAllPlayers();
+    const players = await buildAllNFLPlayers();
     await insertNFLPlayers(players);
 
     respondWithJSON(res, 201, { status: 'players inserted, success' });
@@ -14,6 +13,8 @@ export async function handlerInsertPlayers(_: Request, res: Response) {
 
 export async function handlerGetPlayers(_: Request, res: Response) {
     const players = await selectAllNFLPlayers();
+    if (players.length === 0) throw new NotFoundError("No players found.");
+
     const filteredTeam = players.sort((a, b) => {
         const teamA = a.team ?? "";
         const teamB = b.team ?? "";
@@ -38,6 +39,12 @@ export async function handlerGetPlayer(req: Request<PlayerParams>, res: Response
         player,
         status: 'success'
     });
+}
+
+export async function handlerDeleteNFLPlayers(_: Request, res: Response) {
+    await dropAllNFLPlayers();
+
+    respondWithJSON(res, 200, 'deleted all users');
 }
 
 export type PlayerParams = {

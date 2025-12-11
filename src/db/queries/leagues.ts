@@ -2,6 +2,7 @@ import { sql, eq } from "drizzle-orm";
 import { db } from "../index.js";
 import { leaguesTable, SelectLeague, type InsertLeague } from '../schema.js';
 
+// we will rethink the initial insertion vs future insertion later on
 export async function insertLeague(league: InsertLeague[]) {
     const result = await db
         .insert(leaguesTable)
@@ -22,7 +23,7 @@ export async function insertLeague(league: InsertLeague[]) {
     return result;
 }
 
-export async function selectAllLeagues(): Promise<SelectLeague[]> {
+export async function selectAllLeagues() {
     const rows = await db
         .select()
         .from(leaguesTable);
@@ -30,11 +31,15 @@ export async function selectAllLeagues(): Promise<SelectLeague[]> {
     return rows;
 }
 
-export async function selectLeague(leagueId: string): Promise<SelectLeague[]> {
-    const rows = await db
+export async function selectLeague(leagueId: SelectLeague["leagueId"]) {
+    const [rows] = await db
         .select()
         .from(leaguesTable)
         .where(eq(leaguesTable.leagueId, leagueId));
 
     return rows;
+}
+
+export async function dropAllLeagues() {
+    await db.delete(leaguesTable);
 }

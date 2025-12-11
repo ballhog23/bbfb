@@ -3,6 +3,10 @@ import { sql, eq } from "drizzle-orm";
 import { db } from "../index.js";
 import { InsertNFLPlayer, NFLPlayersTable } from "../schema.js";
 
+// we need to reevaluate the approach for inserting nfl players.
+// the data set is large enough to consider batching.
+// each player is the atomic unit, but we are currently treating a batch of 1k players as the atomic unit
+// we will need hit the players endpoint daily to ensure data regarding players is up to date (injuries etc.)
 export async function insertNFLPlayers(players: InsertNFLPlayer[]) {
     const chunkLength = 1000;
     for (let i = 0; i < players.length; i += chunkLength) {
@@ -46,4 +50,8 @@ export async function selectNFLPlayer(playerId: PlayerParams["playerId"]) {
         .where(eq(NFLPlayersTable.playerId, playerId));
 
     return result;
+}
+
+export async function dropAllNFLPlayers() {
+    await db.delete(NFLPlayersTable);
 }

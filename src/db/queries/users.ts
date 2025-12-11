@@ -1,9 +1,12 @@
+import type { LeagueUserParams } from "../../api/users.js";
 import { usersTable, type InsertLeagueUser } from '../schema.js';
 import { db } from '../index.js';
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 
+// we will rethink the initial insertion vs future insertion later on
 export async function insertLeagueUser(user: InsertLeagueUser) {
-    const result = await db
+
+    const [result] = await db
         .insert(usersTable)
         .values(user)
         .onConflictDoUpdate({
@@ -21,6 +24,15 @@ export async function insertLeagueUser(user: InsertLeagueUser) {
 
 export async function selectAllLeagueUsers() {
     return await db.select().from(usersTable);
+}
+
+export async function selectLeagueUser(userId: LeagueUserParams["userId"]) {
+    const [result] = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.userId, userId));
+
+    return result;
 }
 
 export async function dropAllLeagueUsers() {
