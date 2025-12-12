@@ -32,6 +32,11 @@ const optionalNullableNumber = z.optional(nullableNumber);
 const recordKeys = z.union([z.string(), z.number(), z.symbol()]);
 const looseUnknowObject = z.record(recordKeys, z.unknown());
 
+/**
+ * why two similar schemas?
+ * the first schema is what sleeper sends, we loosely validate it.
+ * we replace an undefined values with null and then we parse our normalized data against the nullableSchema
+ */
 export const rawLeagueSchema = z.looseObject({
     league_id: z.string(),
     status: z.string(),
@@ -100,7 +105,6 @@ export const rawNFLPlayerSchema = z.looseObject({
     age: nullishNumber,
     injury_status: nullishString, // everything above is required
 });
-
 export const nullableRawNFLPlayerSchema = z.looseObject({
     player_id: z.string(),
     first_name: z.string(),
@@ -113,6 +117,7 @@ export const nullableRawNFLPlayerSchema = z.looseObject({
     age: nullishNumber,
     injury_status: nullableString, // everything above is required
 });
+
 export type RawNFLPlayer = z.infer<typeof rawNFLPlayerSchema>;
 export type NullableRawNFLPlayer = z.infer<typeof nullableRawNFLPlayerSchema>;
 
