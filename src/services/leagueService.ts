@@ -1,5 +1,5 @@
 import type { InsertLeague } from "../db/schema.js";
-import type { RawLeague } from "../lib/zod.js";
+import { nullableRawLeagueSchema, type RawLeague, NullableRawLeague } from "../lib/zod.js";
 import { Sleeper } from "../lib/sleeper.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 
@@ -8,23 +8,25 @@ export async function buildLeagueHistory() {
     const rawCurrentLeague = await sleeper.getLeague();
     const rawPreviousLeagues = await getPreviousLeagues(rawCurrentLeague);
     const rawAllLeagues = [rawCurrentLeague, ...(rawPreviousLeagues ?? [])];
-    const strictAllLeagues = undefinedToNullDeep(rawAllLeagues);
+    const nullableAllLeagues = undefinedToNullDeep(rawAllLeagues);
+    const strictAllLeagues = nullableAllLeagues.map(league => nullableRawLeagueSchema.parse(league));
 
     return strictAllLeagues.map(league => {
         const statusString = normalizeString(league.status);
-        const leagueStatus = statusString === 'in_season' || statusString === "post_season" ? true : false;
+        const status = statusString === 'in_season' || statusString === "post_season" ? true : false;
         const rosterPositions = league.roster_positions.map(position => normalizeString(position));
+        const previousLeagueId = league.previous_league_id ? normalizeString(league.previous_league_id) : null;
 
         return {
             leagueId: normalizeString(league.league_id),
+            status,
             season: normalizeString(league.season),
-            status: leagueStatus,
             leagueName: normalizeString(league.name),
-            draftId: normalizeString(league.draft_id),
-            totalRosters: league.total_rosters,
-            rosterPositions: rosterPositions,
             avatarId: normalizeString(league.avatar),
-            previousLeagueId: league.previous_league_id ? normalizeString(league.previous_league_id) : null,
+            previousLeagueId,
+            draftId: normalizeString(league.draft_id),
+            rosterPositions,
+            totalRosters: league.total_rosters,
         } satisfies InsertLeague;
     });
 }

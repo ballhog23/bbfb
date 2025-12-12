@@ -6,7 +6,7 @@ import { handlerGetPlayers, handlerGetPlayer, handlerInsertPlayers, handlerDelet
 import { handlerGetUsers, handlerGetUser, handlerInsertUsers, handlerDeleteUsers } from './api/users.js';
 import { handlerMatchups } from './api/matchups.js';
 import { handlerPlayoffs } from './api/playoffs.js';
-import { handlerGetRosters, handlerGetRoster, handlerInsertRosters } from './api/rosters.js';
+import { handlerGetRosters, handlerGetRoster } from './api/rosters.js';
 
 
 const app = express();

@@ -7,32 +7,30 @@ import { InsertNFLPlayer, NFLPlayersTable } from "../schema.js";
 // the data set is large enough to consider batching.
 // each player is the atomic unit, but we are currently treating a batch of 1k players as the atomic unit
 // we will need hit the players endpoint daily to ensure data regarding players is up to date (injuries etc.)
-export async function insertNFLPlayers(players: InsertNFLPlayer[]) {
-    const chunkLength = 1000;
-    for (let i = 0; i < players.length; i += chunkLength) {
-        const currentChunk = players.slice(i, i + chunkLength);
-        await insertNFLPlayerChunk(currentChunk);
-    }
-}
+// we will for simplicitly sake just use a simple insert/upsert.
+// if performance is an issue we will look into optimizations
+// e.g., batching techniques for large datasets where each row needs to be treated as atomic
+export async function insertNFLPlayer(players: InsertNFLPlayer) {
+    const [result] = await db
+        .insert(NFLPlayersTable)
+        .values(players)
+        .onConflictDoUpdate({
+            target: NFLPlayersTable.playerId,
+            set: {
+                firstName: sql`EXCLUDED.first_name`,
+                lastName: sql`EXCLUDED.last_name`,
+                active: sql`EXCLUDED.active`,
+                fantasyPositions: sql`EXCLUDED.fantasy_positions`,
+                position: sql`EXCLUDED.position`,
+                team: sql`EXCLUDED.team`,
+                number: sql`EXCLUDED.number`,
+                age: sql`EXCLUDED.age`,
+                injuryStatus: sql`EXCLUDED.injury_status`,
+            }
+        })
+        .returning();
 
-async function insertNFLPlayerChunk(players: InsertNFLPlayer[]) {
-
-    await db.transaction(async (tx) => {
-        await tx
-            .insert(NFLPlayersTable)
-            .values(players)
-            .onConflictDoUpdate({
-                target: NFLPlayersTable.playerId,
-                set: {
-                    firstName: sql`EXCLUDED.first_name`,
-                    lastName: sql`EXCLUDED.last_name`,
-                    active: sql`EXCLUDED.active`,
-                    fantasyPositions: sql`EXCLUDED.fantasy_positions`,
-                    position: sql`EXCLUDED.position`,
-                    team: sql`EXCLUDED.team`,
-                }
-            });
-    });
+    return result;
 }
 
 export async function selectAllNFLPlayers() {

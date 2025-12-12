@@ -6,6 +6,9 @@ CREATE TABLE "nfl_players" (
 	"fantasy_positions" text[],
 	"position" text,
 	"team" text,
+	"number" integer,
+	"age" integer,
+	"injury_status" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -29,7 +32,7 @@ CREATE TABLE "rosters" (
 	"owner_id" text NOT NULL,
 	"league_id" text NOT NULL,
 	"season" text NOT NULL,
-	"roster_id" text NOT NULL,
+	"roster_id" integer NOT NULL,
 	"starters" text[] NOT NULL,
 	"wins" integer NOT NULL,
 	"ties" integer NOT NULL,

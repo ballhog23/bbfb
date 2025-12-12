@@ -6,7 +6,11 @@ import { NotFoundError } from "../lib/errors.js";
 
 export async function handlerInsertLeagues(_: Request, res: Response) {
 	const leagues = await buildLeagueHistory();
-	await insertLeague(leagues);
+
+	for (const league of leagues) {
+		await insertLeague(league);
+	}
+
 	const data = {
 		status: 'ok',
 		leagues
@@ -17,7 +21,6 @@ export async function handlerInsertLeagues(_: Request, res: Response) {
 
 export async function handlerGetLeagues(_: Request, res: Response) {
 	const leagues = await selectAllLeagues();
-	console.log(leagues);
 	if (leagues.length === 0) throw new NotFoundError('No leagues found.');
 
 	const data = {

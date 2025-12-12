@@ -1,5 +1,5 @@
 {
-  "id": "f8893185-106a-4df3-a253-0c8ca91776d7",
+  "id": "79d47a76-43d7-476b-a0a4-8f35db56c878",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -46,6 +46,24 @@
         },
         "team": {
           "name": "team",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "number": {
+          "name": "number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "age": {
+          "name": "age",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "injury_status": {
+          "name": "injury_status",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -186,7 +204,7 @@
         },
         "roster_id": {
           "name": "roster_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },

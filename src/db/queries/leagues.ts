@@ -2,8 +2,7 @@ import { sql, eq } from "drizzle-orm";
 import { db } from "../index.js";
 import { leaguesTable, SelectLeague, type InsertLeague } from '../schema.js';
 
-// we will rethink the initial insertion vs future insertion later on
-export async function insertLeague(league: InsertLeague[]) {
+export async function insertLeague(league: InsertLeague) {
     const result = await db
         .insert(leaguesTable)
         .values(league)

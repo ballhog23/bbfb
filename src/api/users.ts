@@ -6,12 +6,12 @@ import { NotFoundError } from "../lib/errors.js";
 
 export async function handlerInsertUsers(_: Request, res: Response) {
     const allLeagueUsers = await buildLeagueUsersHistory();
-    const returnedData = [];
+
     for (const user of allLeagueUsers) {
-        returnedData.push(await insertLeagueUser(user));
+        await insertLeagueUser(user);
     }
 
-    respondWithJSON(res, 201, { message: 'updated users', returnedData });
+    respondWithJSON(res, 201, { message: 'updated users', allLeagueUsers });
 }
 
 export async function handlerGetUsers(_: Request, res: Response) {

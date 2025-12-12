@@ -1,12 +1,15 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
 import { NotFoundError } from "../lib/errors.js";
-import { dropAllNFLPlayers, insertNFLPlayers, selectAllNFLPlayers, selectNFLPlayer } from "../db/queries/players.js";
+import { dropAllNFLPlayers, insertNFLPlayer, selectAllNFLPlayers, selectNFLPlayer } from "../db/queries/players.js";
 import { buildAllNFLPlayers } from "../services/playersService.js";
 
 export async function handlerInsertPlayers(_: Request, res: Response) {
     const players = await buildAllNFLPlayers();
-    await insertNFLPlayers(players);
+
+    for (const player of players) {
+        await insertNFLPlayer(player);
+    }
 
     respondWithJSON(res, 201, { status: 'players inserted, success' });
 }

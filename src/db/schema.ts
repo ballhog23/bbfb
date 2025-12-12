@@ -54,6 +54,9 @@ export const NFLPlayersTable = pgTable("nfl_players", {
     fantasyPositions: text().array(),
     position: text(),
     team: text(),
+    number: integer(),
+    age: integer(),
+    injuryStatus: text(),
     ...timestamps
 });
 
@@ -73,7 +76,7 @@ export const rostersTable = pgTable("rosters", {
         .references(() => leaguesTable.leagueId, { onDelete: "cascade" })
         .notNull(),
     season: text().notNull(),
-    rosterId: text().notNull(),
+    rosterId: integer().notNull(),
     starters: text().array().notNull(), // curious as to what happens if someone does not have any starters in lineup
     wins: integer().notNull(),
     ties: integer().notNull(),
