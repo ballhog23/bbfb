@@ -1,3 +1,17 @@
+import type { Request, Response, NextFunction, RequestHandler } from "express";
+
+export type AsyncRequestHandler<P = Record<string, any>> = (
+    req: Request<P>,
+    res: Response,
+    next: NextFunction
+) => Promise<void>;
+
+export const asyncHandler = <P = Record<string, any>>(fn: AsyncRequestHandler<P>): RequestHandler => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        Promise.resolve(fn(req as Request<P>, res, next)).catch(next);
+    };
+};
+
 export function undefinedToNullDeep<T>(v: T): T {
     // if value is undefined, return null as T
     if (v === undefined) return null as T;
@@ -16,17 +30,6 @@ export function undefinedToNullDeep<T>(v: T): T {
     return out as T;
 }
 
-export function buildUserAvatarURLs(avatarId: string): [
-    `https://sleepercdn.com/avatars/thumbs/${string}`,
-    `https://sleepercdn.com/avatars/${string}`
-] {
-    const thumbnailURL =
-        `https://sleepercdn.com/avatars/thumbs/${avatarId}` as `https://sleepercdn.com/avatars/thumbs/${string}`;
-    const fullSizeURL =
-        `https://sleepercdn.com/avatars/${avatarId}` as `https://sleepercdn.com/avatars/${string}`;
-    return [thumbnailURL, fullSizeURL];
-}
-
 export function normalizeString(string: string) {
     if (typeof string !== "string") throw new TypeError(`Expected string value, recieved ${typeof string}`);
     if (string.length === 0) return "";
@@ -40,3 +43,14 @@ export function normalizeString(string: string) {
     return normalized;
 }
 
+export function buildUserAvatarURLs(avatarId: string): AvatarURLs {
+    if (avatarId.length === 0) throw new Error('You must pass a valid string greater than 0 in length');
+    return [
+        `https://sleepercdn.com/avatars/thumbs/${avatarId}`,
+        `https://sleepercdn.com/avatars/${avatarId}`
+    ] satisfies AvatarURLs;
+}
+
+type ThumbURL = `https://sleepercdn.com/avatars/thumbs/${string}`;
+type FullURL = `https://sleepercdn.com/avatars/${string}`;
+type AvatarURLs = [ThumbURL, FullURL];

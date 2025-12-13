@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { buildLeagueUsersHistory } from "../services/usersService.js";
-import { insertLeagueUser, selectLeagueUser, selectAllLeagueUsers, dropAllLeagueUsers } from "../db/queries/users.js";
+import { buildLeagueUsersHistory, isLeagueUserActive } from "../services/usersService.js";
+import { insertLeagueUser, selectLeagueUser, selectAllLeagueUsers, dropAllLeagueUsers, updateLeagueUserStatus } from "../db/queries/users.js";
 import { NotFoundError } from "../lib/errors.js";
 
 export async function handlerInsertUsers(_: Request, res: Response) {
@@ -9,6 +9,12 @@ export async function handlerInsertUsers(_: Request, res: Response) {
 
     for (const user of allLeagueUsers) {
         await insertLeagueUser(user);
+    }
+
+    const markCurrentLeagueUser = await isLeagueUserActive();
+
+    for (const leagueUserToMark of markCurrentLeagueUser) {
+        await updateLeagueUserStatus(leagueUserToMark);
     }
 
     respondWithJSON(res, 201, { message: 'updated users', allLeagueUsers });

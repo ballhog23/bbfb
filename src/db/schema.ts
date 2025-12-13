@@ -32,18 +32,28 @@ export const leaguesTable = pgTable("leagues", {
 ]);
 
 export type SelectLeague = typeof leaguesTable.$inferSelect;
-export type InsertLeague = Omit<SelectLeague, "createdAt" | "updatedAt"> & Timestamps;
+export type InsertLeague = typeof leaguesTable.$inferInsert;
 
 export const usersTable = pgTable("users", {
     userId: text().primaryKey().notNull(),
     displayName: text().notNull(),
     teamName: text(),
     avatarId: text().notNull(),
+    isActive: boolean().notNull(),
     ...timestamps
 });
 
 export type SelectLeagueUser = typeof usersTable.$inferSelect;
-export type InsertLeagueUser = Omit<SelectLeagueUser, "createdAt" | "updatedAt"> & Timestamps;
+export type StrictInsertLeagueUser = Omit<SelectLeagueUser, "createdAt" | "updatedAt">;
+export type InsertLeagueUser = {
+    userId: string;
+    displayName?: string;
+    teamName?: string | null;
+    avatarId?: string;
+    isActive?: boolean;
+};
+
+
 // a cool feature will be to extract all player nicknames from league rosters
 // tie them to id here, and store as array of strings
 export const NFLPlayersTable = pgTable("nfl_players", {

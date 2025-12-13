@@ -1,10 +1,10 @@
 import type { LeagueUserParams } from "../../api/users.js";
-import { usersTable, type InsertLeagueUser } from '../schema.js';
+import { usersTable, type InsertLeagueUser, StrictInsertLeagueUser } from '../schema.js';
 import { db } from '../index.js';
 import { sql, eq } from "drizzle-orm";
 
-// we will rethink the initial insertion vs future insertion later on
-export async function insertLeagueUser(user: InsertLeagueUser) {
+// handles initial insertion/sync
+export async function insertLeagueUser(user: StrictInsertLeagueUser) {
 
     const [result] = await db
         .insert(usersTable)
@@ -14,9 +14,21 @@ export async function insertLeagueUser(user: InsertLeagueUser) {
             set: {
                 displayName: sql`EXCLUDED.display_name`,
                 teamName: sql`EXCLUDED.team_name`,
-                avatarId: sql`EXCLUDED.avatar_id`
+                avatarId: sql`EXCLUDED.avatar_id`,
+                isActive: sql`EXCLUDED.is_active`,
             }
         })
+        .returning();
+
+    return result;
+}
+
+// handles updating of isActive state
+export async function updateLeagueUserStatus(user: StrictInsertLeagueUser) {
+    const [result] = await db
+        .update(usersTable)
+        .set({ isActive: user.isActive })
+        .where(eq(usersTable.userId, user.userId))
         .returning();
 
     return result;

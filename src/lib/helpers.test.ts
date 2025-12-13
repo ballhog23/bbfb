@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
-import { normalizeString, undefinedToNullDeep } from "./helpers.js";
+import { describe, expect, test, it } from "vitest";
+import { normalizeString, undefinedToNullDeep, buildUserAvatarURLs } from "./helpers.js";
 
 describe("string normalization", () => {
     // Passing string test cases with expected normalized output
@@ -159,5 +159,57 @@ describe("undefinedToNullDeep", () => {
 
         expect(output).toEqual({ b: "x" });
         expect(output).not.toHaveProperty("a");
+    });
+});
+
+describe("buildUserAvatarURLs", () => {
+    it("returns correct URLs for a normal avatar ID", () => {
+        const avatarId = "91cef337aed16e049637b7bdf164e711";
+        const [thumb, full] = buildUserAvatarURLs(avatarId);
+
+        expect(thumb).toBe(`https://sleepercdn.com/avatars/thumbs/${avatarId}`);
+        expect(full).toBe(`https://sleepercdn.com/avatars/${avatarId}`);
+    });
+
+    it("returns a tuple of length 2", () => {
+        const result = buildUserAvatarURLs("abc");
+        expect(result).toHaveLength(2);
+    });
+
+    it("throws an error for empty string avatar ID", () => {
+        expect(() => buildUserAvatarURLs("")).toThrowError(
+            "You must pass a valid string greater than 0 in length"
+        );
+    });
+
+    it("supports avatar ID with special characters", () => {
+        const avatarId = "a/b+c@d_e";
+        const [thumb, full] = buildUserAvatarURLs(avatarId);
+        expect(thumb).toBe(`https://sleepercdn.com/avatars/thumbs/${avatarId}`);
+        expect(full).toBe(`https://sleepercdn.com/avatars/${avatarId}`);
+    });
+
+    it("supports very long avatar IDs", () => {
+        const avatarId = "x".repeat(1000);
+        const [thumb, full] = buildUserAvatarURLs(avatarId);
+        expect(thumb).toBe(`https://sleepercdn.com/avatars/thumbs/${avatarId}`);
+        expect(full).toBe(`https://sleepercdn.com/avatars/${avatarId}`);
+    });
+
+    it("supports numeric-like string IDs", () => {
+        const avatarId = "1234567890";
+        const [thumb, full] = buildUserAvatarURLs(avatarId);
+        expect(thumb).toBe(`https://sleepercdn.com/avatars/thumbs/${avatarId}`);
+        expect(full).toBe(`https://sleepercdn.com/avatars/${avatarId}`);
+    });
+
+    it("TypeScript prevents assigning wrong URL type", () => {
+        const [thumb, full] = buildUserAvatarURLs("id");
+
+        // @ts-expect-error
+        const wrong: ThumbURL = full;
+
+        // @ts-expect-error
+        const wrong2: FullURL = thumb;
     });
 });

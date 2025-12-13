@@ -2,12 +2,12 @@
   "name": "bbfb",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/main.js",
-    "dev": "tsc --watch & node --watch dist/index.js",
+    "start": "node dist/server.js",
+    "dev": "tsc --watch & node --watch dist/server.js",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/compression": "^1.8.1",
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
     "drizzle-kit": "^0.31.7",
@@ -25,6 +26,7 @@
     "vitest": "^4.0.8"
   },
   "dependencies": {
+    "compression": "^1.8.1",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
     "postgres": "^3.4.7",

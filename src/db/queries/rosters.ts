@@ -41,12 +41,12 @@ export async function selectAllRosters() {
 }
 
 export async function selectRoster(rosterId: RosterParams["rosterId"]) {
-    const [result] = await db
-        .select()
-        .from(rostersTable)
-        .where(eq(rostersTable.rosterId, rosterId));
+    // const [result] = await db
+    //     .select()
+    //     .from(rostersTable)
+    //     .where(eq(rostersTable.rosterId, rosterId));
 
-    return result;
+    // return result;
 }
 
 export async function dropAllLeagueRosters() {

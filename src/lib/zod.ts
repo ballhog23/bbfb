@@ -78,20 +78,17 @@ export const rawLeagueUserSchema = z.looseObject({
         team_name: nullishString,
     }),
     avatar: z.string(), // everything above is required
-    is_owner: nullishBoolean, // commissioner?
 });
-export const nullableLeagueUserSchema = z.looseObject({
-    user_id: z.string(),
-    display_name: z.string(),
-    metadata: z.looseObject({
-        team_name: nullishString,
-    }),
-    avatar: z.string(), // everything above is required
-    is_owner: nullableBoolean,
+export const strictLeagueUserSchema = z.strictObject({
+    userId: z.string(),
+    displayName: z.string(),
+    teamName: nullableString,
+    avatarId: z.string(),
+    isActive: z.boolean(),
 });
 
 export type RawLeagueUser = z.infer<typeof rawLeagueUserSchema>;
-export type NullableRawLeagueUser = z.infer<typeof nullableLeagueUserSchema>;
+export type NullableRawLeagueUser = z.infer<typeof strictLeagueUserSchema>;
 
 export const rawNFLPlayerSchema = z.looseObject({
     player_id: z.string(),

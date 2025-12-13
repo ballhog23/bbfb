@@ -8,6 +8,13 @@
       "when": 1765500537862,
       "tag": "0000_round_richard_fisk",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1765571432214,
+      "tag": "0001_broken_master_chief",
+      "breakpoints": true
     }
   ]
 }
