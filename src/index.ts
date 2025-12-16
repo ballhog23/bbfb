@@ -12,8 +12,8 @@ app.use(express.json());
 
 app.use("/leagues", leaguesRoute);
 app.use("/users", usersRoute);
-// app.use("/rosters", rostersRoute);
-// app.use("/players", playersRoute);
+app.use("/players", playersRoute);
+app.use("/rosters", rostersRoute);
 
 app.use(errorHandler);
 

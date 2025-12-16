@@ -1,5 +1,5 @@
 {
-  "id": "968794eb-1231-48ec-bbdb-08e76ee20b4c",
+  "id": "3be92b01-b11c-4e22-a988-ab158b491ec8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -244,17 +244,17 @@
           "primaryKey": false,
           "notNull": true
         },
-        "reserve": {
-          "name": "reserve",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        },
         "players": {
           "name": "players",
           "type": "text[]",
           "primaryKey": false,
           "notNull": true
+        },
+        "reserve": {
+          "name": "reserve",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
         },
         "streak": {
           "name": "streak",
@@ -295,7 +295,7 @@
           "columnsTo": [
             "user_id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
         "rosters_league_id_leagues_league_id_fk": {
@@ -308,7 +308,7 @@
           "columnsTo": [
             "league_id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },

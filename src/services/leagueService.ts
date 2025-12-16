@@ -5,6 +5,7 @@ import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 
 export async function buildLeagueHistory(): Promise<StrictInsertLeague[]> {
     const rawAllLeagues = await getAllLeagues();
+
     return rawToNormalizedLeagueData(rawAllLeagues);
 }
 
@@ -32,7 +33,13 @@ export async function getAllLeagues(): Promise<RawLeague[]> {
     return rawAllLeagues;
 }
 
-function normalizeLeague(rawLeague: NullableRawLeague) {
+export async function syncLeague(leagueId?: string): Promise<StrictInsertLeague> {
+    const sleeper = new Sleeper();
+    const [league] = rawToNormalizedLeagueData([await sleeper.getLeague(leagueId)]);
+    return league;
+}
+
+export function normalizeLeague(rawLeague: NullableRawLeague) {
     const previousLeagueId = rawLeague.previous_league_id ? normalizeString(rawLeague.previous_league_id) : null;
 
     return {
@@ -52,7 +59,11 @@ export function rawToNormalizedLeagueData(rawLeagues: RawLeague[]) {
     const nullableAllLeagues = rawLeagues.map(
         rawLeague => undefinedToNullDeep(rawLeague) as NullableRawLeague
     );
-    const normalizedLeagues = nullableAllLeagues.map(nullableLeague => normalizeLeague(nullableLeague));
+    const normalizedLeagues = nullableAllLeagues.map(
+        nullableLeague => normalizeLeague(nullableLeague)
+    );
 
-    return normalizedLeagues.map(normalizedLeague => strictLeagueSchema.parse(normalizedLeague));
+    return normalizedLeagues.map(
+        normalizedLeague => strictLeagueSchema.parse(normalizedLeague)
+    );
 }

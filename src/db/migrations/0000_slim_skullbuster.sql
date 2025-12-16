@@ -39,8 +39,8 @@ CREATE TABLE "rosters" (
 	"losses" integer NOT NULL,
 	"fpts_against" integer NOT NULL,
 	"fpts" integer NOT NULL,
-	"reserve" text[],
 	"players" text[] NOT NULL,
+	"reserve" text[],
 	"streak" text,
 	"record" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -58,5 +58,5 @@ CREATE TABLE "users" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "rosters" ADD CONSTRAINT "rosters_owner_id_users_user_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."users"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "rosters" ADD CONSTRAINT "rosters_league_id_leagues_league_id_fk" FOREIGN KEY ("league_id") REFERENCES "public"."leagues"("league_id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "rosters" ADD CONSTRAINT "rosters_owner_id_users_user_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."users"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "rosters" ADD CONSTRAINT "rosters_league_id_leagues_league_id_fk" FOREIGN KEY ("league_id") REFERENCES "public"."leagues"("league_id") ON DELETE no action ON UPDATE no action;

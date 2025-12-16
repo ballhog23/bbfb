@@ -1,14 +1,11 @@
-// class to interact with sleeper api
 import {
     rawLeagueSchema, rawLeagueUserSchema,
-    rawNFLPlayerSchema, rosterSchema,
-    NFLStateSchema, bracketSchema,
-    matchupSchema,
+    rawNFLPlayerSchema, rawRosterSchema,
+
     type RawLeague, RawLeagueUser,
-    RawNFLPlayer
+    RawNFLPlayer, RawRoster
 } from "./zod.js";
 import { config } from '../config.js';
-import { NotFoundError } from './errors.js';
 
 
 export class Sleeper {
@@ -22,127 +19,38 @@ export class Sleeper {
 
     async getLeague(leagueId = this.leagueId): Promise<RawLeague> {
         const url = `${this.baseURL}league/${leagueId}`;
+        const leagueData = await this.fetchJSON(url);
 
-        try {
-            const leagueData = await this.fetchJSON(url);
-            this.assertObject(leagueData);
-            return rawLeagueSchema.parse(leagueData);
+        this.assertObject(leagueData);
 
-        } catch (error) {
-            if (error instanceof Error) {
-                const wrapper = new NotFoundError(`Could not fetch league ${leagueId}`);
-                wrapper.stack = error.stack;
-                throw wrapper;
-            }
-
-            throw error;
-        }
+        return rawLeagueSchema.parse(leagueData);
     }
 
     async getLeagueUsers(leagueId: string = this.leagueId): Promise<RawLeagueUser[]> {
         const url = `${this.baseURL}league/${leagueId}/users`;
+        const leagueUsers = await this.fetchJSON(url);
 
-        try {
-            const leagueUsers = await this.fetchJSON(url);
-            this.assertArray(leagueUsers);
-            return leagueUsers.map(user => rawLeagueUserSchema.parse(user));
+        this.assertArray(leagueUsers);
 
-        } catch (error) {
-            if (error instanceof Error) {
-                const wrapper = new NotFoundError(`Could not fetch league ${leagueId}`);
-                wrapper.stack = error.stack;
-                throw wrapper;
-            }
-
-            throw error;
-        }
-    }
-
-    async getSleeperUser(userId: string): Promise<RawLeagueUser> {
-        const url = `${this.baseURL}user/${userId}`;
-
-        try {
-            const sleeperUser = await this.fetchJSON(url);
-            this.assertObject(sleeperUser);
-            return rawLeagueUserSchema.parse(sleeperUser);
-        } catch (error) {
-            if (error instanceof Error) {
-                const wrapper = new NotFoundError(`Could not fetch user ${userId}`);
-                wrapper.stack = error.stack;
-                throw wrapper;
-            }
-
-            throw error;
-        }
+        return leagueUsers.map(user => rawLeagueUserSchema.parse(user));
     }
 
     async getAllNFLPlayers(): Promise<RawNFLPlayer[]> {
         const url = `${this.baseURL}/players/nfl`;
+        const allPlayers = await this.fetchJSON(url);
 
-        try {
-            const allPlayers = await this.fetchJSON(url);
-            this.assertObject(allPlayers);
-            const allPlayersArray = Object.values(allPlayers);
-            return allPlayersArray.map(player => rawNFLPlayerSchema.parse(player));
+        this.assertObject(allPlayers);
 
-        } catch (error) {
-            if (error instanceof Error) {
-                const wrapper = new NotFoundError(`Could not fetch NFL Players from ${url}}`);
-                wrapper.stack = error.stack;
-                throw wrapper;
-            }
-
-            throw error;
-        }
+        const allPlayersArray = Object.values(allPlayers);
+        return allPlayersArray.map(player => rawNFLPlayerSchema.parse(player));
     }
 
-    // private async getLeagueRosters(leagueId = this.leagueId): Promise<RawSleeperRoster[]> {
-    //     const url = `${this.baseURL}league/${leagueId}/rosters`;
-    //     const rosterData = await this.fetchJSON(url);
-
-    //     this.assertArray(rosterData);
-
-    //     const looseRosterData = rosterData.map((roster) => rosterSchema.parse(roster));
-    //     const strictRosterData = this.undefinedToNullDeep(looseRosterData);
-    //     const refinedRosterData = strictRosterData.map(roster => {
-    //         return {
-    //             rosterId: roster.roster_id,
-    //             ownerId: roster.owner_id,
-    //             leagueId: roster.league_id,
-    //             starters: roster.starters,
-    //             wins: roster.settings.wins,
-    //             ties: roster.settings.ties,
-    //             losses: roster.settings.losses,
-    //             fptsAgainst: roster.settings.fpts_against,
-    //             fpts: roster.settings.fpts,
-    //             players: roster.players,
-    //             reserve: roster.reserve ?? null,
-    //             streak: roster.metadata?.streak ?? null,
-    //             record: roster.metadata?.record ?? null,
-    //         } satisfies RawSleeperRoster;
-    //     });
-
-    //     return refinedRosterData;
-    // }
-
-    // public async getAllRosters(leagues: SelectLeague[]): Promise<InsertRoster[]> {
-    //     const allLeagueRosters: InsertRoster[] = [];
-
-    //     for (const league of leagues) {
-    //         const leagueRosters = await this.getLeagueRosters(league.leagueId);
-    //         allLeagueRosters.push(
-    //             ...leagueRosters.map(roster => {
-    //                 return {
-    //                     ...roster,
-    //                     season: league.season
-    //                 } satisfies InsertRoster;
-    //             })
-    //         );
-
-    //     }
-
-    //     return allLeagueRosters;
-    // }
+    async getLeagueRosters(leagueId = this.leagueId): Promise<RawRoster[]> {
+        const url = `${this.baseURL}league/${leagueId}/rosters`;
+        const rosters = await this.fetchJSON(url);
+        this.assertArray(rosters);
+        return rosters.map(roster => rawRosterSchema.parse(roster));
+    }
 
     // async getThisWeeksLeagueMatchups(week: number): Promise<RefinedMatchup[]> {
     //     const url = `${this.baseURL}/league/${this.leagueId}/matchups/${week}`;

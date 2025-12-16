@@ -11,7 +11,7 @@
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
-    "test": "vitest --run",
+    "test": "NODE_OPTIONS='--localstorage-file=/home/caleb/.vitest/vitest.localstorage' vitest --run",
     "tee": "npm run dev | tee info.log"
   },
   "keywords": [],
@@ -22,6 +22,7 @@
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
     "drizzle-kit": "^0.31.7",
+    "msw": "^2.12.4",
     "typescript": "^5.9.3",
     "vitest": "^4.0.8"
   },

@@ -11,8 +11,10 @@ export async function handlerInsertPlayers(_: Request, res: Response) {
         await insertNFLPlayer(player);
     }
 
-    respondWithJSON(res, 201, { status: 'players inserted, success' });
+    respondWithJSON(res, 201, { status: 'players inserted, success', players });
 }
+
+export const handlerSyncPlayers = handlerInsertPlayers;
 
 export async function handlerGetPlayers(_: Request, res: Response) {
     const players = await selectAllNFLPlayers();
@@ -47,7 +49,7 @@ export async function handlerGetPlayer(req: Request<PlayerParams>, res: Response
 export async function handlerDeleteNFLPlayers(_: Request, res: Response) {
     await dropAllNFLPlayers();
 
-    respondWithJSON(res, 200, 'deleted all users');
+    respondWithJSON(res, 200, 'deleted all nfl players');
 }
 
 export type PlayerParams = {

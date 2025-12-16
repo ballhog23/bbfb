@@ -41,19 +41,28 @@ export async function selectLeague(leagueId: string) {
     return rows;
 }
 
+// export async function selectCurrentLeague() {
+//     const [result] = await db
+//         .select({
+//             leagueId: leaguesTable.leagueId,
+//             status: leaguesTable.status,
+//             season: leaguesTable.season,
+//             leagueName: leaguesTable.leagueName,
+//             avatarId: leaguesTable.avatarId,
+//             previousLeagueId: leaguesTable.previousLeagueId,
+//             draftId: leaguesTable.draftId,
+//             rosterPositions: leaguesTable.rosterPositions,
+//             totalRosters: leaguesTable.totalRosters,
+//         })
+//         .from(leaguesTable)
+//         .where(ne(leaguesTable.status, 'completed'));
+
+//     return result;
+// }
+
 export async function selectCurrentLeague() {
     const [result] = await db
-        .select({
-            leagueId: leaguesTable.leagueId,
-            status: leaguesTable.status,
-            season: leaguesTable.season,
-            leagueName: leaguesTable.leagueName,
-            avatarId: leaguesTable.avatarId,
-            previousLeagueId: leaguesTable.previousLeagueId,
-            draftId: leaguesTable.draftId,
-            rosterPositions: leaguesTable.rosterPositions,
-            totalRosters: leaguesTable.totalRosters,
-        })
+        .select()
         .from(leaguesTable)
         .where(ne(leaguesTable.status, 'completed'));
 

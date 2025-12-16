@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
-import { buildLeagueUsersHistory, syncLeagueUsers } from "../services/usersService.js";
+import { buildLeagueUsersHistory, getAllLeagueUsers, syncLeagueUsers } from "../services/usersService.js";
 import { insertLeagueUser, selectLeagueUser, selectAllLeagueUsers, dropAllLeagueUsers } from "../db/queries/users.js";
 import { NotFoundError } from "../lib/errors.js";
+import { selectAllLeagues } from "../db/queries/leagues.js";
 
 // working
 export async function handlerGetUsers(_: Request, res: Response) {
@@ -29,6 +30,7 @@ export async function handlerGetUser(req: Request<LeagueUserParams>, res: Respon
     respondWithJSON(res, 200, data);
 }
 
+// working
 export async function handlerSyncActiveUsers(_: Request, res: Response) {
     const leagueUsers = await syncLeagueUsers();
 
@@ -48,9 +50,9 @@ export async function handlerInsertHistoricalUsers(_: Request, res: Response) {
         return;
     }
 
-    // for (const user of allLeagueUsers) {
-    //     await insertLeagueUser(user);
-    // }
+    for (const user of allLeagueUsers) {
+        await insertLeagueUser(user);
+    }
 
     respondWithJSON(res, 201, { message: 'updated users', allLeagueUsers });
 }

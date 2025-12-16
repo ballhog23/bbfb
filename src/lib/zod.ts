@@ -32,15 +32,12 @@ const optionalNullishNumber = z.optional(nullishNumber);
 const optionalNullableNumber = z.optional(nullableNumber);
 const recordKeys = z.union([z.string(), z.number(), z.symbol()]);
 const leagueStatusEnum = z.enum(["pre_draft", "drafting", "in_season", "complete", "post_season"]);
-const looseUserMetadata = z.union([nullishObject, z.looseObject({
-    team_name: nullishString,
-})]);
-type UnknownObject = { [key: string]: unknown; };
+
 
 /**
  * why two similar schemas?
- * the first schema is what sleeper sends, we loosely validate it.
- * we replace an undefined values with null and then we parse our normalized data against the nullableSchema
+ * the first schema is what sleeper sends, we loosely validate it, testing for required data.
+ * we replace an undefined values with null and then we parse our normalized data against the strictSchema
  */
 export const rawLeagueSchema = z.looseObject({
     league_id: z.string(),
@@ -79,11 +76,14 @@ export type NullableRawLeague = {
 };
 export type StrictLeague = z.infer<typeof strictLeagueSchema>;
 
+
 export const rawLeagueUserSchema = z.looseObject({
     user_id: z.string(),
     display_name: z.string(),
-    metadata: looseUserMetadata,
-    avatar: z.string(), // everything above is required
+    metadata: z.looseObject({
+        team_name: nullishString,
+    }),
+    avatar: z.string(),
 });
 export const strictLeagueUserSchema = z.strictObject({
     userId: z.string(),
@@ -94,7 +94,7 @@ export const strictLeagueUserSchema = z.strictObject({
 });
 
 export type RawLeagueUser = z.infer<typeof rawLeagueUserSchema>;
-export type NullableLeagueUser = {
+export type NullableRawLeagueUser = {
     user_id: string;
     display_name: string;
     metadata: {
@@ -114,49 +114,96 @@ export const rawNFLPlayerSchema = z.looseObject({
     team: nullishString,
     number: nullishNumber,
     age: nullishNumber,
-    injury_status: nullishString, // everything above is required
+    injury_status: nullishString,
 });
-export const nullableRawNFLPlayerSchema = z.looseObject({
-    player_id: z.string(),
-    first_name: z.string(),
-    last_name: z.string(),
+export const strictNFLPlayerSchema = z.strictObject({
+    playerId: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
     active: z.boolean(),
-    fantasy_positions: nullableStringArray,
+    fantasyPositions: nullableStringArray,
     position: nullableString,
     team: nullableString,
-    number: nullishNumber,
-    age: nullishNumber,
-    injury_status: nullableString, // everything above is required
+    number: nullableNumber,
+    age: nullableNumber,
+    injuryStatus: nullableString,
 });
 
 export type RawNFLPlayer = z.infer<typeof rawNFLPlayerSchema>;
-export type NullableRawNFLPlayer = z.infer<typeof nullableRawNFLPlayerSchema>;
+export type NullableRawNFLPlayer = {
+    player_id: string;
+    first_name: string;
+    last_name: string;
+    active: boolean;
+    fantasy_positions: string[] | null;
+    position: string | null;
+    team: string | null;
+    number: number | null;
+    age: number | null;
+    injury_status: string | null;
+};
+export type StrictNFLPLayer = z.infer<typeof strictNFLPlayerSchema>;
 
-export const rosterSchema = z.looseObject({
+// ! WORKING HERE VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+export const rawRosterSchema = z.looseObject({
+    owner_id: z.string(),
+    league_id: z.string(),
+    roster_id: z.number(),
     starters: z.array(z.string()),
     settings: z.looseObject({
         wins: z.number(),
-        waiver_position: z.number(),
-        waiver_budget_used: z.number(),
-        total_moves: z.number(),
         ties: z.number(),
         losses: z.number(),
-        fpts_decimal: z.number(),
-        fpts_against_decimal: z.number(),
         fpts_against: z.number(),
-        fpts: z.number()
+        fpts: z.number(),
     }),
-    roster_id: z.number(),
-    reserve: nullishStringArray,
     players: z.array(z.string()),
-    owner_id: z.string(),
-    league_id: z.string(),
+    reserve: nullishStringArray,
     metadata: z.looseObject({
+        streak: nullishString,
         record: nullishString,
-        streak: nullishString
     }),
 });
-export type RawRoster = z.infer<typeof rosterSchema>;
+export const strictRosterSchema = z.strictObject({
+    ownerId: z.string(),
+    leagueId: z.string(),
+    season: z.string(),
+    rosterId: z.number(),
+    starters: z.array(z.string()),
+    wins: z.number(),
+    ties: z.number(),
+    losses: z.number(),
+    fptsAgainst: z.number(),
+    fpts: z.number(),
+    players: z.array(z.string()),
+    reserve: nullableStringArray,
+    streak: nullableString,
+    record: nullableString,
+});
+
+export type RawRoster = z.infer<typeof rawRosterSchema>;
+export type NullableRawRoster = {
+    owner_id: string;
+    league_id: string;
+    roster_id: number;
+    starters: string[];
+    settings: {
+        wins: number;
+        ties: number;
+        losses: number;
+        fpts_against: number;
+        fpts: number;
+    };
+    players: string[];
+    metadata: {
+        record: string | null;
+        streak: string | null;
+    };
+    reserve: string[] | null;
+};
+export type StrictRoster = z.infer<typeof strictRosterSchema>;
+
+// ! WORKING HERE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 export const matchupSchema = z.looseObject({
     starters: z.array(z.string()),

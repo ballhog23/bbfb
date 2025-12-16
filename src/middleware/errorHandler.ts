@@ -15,26 +15,27 @@ export async function errorHandler(err: Error, _: Request, res: Response, __: Ne
 	if (err instanceof BadRequestError) {
 		message = err.message;
 		statusCode = 400;
-		console.error(err);
+
 	} else if (err instanceof UserNotAuthenticatedError) {
 		message = err.message;
 		statusCode = 401;
-		console.error(err);
+
 	} else if (err instanceof UserForbiddenError) {
 		message = err.message;
 		statusCode = 403;
-		console.error(err);
+
 	} else if (err instanceof NotFoundError) {
 		message = err.message;
 		statusCode = 404;
-		console.error(err);
+
 	} else if (err instanceof DrizzleError || err instanceof DrizzleQueryError) {
-		console.error(err.cause);
 		message = `CAUSE: ${err.cause}`;
+
 	}
 
 	if (statusCode >= 500) {
 		console.error(err.message);
 	}
+
 	respondWithError(res, statusCode, message);
 }

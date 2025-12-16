@@ -1,0 +1,27 @@
+{
+    "leagueId": "1118232706736807936",
+    "status": "complete",
+    "season": "2024",
+    "leagueName": "BleedBlue2k24",
+    "avatarId": "594e9841023952c43fe07a45de40e151",
+    "previousLeagueId": "972913397740240896",
+    "draftId": "1118232706736807937",
+    "rosterPositions": [
+        "QB",
+        "RB",
+        "RB",
+        "WR",
+        "WR",
+        "TE",
+        "FLEX",
+        "FLEX",
+        "DEF",
+        "BN",
+        "BN",
+        "BN",
+        "BN",
+        "BN",
+        "BN"
+    ],
+    "totalRosters": 12
+}

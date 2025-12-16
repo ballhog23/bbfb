@@ -1,20 +1,21 @@
 import express from 'express';
-import { handlerGetPlayers, handlerGetPlayer, handlerInsertPlayers, handlerDeleteNFLPlayers } from '../api/players.js';
+import { asyncHandler } from "../lib/helpers.js";
+import {
+    handlerGetPlayers, handlerGetPlayer,
+    handlerInsertPlayers, handlerDeleteNFLPlayers,
+    handlerSyncPlayers
+} from '../api/players.js';
 
 export const playersRoute = express.Router();
 
-playersRoute.get('/players', (req, res, next) => {
-    Promise.resolve(handlerGetPlayers(req, res)).catch(next);
-});
+playersRoute.get('/', asyncHandler(handlerGetPlayers));
 
-playersRoute.get('/players/:playerId', (req, res, next) => {
-    Promise.resolve(handlerGetPlayer(req, res)).catch(next);
-});
+playersRoute.get('/:playerId', asyncHandler(handlerGetPlayer));
 
-playersRoute.post('/players', (req, res, next) => {
-    Promise.resolve(handlerInsertPlayers(req, res)).catch(next);
-});
+// post used for initial insert of players to db ONLY
+playersRoute.post('/populate-players', asyncHandler(handlerInsertPlayers));
 
-playersRoute.delete('/players', (req, res, next) => {
-    Promise.resolve(handlerDeleteNFLPlayers(req, res)).catch(next);
-});
+// put used for syncing player data daily
+playersRoute.put('/', asyncHandler(handlerSyncPlayers));
+
+playersRoute.delete('/', asyncHandler(handlerDeleteNFLPlayers));

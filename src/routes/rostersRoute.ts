@@ -1,21 +1,17 @@
 import express from "express";
-import { handlerGetRosters, handlerGetRoster, handlerInsertRosters } from '../api/rosters.js';
+import {
+    handlerGetRosters, handlerGetRoster,
+    handlerInsertHistoricalRosters, handlerDeleteRosters
+} from '../api/rosters.js';
+import { asyncHandler } from "../lib/helpers.js";
 
 export const rostersRoute = express.Router();
 
-rostersRoute.get('/rosters', (req, res, next) => {
-    Promise.resolve(handlerGetRosters(req, res)).catch(next);
-});
+rostersRoute.get('/', asyncHandler(handlerGetRosters));
 
-rostersRoute.get('/rosters/:rosterId', (req, res, next) => {
-    Promise.resolve(handlerGetRoster(req, res)).catch(next);
-});
+rostersRoute.get('/:rosterId', asyncHandler(handlerGetRoster));
 
-rostersRoute.post('/rosters', (req, res, next) => {
-    Promise.resolve(handlerInsertRosters(req, res)).catch(next);
-});
-
-rostersRoute.delete('/rosters', (req, res, next) => {
-    Promise.resolve(handlerInsertRosters(req, res)).catch(next);
-});
+rostersRoute.post('/populate-roster-history', asyncHandler(handlerInsertHistoricalRosters));
+// we need put for sync
+rostersRoute.delete('/', asyncHandler(handlerDeleteRosters));
 

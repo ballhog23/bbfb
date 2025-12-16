@@ -1,7 +1,6 @@
-import type { PlayerParams } from '../../api/players.js';
 import { sql, eq } from "drizzle-orm";
 import { db } from "../index.js";
-import { InsertNFLPlayer, NFLPlayersTable } from "../schema.js";
+import { StrictInsertNFLPlayer, NFLPlayersTable } from "../schema.js";
 
 // we need to reevaluate the approach for inserting nfl players.
 // the data set is large enough to consider batching.
@@ -10,7 +9,7 @@ import { InsertNFLPlayer, NFLPlayersTable } from "../schema.js";
 // we will for simplicitly sake just use a simple insert/upsert.
 // if performance is an issue we will look into optimizations
 // e.g., batching techniques for large datasets where each row needs to be treated as atomic
-export async function insertNFLPlayer(players: InsertNFLPlayer) {
+export async function insertNFLPlayer(players: StrictInsertNFLPlayer) {
     const [result] = await db
         .insert(NFLPlayersTable)
         .values(players)
@@ -41,7 +40,7 @@ export async function selectAllNFLPlayers() {
     return result;
 }
 
-export async function selectNFLPlayer(playerId: PlayerParams["playerId"]) {
+export async function selectNFLPlayer(playerId: string) {
     const [result] = await db
         .select()
         .from(NFLPlayersTable)

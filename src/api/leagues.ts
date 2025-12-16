@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
-import { Sleeper } from "../lib/sleeper.js";
 import { respondWithJSON } from "../lib/json.js";
-import { buildLeagueHistory, rawToNormalizedLeagueData } from "../services/leagueService.js";
+import { buildLeagueHistory, syncLeague } from "../services/leagueService.js";
 import { insertLeague, selectAllLeagues, selectLeague, dropAllLeagues } from "../db/queries/leagues.js";
 import { NotFoundError } from "../lib/errors.js";
 
@@ -32,10 +31,9 @@ export async function handlerGetLeague(req: Request<LeagueParams>, res: Response
 }
 
 // working
-export async function handlerSyncLeague(req: Request, res: Response) {
-	const sleeper = new Sleeper();
-	const [currentSleeperLeague] = rawToNormalizedLeagueData([await sleeper.getLeague()]);
-	const result = await insertLeague(currentSleeperLeague);
+export async function handlerSyncLeague(_: Request, res: Response) {
+	const currentLeagueData = await syncLeague();
+	const result = await insertLeague(currentLeagueData);
 
 	const data = {
 		result

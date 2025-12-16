@@ -1,5 +1,5 @@
 import { describe, expect, test, it } from "vitest";
-import { normalizeString, undefinedToNullDeep, buildUserAvatarURLs } from "./helpers.js";
+import { normalizeString, undefinedToNullDeep, buildUserAvatarURLs } from "../../src/lib/helpers.js";
 
 describe("string normalization", () => {
     // Passing string test cases with expected normalized output

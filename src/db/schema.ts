@@ -6,11 +6,6 @@ const timestamps = {
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date())
 };
 
-type Timestamps = {
-    createdAt?: Date;
-    updatedAt?: Date;
-};
-
 /**
  * enforcing unique constraint on leagues table for now...
  * if we ever integrate other leagues into this table we could remove the constraint
@@ -62,6 +57,9 @@ export const NFLPlayersTable = pgTable("nfl_players", {
     ...timestamps
 });
 
+export type SelectNFLPlayer = typeof NFLPlayersTable.$inferSelect;
+export type StrictInsertNFLPlayer = Omit<SelectNFLPlayer, "createdAt" | "updatedAt">;
+
 /**
  * Initially considered using `rosterId` as the primary key, but it's a number 1-12 for every season, so not globally unique.
  * One idea was to prefix the year when normalizing data for insertion, but `rosterId` is also used in the playoff bracket, making that tricky.
@@ -69,26 +67,27 @@ export const NFLPlayersTable = pgTable("nfl_players", {
  * Instead, we define a composite primary key. 
  * Analogy: A house is defined by its address, not its occupant.
  * Similarly, a roster is uniquely identified by its league (`leagueId`) and its slot (`rosterId`), independent of `ownerId`.
- */
+ * we should also look into writing a postgres trigger for if a rosters ownerId is changed
+*/
 export const rostersTable = pgTable("rosters", {
     ownerId: text()
-        .references(() => usersTable.userId, { onDelete: "cascade" })
+        .references(() => usersTable.userId) // we don't onDelete cascade here, because the whole point is to preserve history
         .notNull(),
     leagueId: text()
-        .references(() => leaguesTable.leagueId, { onDelete: "cascade" })
+        .references(() => leaguesTable.leagueId) // we don't onDelete cascade here, because the whole point is to preserve history
         .notNull(),
     season: text().notNull(),
     rosterId: integer().notNull(),
-    starters: text().array().notNull(), // curious as to what happens if someone does not have any starters in lineup
+    starters: text().array().notNull(), // if someone doesn't have any starters this could be empty array
     wins: integer().notNull(),
     ties: integer().notNull(),
     losses: integer().notNull(),
     fptsAgainst: integer().notNull(),
     fpts: integer().notNull(),
-    reserve: text().array(),
     players: text().array().notNull(),
-    streak: text(), // not sure if sleeper always sends back a value here
-    record: text(), // not sure if sleeper always sends back a value here
+    reserve: text().array(),
+    streak: text(), // W or L streak e.g, '3W', could possibly be empty string week 1
+    record: text(), // represented as a string WLLWL... etc, just an example. could be same as above ^
     ...timestamps
 }, (table) => [
     primaryKey({ name: "roster_identity", columns: [table.leagueId, table.rosterId] })
@@ -96,19 +95,4 @@ export const rostersTable = pgTable("rosters", {
 );
 
 export type SelectRoster = typeof rostersTable.$inferSelect;
-// NORMALIZED Sleeper API result (missing season + id)
-export type SleeperRoster = Omit<InsertRoster, "season">;
-export type InsertRoster = Omit<SelectRoster, "createdAt" | "updatedAt"> & Timestamps;
-
-
-export type SelectNFLPlayer = typeof NFLPlayersTable.$inferSelect;
-export type InsertNFLPlayer = Omit<SelectNFLPlayer, "createdAt" | "updatedAt"> & Timestamps;
-
-export type RefinedMatchup = {
-    starters: string[];
-    rosterId: number;
-    players: string[];
-    matchupId: number;
-    points: number;
-    customPoints: number | null;
-};
+export type StrictInsertRoster = Omit<SelectRoster, "createdAt" | "updatedAt">;
