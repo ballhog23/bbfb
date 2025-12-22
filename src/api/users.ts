@@ -3,7 +3,6 @@ import { respondWithError, respondWithJSON } from "../lib/json.js";
 import { buildLeagueUsersHistory, getAllLeagueUsers, syncLeagueUsers } from "../services/usersService.js";
 import { insertLeagueUser, selectLeagueUser, selectAllLeagueUsers, dropAllLeagueUsers } from "../db/queries/users.js";
 import { NotFoundError } from "../lib/errors.js";
-import { selectAllLeagues } from "../db/queries/leagues.js";
 
 // working
 export async function handlerGetUsers(_: Request, res: Response) {

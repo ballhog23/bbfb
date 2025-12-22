@@ -33,7 +33,7 @@ const optionalNullableNumber = z.optional(nullableNumber);
 const recordKeys = z.union([z.string(), z.number(), z.symbol()]);
 const leagueStatusEnum = z.enum(["pre_draft", "drafting", "in_season", "complete", "post_season"]);
 
-
+// ! LEAGUES ARE OKAY
 /**
  * why two similar schemas?
  * the first schema is what sleeper sends, we loosely validate it, testing for required data.
@@ -61,7 +61,6 @@ export const strictLeagueSchema = z.strictObject({
     rosterPositions: z.array(z.string()),
     totalRosters: z.number(),
 });
-
 export type RawLeague = z.infer<typeof rawLeagueSchema>;
 export type NullableRawLeague = {
     league_id: string;
@@ -76,31 +75,51 @@ export type NullableRawLeague = {
 };
 export type StrictLeague = z.infer<typeof strictLeagueSchema>;
 
-
-export const rawLeagueUserSchema = z.looseObject({
+// ! SLEEPER USERS ARE OKAY
+export const rawSleeperUserSchema = z.looseObject({
+    username: z.string(),
     user_id: z.string(),
     display_name: z.string(),
+    avatar: z.string(),
+});
+export const strictSleeperUserSchema = z.strictObject({
+    userName: z.string(),
+    userId: z.string(),
+    displayName: z.string(),
+    avatarId: z.string(),
+});
+export type RawSleeperUser = z.infer<typeof rawSleeperUserSchema>;
+export type StrictSleeperUser = z.infer<typeof strictSleeperUserSchema>;
+
+// ! LEAGUE USERS ARE OKAY 
+// noticed that sleeper sends avatar as part of this schema, but the one on the root level appears to be stale
+// it can differ from the avatar stored in Sleeper User schema.
+// sleeper sends a THIRD avatar which is associated with the TEAM. this is only present if a league user adds this
+// this THIRD avatar within the metadata is current, we will parse this and if not we can fall back on the sleeper user 
+export const rawLeagueUserSchema = z.looseObject({
+    user_id: z.string(),
     metadata: z.looseObject({
         team_name: nullishString,
+        avatar: nullishString,
     }),
-    avatar: z.string(),
+    is_owner: z.boolean(),
 });
 export const strictLeagueUserSchema = z.strictObject({
     userId: z.string(),
-    displayName: z.string(),
+    leagueId: z.string(),
     teamName: nullableString,
-    avatarId: z.string(),
-    isActive: z.boolean(),
+    avatarId: nullableString,
+    isOwner: z.boolean()
 });
-
 export type RawLeagueUser = z.infer<typeof rawLeagueUserSchema>;
 export type NullableRawLeagueUser = {
     user_id: string;
     display_name: string;
     metadata: {
         team_name: string | null;
+        avatar: string | null;
     };
-    avatar: string;
+    is_owner: boolean;
 };
 export type StrictLeagueUser = z.infer<typeof strictLeagueUserSchema>;
 
@@ -144,7 +163,6 @@ export type NullableRawNFLPlayer = {
 };
 export type StrictNFLPLayer = z.infer<typeof strictNFLPlayerSchema>;
 
-// ! WORKING HERE VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 export const rawRosterSchema = z.looseObject({
     owner_id: z.string(),
     league_id: z.string(),
@@ -202,8 +220,6 @@ export type NullableRawRoster = {
     reserve: string[] | null;
 };
 export type StrictRoster = z.infer<typeof strictRosterSchema>;
-
-// ! WORKING HERE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 export const matchupSchema = z.looseObject({
     starters: z.array(z.string()),

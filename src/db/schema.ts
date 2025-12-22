@@ -25,21 +25,33 @@ export const leaguesTable = pgTable("leagues", {
 }, (t) => [
     unique().on(t.season)
 ]);
-
 export type SelectLeague = typeof leaguesTable.$inferSelect;
 export type StrictInsertLeague = Omit<SelectLeague, "createdAt" | "updatedAt">;
 
-export const usersTable = pgTable("users", {
+export const sleeperUsersTable = pgTable("sleeper_users", {
     userId: text().primaryKey().notNull(),
+    userName: text().notNull(),
     displayName: text().notNull(),
-    teamName: text(),
     avatarId: text().notNull(),
-    isActive: boolean().notNull(),
     ...timestamps
 });
+export type SelectSleeperUser = typeof sleeperUsersTable.$inferSelect;
+export type StrictSleeperUser = Omit<SelectSleeperUser, "createdAt" | "updatedAt">;
 
-export type SelectLeagueUser = typeof usersTable.$inferSelect;
-export type StrictInsertLeagueUser = Omit<SelectLeagueUser, "createdAt" | "updatedAt">;
+export const leagueUsersTable = pgTable("league_users", {
+    userId: text()
+        .references(() => sleeperUsersTable.userId)
+        .notNull(),
+    leagueId: text()
+        .references(() => leaguesTable.leagueId)
+        .notNull(),
+    avatarId: text(),
+    teamName: text(),
+    isOwner: boolean().notNull(),
+    ...timestamps
+}, (table) => [
+    primaryKey({ name: "league_user_identity", columns: [table.userId, table.leagueId] })
+]);
 
 // a cool feature will be to extract all player nicknames from league rosters
 // tie them to id here, and store as array of strings
@@ -71,7 +83,7 @@ export type StrictInsertNFLPlayer = Omit<SelectNFLPlayer, "createdAt" | "updated
 */
 export const rostersTable = pgTable("rosters", {
     ownerId: text()
-        .references(() => usersTable.userId) // we don't onDelete cascade here, because the whole point is to preserve history
+        .references(() => sleeperUsersTable.userId) // we don't onDelete cascade here, because the whole point is to preserve history
         .notNull(),
     leagueId: text()
         .references(() => leaguesTable.leagueId) // we don't onDelete cascade here, because the whole point is to preserve history
