@@ -49,7 +49,3 @@ export async function selectCurrentLeague() {
 
     return result;
 }
-
-export async function dropAllLeagues() {
-    await db.delete(leaguesTable);
-}

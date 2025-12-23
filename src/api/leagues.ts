@@ -2,7 +2,8 @@ import type { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
 import { buildLeagueHistory, syncLeague } from "../services/league-service.js";
 import { insertLeague, selectAllLeagues, selectLeague, dropAllLeagues } from "../db/queries/leagues.js";
-import { NotFoundError } from "../lib/errors.js";
+import { BadRequestError, NotFoundError, UserForbiddenError } from "../lib/errors.js";
+import { config } from "../config.js";
 
 export type LeagueParams = {
 	leagueId: string;
@@ -34,7 +35,7 @@ export async function handlerGetLeague(req: Request<LeagueParams>, res: Response
 	respondWithJSON(res, 200, data);
 }
 
-
+// working
 export async function handlerSyncLeague(_: Request, res: Response) {
 	const currentLeagueData = await syncLeague();
 	const result = await insertLeague(currentLeagueData);
@@ -65,11 +66,4 @@ export async function handlerInsertLeagueHistory(_: Request, res: Response) {
 	};
 
 	respondWithJSON(res, 201, data);
-}
-
-// working
-export async function handlerDeleteLeagues(_: Request, res: Response) {
-	await dropAllLeagues();
-
-	respondWithJSON(res, 200, { status: 'deleted all leagues' });
 }
