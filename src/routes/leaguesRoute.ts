@@ -14,6 +14,6 @@ leaguesRoute.get('/:leagueId', asyncHandler(handlerGetLeague));
 
 leaguesRoute.post('/populate-history', asyncHandler(handlerInsertLeagueHistory));
 
-leaguesRoute.put('/sync', asyncHandler(handlerSyncLeague));
+// leaguesRoute.put('/sync', asyncHandler(handlerSyncLeague));
 
 leaguesRoute.delete('/', asyncHandler(handlerDeleteLeagues));

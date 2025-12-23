@@ -102,14 +102,14 @@ export const rawLeagueUserSchema = z.looseObject({
         team_name: nullishString,
         avatar: nullishString,
     }),
-    is_owner: z.boolean(),
+    is_owner: nullishBoolean,
 });
 export const strictLeagueUserSchema = z.strictObject({
     userId: z.string(),
     leagueId: z.string(),
     teamName: nullableString,
     avatarId: nullableString,
-    isOwner: z.boolean()
+    isOwner: nullableBoolean
 });
 export type RawLeagueUser = z.infer<typeof rawLeagueUserSchema>;
 export type NullableRawLeagueUser = {

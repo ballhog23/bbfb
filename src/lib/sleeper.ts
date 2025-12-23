@@ -3,7 +3,9 @@ import {
     rawNFLPlayerSchema, rawRosterSchema,
 
     type RawLeague, RawLeagueUser,
-    RawNFLPlayer, RawRoster
+    RawNFLPlayer, RawRoster,
+    RawSleeperUser,
+    rawSleeperUserSchema
 } from "./zod.js";
 import { config } from '../config.js';
 
@@ -43,6 +45,13 @@ export class Sleeper {
 
         const allPlayersArray = Object.values(allPlayers);
         return allPlayersArray.map(player => rawNFLPlayerSchema.parse(player));
+    }
+
+    async getSleeperUser(userId: string): Promise<RawSleeperUser> {
+        const url = `${this.baseURL}user/${userId}`;
+        const user = await this.fetchJSON(url); // unknown what we recieved from 3rd party
+        this.assertObject(user); // runtime check to be at least the data structure we expect
+        return rawSleeperUserSchema.parse(user); // runtime validation to ensure we have all data for normalization
     }
 
     async getLeagueRosters(leagueId = this.leagueId): Promise<RawRoster[]> {
@@ -108,7 +117,7 @@ export class Sleeper {
         }
     }
 
-    private async fetchJSON<T>(url: string): Promise<T> {
+    private async fetchJSON(url: string): Promise<unknown> {
         const response = await fetch(url);
 
         if (!response.ok) {

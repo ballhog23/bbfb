@@ -36,7 +36,7 @@ export const sleeperUsersTable = pgTable("sleeper_users", {
     ...timestamps
 });
 export type SelectSleeperUser = typeof sleeperUsersTable.$inferSelect;
-export type StrictSleeperUser = Omit<SelectSleeperUser, "createdAt" | "updatedAt">;
+export type StrictInsertSleeperUser = Omit<SelectSleeperUser, "createdAt" | "updatedAt">;
 
 export const leagueUsersTable = pgTable("league_users", {
     userId: text()
@@ -47,11 +47,14 @@ export const leagueUsersTable = pgTable("league_users", {
         .notNull(),
     avatarId: text(),
     teamName: text(),
-    isOwner: boolean().notNull(),
+    isOwner: boolean(),
     ...timestamps
 }, (table) => [
     primaryKey({ name: "league_user_identity", columns: [table.userId, table.leagueId] })
 ]);
+
+export type SelectLeagueUser = typeof leagueUsersTable.$inferSelect;
+export type StrictInsertLeagueUser = Omit<SelectLeagueUser, "createdAt" | "updatedAt">;
 
 // a cool feature will be to extract all player nicknames from league rosters
 // tie them to id here, and store as array of strings

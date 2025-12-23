@@ -1,0 +1,88 @@
+import type { Request, Response } from "express";
+import { respondWithError, respondWithJSON } from "../lib/json.js";
+import { buildLeagueUsersHistory } from "../services/leagueUsersService.js";
+import { insertLeagueUser, selectLeagueUser, selectAllLeagueUsers, dropAllLeagueUsers, selectLeagueUsers } from "../db/queries/leagueUsers.js";
+import { NotFoundError } from "../lib/errors.js";
+import { StrictInsertLeagueUser } from "src/db/schema.js";
+
+type LeagueUserParams = {
+    userId: string;
+    leagueId: string;
+};
+
+type LeagueUsersBody = {
+    leagueUsers: StrictInsertLeagueUser[];
+};
+
+export async function handlerGetAllLeagueUsers(_: Request, res: Response) {
+    const allUsers = await selectAllLeagueUsers();
+    if (allUsers.length === 0) throw new NotFoundError('No users found.');
+
+    const data = {
+        allUsers
+    };
+
+    respondWithJSON(res, 200, data);
+}
+
+export async function handlerGetLeagueUsers(req: Request<LeagueUserParams>, res: Response) {
+    const params = req.params;
+    const { leagueId } = params;
+    const allUsers = await selectLeagueUsers(leagueId);
+    if (allUsers.length === 0) throw new NotFoundError(`No league users found for League ID: ${leagueId}.`);
+
+    const data = {
+        allUsers
+    };
+
+    respondWithJSON(res, 200, data);
+}
+
+export async function handlerGetLeagueUser(req: Request<LeagueUserParams>, res: Response) {
+    const params = req.params;
+    const { userId, leagueId } = params;
+    const user = await selectLeagueUser(userId, leagueId);
+    if (!user) throw new NotFoundError(`User with ID: ${userId} not found in League ID: ${leagueId}.`);
+
+    const data = {
+        user
+    };
+
+    respondWithJSON(res, 200, data);
+}
+
+// export async function handlerSyncLeagueUsers(_: Request, res: Response) {
+//     const leagueUsers = await syncLeagueUsers();
+
+//     for (const user of leagueUsers) {
+//         await insertLeagueUser(user);
+//     }
+
+//     respondWithJSON(res, 200, { message: 'synced users with sleeper', leagueUsers });
+// }
+
+export async function handlerInsertLeagueUsers(req: Request<{}, {}, LeagueUsersBody>, res: Response) {
+    const { leagueUsers } = req.body;
+
+    if (!Array.isArray(leagueUsers)) {
+        respondWithError(res, 400, `Expected Array, received ${typeof leagueUsers}`);
+        return;
+    }
+
+    if (leagueUsers.length === 0) {
+        respondWithError(res, 400, 'array does not contain raw league users, 0 total.');
+        return;
+    }
+
+    for (const user of leagueUsers) {
+        await insertLeagueUser(user);
+    }
+
+    respondWithJSON(res, 201, { message: 'updated league users', leagueUsers });
+}
+
+export async function handlerDeleteLeagueUsers(_: Request, res: Response) {
+    await dropAllLeagueUsers();
+
+    respondWithJSON(res, 200, 'deleted all league users');
+}
