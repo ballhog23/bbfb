@@ -55,8 +55,5 @@ export function rawToNormalizedLeagueUsers(rawUsers: RawLeagueUsersMap[]) {
 
 // syncs current season league users
 export async function syncLeagueUsers() {
-    const sleeper = new Sleeper();
-    const rawLeagueUsers = await sleeper.getLeagueUsers(); // defaults to current season with config stored league id
 
-    return rawLeagueUsers;
 }

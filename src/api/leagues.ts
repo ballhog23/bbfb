@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
-import { buildLeagueHistory, syncLeague } from "../services/league-service.js";
+import { buildAndInsertLeagueHistory, syncLeague } from "../services/league-service.js";
 import { insertLeague, selectAllLeagues, selectLeague } from "../db/queries/leagues.js";
 import { NotFoundError } from "../lib/errors.js";
 
@@ -37,15 +37,9 @@ export async function handlerGetLeague(req: Request<LeagueParams>, res: Response
 // working
 export async function handlerSyncLeague(_: Request, res: Response) {
 	const currentLeagueData = await syncLeague();
-	const result = await insertLeague(currentLeagueData);
-
-	if (result.length === 0) {
-		respondWithError(res, 500, 'Could not sync current league.');
-		return;
-	}
 
 	const data = {
-		result
+		currentLeagueData
 	};
 
 	respondWithJSON(res, 200, data);
@@ -53,11 +47,7 @@ export async function handlerSyncLeague(_: Request, res: Response) {
 
 // working
 export async function handlerInsertLeagueHistory(_: Request, res: Response) {
-	const leagues = await buildLeagueHistory();
-
-	for (const league of leagues) {
-		await insertLeague(league);
-	}
+	const leagues = await buildAndInsertLeagueHistory();
 
 	const data = {
 		status: 'Sleeper league history successfully built.',
@@ -66,3 +56,4 @@ export async function handlerInsertLeagueHistory(_: Request, res: Response) {
 
 	respondWithJSON(res, 201, data);
 }
+

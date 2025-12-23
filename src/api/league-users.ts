@@ -51,15 +51,15 @@ export async function handlerGetLeagueUser(req: Request<LeagueUserParams>, res: 
     respondWithJSON(res, 200, data);
 }
 
-// export async function handlerSyncLeagueUsers(_: Request, res: Response) {
-//     const leagueUsers = await syncLeagueUsers();
+export async function handlerSyncLeagueUsers(_: Request, res: Response) {
+    const leagueUsers = await syncLeagueUsers();
 
-//     for (const user of leagueUsers) {
-//         await insertLeagueUser(user);
-//     }
+    for (const user of leagueUsers) {
+        await insertLeagueUser(user);
+    }
 
-//     respondWithJSON(res, 200, { message: 'synced users with sleeper', leagueUsers });
-// }
+    respondWithJSON(res, 200, { message: 'synced users with sleeper', leagueUsers });
+}
 
 export async function handlerInsertLeagueUsers(req: Request<{}, {}, LeagueUsersBody>, res: Response) {
     const { leagueUsers } = req.body;

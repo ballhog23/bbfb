@@ -1,7 +1,21 @@
 import type { StrictInsertLeague } from "../db/schema.js";
-import { rawLeagueSchema, strictLeagueSchema, type RawLeague, NullableRawLeague } from "../lib/zod.js";
 import { Sleeper } from "../lib/sleeper.js";
+import {
+    rawLeagueSchema, strictLeagueSchema,
+    type RawLeague, NullableRawLeague
+} from "../lib/zod.js";
+import { insertLeague } from "../db/queries/leagues.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
+
+export async function buildAndInsertLeagueHistory() {
+    const leagues = await buildLeagueHistory();
+
+    for (const league of leagues) {
+        await insertLeague(league);
+    }
+
+    return leagues;
+}
 
 export async function buildLeagueHistory(): Promise<StrictInsertLeague[]> {
     const rawAllLeagues = await getAllLeagues();
@@ -35,9 +49,10 @@ export async function getAllLeagues(): Promise<RawLeague[]> {
 }
 
 // be default sleeper.getLeague fetches the current league based on the leagueId stored in the config object
-export async function syncLeague(leagueId?: string): Promise<StrictInsertLeague> {
+export async function syncLeague(): Promise<StrictInsertLeague> {
     const sleeper = new Sleeper();
-    const [league] = rawToNormalizedLeagueData([await sleeper.getLeague(leagueId)]);
+    const [league] = rawToNormalizedLeagueData([await sleeper.getLeague()]);
+    await insertLeague(league);
     return league;
 }
 

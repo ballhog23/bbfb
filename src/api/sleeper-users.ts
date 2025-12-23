@@ -68,6 +68,6 @@ export async function handlerGetSleeperUser(req: Request<SleeperUserParams>, res
     respondWithJSON(res, 200, data);
 }
 
-export async function handlerSyncSleeperUser(_: Request, res: Response) {
+export async function handlerSyncSleeperUsers(_: Request, res: Response) {
 
 }

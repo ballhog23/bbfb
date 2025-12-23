@@ -4,5 +4,7 @@ import { handlerSyncLeague } from '../api/leagues.js';
 
 export const syncRoute = express.Router();
 
+// working
+syncRoute.put("/leagues", asyncHandler(handlerSyncLeague));
 
-syncRoute.put('/leagues', asyncHandler(handlerSyncLeague));
+// syncRoute.put("/users", asyncHandler(handlerSyncUsers));
