@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import { config } from "../config.js";
 import { buildLeagueUsersHistory } from "../services/league-users-service.js";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
-import { NotFoundError } from "../lib/errors.js";
 
 export async function handlerHistoryBootstrap(_: Request, res: Response) {
     const baseURL = `http://localhost:${config.api.port}`;
