@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { insertSleeperUser, dropAllSleeperUsers, selectAllSleeperUsers, selectSleeperUser } from "../db/queries/sleeperUsers.js";
-import { buildSleeperUsersHistory, getAllSleeperUsers } from "../services/sleeperUsersService.js";
+import { insertSleeperUser, dropAllSleeperUsers, selectAllSleeperUsers, selectSleeperUser } from "../db/queries/sleeper-users.js";
+import { buildSleeperUsersHistory, getAllSleeperUsers } from "../services/sleeper-users-service.js";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
 import { NotFoundError } from "../lib/errors.js";
 

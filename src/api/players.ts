@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
 import { NotFoundError } from "../lib/errors.js";
 import { dropAllNFLPlayers, insertNFLPlayer, selectAllNFLPlayers, selectNFLPlayer } from "../db/queries/players.js";
-import { buildAllNFLPlayers } from "../services/playersService.js";
+import { buildAllNFLPlayers } from "../services/players-service.js";
 
 export async function handlerInsertPlayers(_: Request, res: Response) {
     const players = await buildAllNFLPlayers();

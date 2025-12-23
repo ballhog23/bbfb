@@ -1,6 +1,6 @@
 import { SelectLeagueUser, type StrictInsertLeagueUser } from "../db/schema.js";
 import { selectAllLeagues, selectCurrentLeague } from "../db/queries/leagues.js";
-import { selectAllLeagueUsers } from '../db/queries/leagueUsers.js';
+import { selectAllLeagueUsers } from '../db/queries/league-users.js';
 import { Sleeper } from "../lib/sleeper.js";
 import { strictLeagueUserSchema, RawLeagueUser, NullableRawLeagueUser, StrictLeagueUser, rawLeagueUserSchema, NullableRawLeague } from '../lib/zod.js';
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";

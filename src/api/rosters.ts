@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
 import { selectAllRosters, dropAllLeagueRosters, insertLeagueRoster } from "../db/queries/rosters.js";
 import { NotFoundError } from "../lib/errors.js";
-import { buildLeagueRostersHistory } from "../services/rosterService.js";
+import { buildLeagueRostersHistory } from "../services/roster-service.js";
 
 export async function handlerGetRosters(_: Request, res: Response) {
     const rosters = await selectAllRosters();

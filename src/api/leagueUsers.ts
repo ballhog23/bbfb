@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
-import { buildLeagueUsersHistory } from "../services/leagueUsersService.js";
-import { insertLeagueUser, selectLeagueUser, selectAllLeagueUsers, dropAllLeagueUsers, selectLeagueUsers } from "../db/queries/leagueUsers.js";
+import { buildLeagueUsersHistory } from "../services/league-users-service.js";
+import { insertLeagueUser, selectLeagueUser, selectAllLeagueUsers, dropAllLeagueUsers, selectLeagueUsers } from "../db/queries/league-users.js";
 import { NotFoundError } from "../lib/errors.js";
 import { StrictInsertLeagueUser } from "src/db/schema.js";
 
