@@ -4,7 +4,7 @@ import {
     handlerGetAllLeagueUsers, handlerGetLeagueUser,
     handlerDeleteLeagueUsers, handlerGetLeagueUsers,
     handlerInsertLeagueUsers, // handlerSyncLeagueUsers
-} from '../api/leagueUsers.js';
+} from '../api/league-users.js';
 
 export const leagueUsersRoute = express.Router();
 // all league users history

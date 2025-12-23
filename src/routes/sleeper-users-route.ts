@@ -3,7 +3,7 @@ import { asyncHandler } from "../lib/helpers.js";
 import {
     handlerInsertSleeperUsers, handlerDeleteSleeperUsers,
     handlerGetSleeperUser, handlerGetSleeperUsers
-} from "../api/sleeperUsers.js";
+} from "../api/sleeper-users.js";
 
 export const sleeperUsersRoute = express.Router();
 
