@@ -13,11 +13,11 @@ app.use(compression());
 app.use(express.json());
 
 app.use("/players", playersRoute);
-app.use('/bootstrap', bootstrapRoute);
+app.use("/bootstrap", bootstrapRoute);
 app.use("/leagues", leaguesRoute);
 app.use("/sleeper-users", sleeperUsersRoute);
 app.use("/league-users", leagueUsersRoute);
-// app.use("/rosters", rostersRoute);  
+app.use("/rosters", rostersRoute);
 
 app.use(errorHandler);
 

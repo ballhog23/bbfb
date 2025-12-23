@@ -11,6 +11,7 @@ export async function buildLeagueHistory(): Promise<StrictInsertLeague[]> {
 
 export async function getAllLeagues(): Promise<RawLeague[]> {
     const sleeper = new Sleeper();
+    // get current league, then we can walk back leagues
     const rawCurrentLeague = rawLeagueSchema.parse(await sleeper.getLeague());
     const rawAllLeagues: RawLeague[] = [rawCurrentLeague];
     const seenLeagueIds = new Set<string>([rawCurrentLeague.league_id]);
@@ -33,6 +34,7 @@ export async function getAllLeagues(): Promise<RawLeague[]> {
     return rawAllLeagues;
 }
 
+// be default sleeper.getLeague fetches the current league based on the leagueId stored in the config object
 export async function syncLeague(leagueId?: string): Promise<StrictInsertLeague> {
     const sleeper = new Sleeper();
     const [league] = rawToNormalizedLeagueData([await sleeper.getLeague(leagueId)]);
