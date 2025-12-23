@@ -37,7 +37,7 @@ export function rawToNormalizedSleeperUsers(rawUsers: RawSleeperUser[]) {
     return normalizedSleeperUsers.map(user => strictSleeperUserSchema.parse(user));
 }
 
-// export async function syncLeagueUsers() {
-//     const sleeper = new Sleeper();
+export async function syncLeagueUsers() {
+    const sleeper = new Sleeper();
 
-// }
+}

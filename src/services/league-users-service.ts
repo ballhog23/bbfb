@@ -5,6 +5,11 @@ import { Sleeper } from "../lib/sleeper.js";
 import { strictLeagueUserSchema, RawLeagueUser, NullableRawLeagueUser, StrictLeagueUser, rawLeagueUserSchema, NullableRawLeague } from '../lib/zod.js';
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 
+type RawLeagueUsersMap = {
+    leagueId: string;
+    leagueUsers: RawLeagueUser[];
+};
+
 export async function buildLeagueUsersHistory() {
     const leagueHistoryIds = (await selectAllLeagues()).map((league) => league.leagueId);
     const rawUsersHistory = await getAllLeagueUsers(leagueHistoryIds);
@@ -12,7 +17,7 @@ export async function buildLeagueUsersHistory() {
     return rawToNormalizedLeagueUsers(rawUsersHistory);
 }
 
-// extracts all league users/participants by season/league id
+// extracts all league users by league id
 export async function getAllLeagueUsers(leaguesIds: string[]): Promise<RawLeagueUsersMap[]> {
     const sleeper = new Sleeper();
     const usersByLeague = await Promise.all(leaguesIds.map(async leagueId =>
@@ -21,11 +26,6 @@ export async function getAllLeagueUsers(leaguesIds: string[]): Promise<RawLeague
 
     return usersByLeague;
 }
-
-type RawLeagueUsersMap = {
-    leagueId: string;
-    leagueUsers: RawLeagueUser[];
-};
 
 export function normalizeLeagueUser(rawUser: NullableRawLeagueUser, leagueId: string) {
     const teamName = rawUser.metadata?.team_name ? normalizeString(rawUser.metadata.team_name) : null;
@@ -54,9 +54,9 @@ export function rawToNormalizedLeagueUsers(rawUsers: RawLeagueUsersMap[]) {
 }
 
 // syncs current season league users
-// export async function syncLeagueUsers() {
-//     const sleeper = new Sleeper();
-//     const rawLeagueUsers = await sleeper.getLeagueUsers(); // defaults to current season with config stored league id
+export async function syncLeagueUsers() {
+    const sleeper = new Sleeper();
+    const rawLeagueUsers = await sleeper.getLeagueUsers(); // defaults to current season with config stored league id
 
-//     return rawLeagueUsers;
-// }
+    return rawLeagueUsers;
+}

@@ -1,9 +1,8 @@
 import type { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
 import { buildLeagueHistory, syncLeague } from "../services/league-service.js";
-import { insertLeague, selectAllLeagues, selectLeague, dropAllLeagues } from "../db/queries/leagues.js";
-import { BadRequestError, NotFoundError, UserForbiddenError } from "../lib/errors.js";
-import { config } from "../config.js";
+import { insertLeague, selectAllLeagues, selectLeague } from "../db/queries/leagues.js";
+import { NotFoundError } from "../lib/errors.js";
 
 export type LeagueParams = {
 	leagueId: string;

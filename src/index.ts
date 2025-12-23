@@ -7,17 +7,19 @@ import { leaguesRoute } from "./routes/leagues-route.js";
 import { sleeperUsersRoute } from "./routes/sleeper-users-route.js";
 import { leagueUsersRoute } from "./routes/league-users-route.js";
 import { rostersRoute } from "./routes/rosters-route.js";
+import { syncRoute } from "./routes/sync-route.js";
 
 const app = express();
 app.use(compression());
 app.use(express.json());
 
 app.use("/players", playersRoute);
-app.use("/bootstrap", bootstrapRoute);
+app.use("/bootstrap-history", bootstrapRoute);
 app.use("/leagues", leaguesRoute);
 app.use("/sleeper-users", sleeperUsersRoute);
 app.use("/league-users", leagueUsersRoute);
 app.use("/rosters", rostersRoute);
+app.use("/sync", syncRoute);
 
 app.use(errorHandler);
 

@@ -4,7 +4,7 @@ import { buildLeagueUsersHistory } from "../services/league-users-service.js";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
 import { NotFoundError } from "../lib/errors.js";
 
-export async function handlerBootstrap(_: Request, res: Response) {
+export async function handlerHistoryBootstrap(_: Request, res: Response) {
     const baseURL = `http://localhost:${config.api.port}`;
 
     try {

@@ -2,7 +2,7 @@ import express from 'express';
 import { asyncHandler } from "../lib/helpers.js";
 import {
   handlerGetLeagues, handlerInsertLeagueHistory,
-  handlerGetLeague, handlerSyncLeague
+  handlerGetLeague
 } from '../api/leagues.js';
 
 export const leaguesRoute = express.Router();
@@ -15,6 +15,3 @@ leaguesRoute.get('/:leagueId', asyncHandler(handlerGetLeague));
 
 // working
 leaguesRoute.post('/populate-history', asyncHandler(handlerInsertLeagueHistory));
-
-// working
-leaguesRoute.put('/sync', asyncHandler(handlerSyncLeague));

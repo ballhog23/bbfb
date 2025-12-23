@@ -12,7 +12,9 @@ type SleeperUsersBody = {
     leagueUsersIds: string[];
 };
 
-export async function handlerInsertSleeperUsers(req: Request<{}, {}, SleeperUsersBody>, res: Response) {
+// look into typing the Request type with defaults instead of overriding with empty object type...
+// working
+export async function handlerInsertSleeperUsersHistory(req: Request<{}, {}, SleeperUsersBody>, res: Response) {
     const { leagueUsersIds } = req.body;
 
     if (!Array.isArray(leagueUsersIds)) {
@@ -39,6 +41,7 @@ export async function handlerInsertSleeperUsers(req: Request<{}, {}, SleeperUser
     respondWithJSON(res, 201, { message: 'updated sleeper users', sleeperUsers });
 }
 
+// working
 export async function handlerGetSleeperUsers(_: Request, res: Response) {
     const users = await selectAllSleeperUsers();
 
@@ -51,6 +54,7 @@ export async function handlerGetSleeperUsers(_: Request, res: Response) {
     respondWithJSON(res, 200, data);
 }
 
+// working
 export async function handlerGetSleeperUser(req: Request<SleeperUserParams>, res: Response) {
     const params = req.params;
     const user = await selectSleeperUser(params.userId);
@@ -64,8 +68,6 @@ export async function handlerGetSleeperUser(req: Request<SleeperUserParams>, res
     respondWithJSON(res, 200, data);
 }
 
-export async function handlerDeleteSleeperUsers(_: Request, res: Response) {
-    await dropAllSleeperUsers();
+export async function handlerSyncSleeperUser(_: Request, res: Response) {
 
-    respondWithJSON(res, 200, 'deleted all Sleeper users');
 }
