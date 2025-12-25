@@ -13,4 +13,5 @@ leaguesRoute.get('/', asyncHandler(handlerGetLeagues));
 // working
 leaguesRoute.get('/:leagueId', asyncHandler(handlerGetLeague));
 
+// working
 leaguesRoute.post('/', asyncHandler(handlerInsertLeague));
