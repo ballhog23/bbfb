@@ -1,4 +1,4 @@
-import type { StrictInsertLeague } from "../db/schema.js";
+import type { SelectLeague, StrictInsertLeague } from "../db/schema.js";
 import { Sleeper } from "../lib/sleeper.js";
 import {
     rawLeagueSchema, strictLeagueSchema,
@@ -7,25 +7,45 @@ import {
 import { insertLeague } from "../db/queries/leagues.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 
-export async function insertLeagueService() {
-    const sleeper = new Sleeper();
-    // currently we hardcode league id in config, we can probably get the bbfb redraft league id
-    // dynamically by hitting sleepers endpoint for all leagues a user is a part of and figure out how to
-    // create our leagues going forward in a unique manner to allow retrival of that id, for now hardcode is simple
-    const league = await sleeper.getLeague();
-    const normalizedLeague = rawToNormalizedLeagueData([league])[0]; // returns the only item in the array
-    await insertLeague(normalizedLeague);
-    return normalizedLeague;
+export async function syncLeague() {
+    try {
+        const sleeper = new Sleeper();
+        // currently we hardcode league id in config, we can probably get the bbfb redraft league id
+        // dynamically by hitting sleepers endpoint for all leagues a user is a part of and figure out how to
+        // create our leagues going forward in a unique manner to allow retrival of that id, for now hardcode is simple
+        const league = await sleeper.getLeague();
+        const normalizedLeague = rawToNormalizedLeagueData([league]);
+        const result = await insertSleeperLeagues(normalizedLeague);
+        return result;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 export async function buildAndInsertLeagueHistory() {
     const leagues = await buildLeagueHistory();
+    const result = await insertSleeperLeagues(leagues);
+
+    return result;
+}
+
+// we may introduce some sort of retry logic in the future, so we are just setting base code for that
+// by collecting any leagues that were not successfully inserted into the database
+// we can write a generic function in the future that can hold this logic in one single place
+export async function insertSleeperLeagues(leagues: StrictInsertLeague[]) {
+    const successfulLeagues: SelectLeague[] = [];
+    const failedLeagues: { leagueId: string, error: unknown; }[] = [];
 
     for (const league of leagues) {
-        await insertLeague(league);
+        try {
+            const result = await insertLeague(league);
+            successfulLeagues.push(result);
+        } catch (error) {
+            failedLeagues.push({ leagueId: league.leagueId, error });
+        }
     }
 
-    return leagues;
+    return successfulLeagues;
 }
 
 export async function buildLeagueHistory(): Promise<StrictInsertLeague[]> {
@@ -57,13 +77,6 @@ export async function getAllLeagues(): Promise<RawLeague[]> {
     }
 
     return rawAllLeagues;
-}
-
-export async function syncLeague(): Promise<StrictInsertLeague> {
-    const sleeper = new Sleeper();
-    const [league] = rawToNormalizedLeagueData([await sleeper.getLeague()]);
-    await insertLeague(league);
-    return league;
 }
 
 export function normalizeLeague(rawLeague: NullableRawLeague) {

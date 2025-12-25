@@ -1,19 +1,14 @@
 import type { Request, Response } from "express";
-import { respondWithError, respondWithJSON } from "../lib/json.js";
+import { respondWithJSON } from "../lib/json.js";
 import {
-    insertLeagueUser, selectLeagueUser,
-    selectAllLeagueUsers, selectLeagueUsers
+    selectLeagueUser, selectAllLeagueUsers,
+    selectLeagueUsers
 } from "../db/queries/league-users.js";
 import { NotFoundError } from "../lib/errors.js";
-import { StrictInsertLeagueUser } from "src/db/schema.js";
 
 type LeagueUserParams = {
     userId: string;
     leagueId: string;
-};
-
-type LeagueUsersBody = {
-    leagueUsers: StrictInsertLeagueUser[];
 };
 
 export async function handlerGetAllLeagueUsers(_: Request, res: Response) {
@@ -51,11 +46,4 @@ export async function handlerGetLeagueUser(req: Request<LeagueUserParams>, res: 
     };
 
     respondWithJSON(res, 200, data);
-}
-
-export async function handlerInsertLeagueUsers(_: Request, res: Response) {
-
-
-
-    respondWithJSON(res, 201, { message: 'updated league users' });
 }

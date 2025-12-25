@@ -1,4 +1,4 @@
-import type { StrictInsertLeagueUser } from "../db/schema.js";
+import type { SelectLeagueUser, StrictInsertLeagueUser } from "../db/schema.js";
 import { Sleeper } from "../lib/sleeper.js";
 import {
     strictLeagueUserSchema, type RawLeagueUser,
@@ -19,30 +19,48 @@ type RawCurrentLeagueUsersMap = {
     leagueUsers: RawLeagueUser[];
 };
 
-export async function buildCurrentLeagueUsers(sleeper: Sleeper): Promise<RawCurrentLeagueUsersMap[]> {
+// syncs current season league users
+export async function syncLeagueUsers(currentLeagueUsers: StrictInsertLeagueUser[]) {
+    return insertLeagueUsers(currentLeagueUsers);
+}
+
+export async function buildAndInsertLeagueUserHistory(leagueUsers: StrictInsertLeagueUser[]) {
+    return insertLeagueUsers(leagueUsers);
+}
+
+export async function buildCurrentLeagueUsers(): Promise<StrictInsertLeagueUser[]> {
+    const sleeper = new Sleeper();
     const currentLeagueId = config.league.id;
     const leagueUsers = await sleeper.getLeagueUsers(currentLeagueId);
 
-    return [{ leagueId: currentLeagueId, leagueUsers }];
+    return rawToNormalizedLeagueUsers(
+        [{ leagueId: currentLeagueId, leagueUsers } satisfies RawCurrentLeagueUsersMap]
+    );
 }
 
-export async function insertLeagueUserHistory(leagueUsers: StrictInsertLeagueUser[]) {
-    console.log(leagueUsers);
+export async function insertLeagueUsers(leagueUsers: StrictInsertLeagueUser[]) {
+    const successfulUsers: SelectLeagueUser[] = [];
+    const failedInsertUsers: { userId: string, error: unknown; }[] = [];
+
     for (const leagueUser of leagueUsers) {
-        await insertLeagueUser(leagueUser);
+        try {
+            const result = await insertLeagueUser(leagueUser);
+            successfulUsers.push(result);
+        } catch (error) {
+            failedInsertUsers.push({ userId: leagueUser.userId, error });
+        }
     }
 
-    return leagueUsers;
+    return successfulUsers;
 }
 
 export async function buildLeagueUsersHistory() {
     const leagueHistoryIds = (await selectAllLeagues()).map((league) => league.leagueId);
-    const rawUsersHistory = await getAllLeagueUsers(leagueHistoryIds);
+    const rawUsersHistory = await getAllLeagueUsersHistory(leagueHistoryIds);
     return rawToNormalizedLeagueUsers(rawUsersHistory);
 }
 
-// extracts all league users by league id
-export async function getAllLeagueUsers(leaguesIds: string[]): Promise<RawLeagueUsersMap[]> {
+export async function getAllLeagueUsersHistory(leaguesIds: string[]): Promise<RawLeagueUsersMap[]> {
     const sleeper = new Sleeper();
     const usersByLeague = await Promise.all(leaguesIds.map(async leagueId =>
         ({ leagueId, leagueUsers: await sleeper.getLeagueUsers(leagueId) })
@@ -65,19 +83,19 @@ export function normalizeLeagueUser(rawUser: NullableRawLeagueUser, leagueId: st
 }
 
 export function rawToNormalizedLeagueUsers(rawUsers: RawLeagueUsersMap[]) {
-    const nullableLeagueUsers = rawUsers.flatMap(({ leagueId, leagueUsers }) => ({
-        leagueId,
-        leagueUsers: leagueUsers.map(user => undefinedToNullDeep(user) as NullableRawLeagueUser)
-    }));
+    const nullableLeagueUsers = rawUsers.map(
+        ({ leagueId, leagueUsers }) => ({
+            leagueId,
+            leagueUsers: leagueUsers.map(
+                user => undefinedToNullDeep(user) as NullableRawLeagueUser
+            )
+        })
+    );
 
     const normalizedLeagueUsers = nullableLeagueUsers.flatMap(({ leagueId, leagueUsers }) => (
         leagueUsers.map(user => normalizeLeagueUser(user, leagueId))
     ));
 
+
     return normalizedLeagueUsers.map(user => strictLeagueUserSchema.parse(user));
-}
-
-// syncs current season league users
-export async function syncLeagueUsers() {
-
 }

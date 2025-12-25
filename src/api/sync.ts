@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { respondWithError, respondWithJSON } from "../lib/json.js";
+import { respondWithJSON } from "../lib/json.js";
 import { syncLeague } from "../services/league-service.js";
-import { NotFoundError } from "../lib/errors.js";
+import { syncUsers } from "../services/sync-users-service.js";
 
 
 // working
@@ -16,5 +16,11 @@ export async function handlerSyncLeague(_: Request, res: Response) {
 }
 
 export async function handlerSyncUsers(_: Request, res: Response) {
-    // call syncUsers Orchestrator
+    const result = await syncUsers();
+
+    const data = {
+        result
+    };
+
+    respondWithJSON(res, 200, data);
 }

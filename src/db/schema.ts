@@ -10,6 +10,12 @@ const timestamps = {
  * enforcing unique constraint on leagues table for now...
  * if we ever integrate other leagues into this table we could remove the constraint
  * currently we are supporting only the annual redraft league, we could add support of our dynasty but is doubtful
+ * 
+ * ! RIGHT NOW IN THE UPSERT QUERIES, IF YOU TRY TO UPDATE AN EXISITING LEAGUE ID, TO HAVE A SEASON THAT ALREADY EXISTS
+ * ! E.G., UPSERT CURRENT LEAGUE WITH ID OF ABC123, SEASON IS 2025 TO BE -> ID ABC123, SEASON 2021
+ * ! AND THE SEASON 2021 IS ALREADY IN THE DATABASE TIED TO A DIFFERENT LEAGUE ID
+ * ! THE UNIQUE CONSTRAINT VIOLATION IS MET, BUT NO ONE RELAYS ANY DATA, DRIZZLE/POSTGRES ARE JUST RETURNING AN EMPTY ARRAY
+ * ! AND WE GET HTTP 200...
  */
 export const leaguesTable = pgTable("leagues", {
     leagueId: text().primaryKey().notNull(),

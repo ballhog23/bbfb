@@ -1,19 +1,11 @@
 import type { Request, Response } from "express";
-import { insertSleeperUser, selectAllSleeperUsers, selectSleeperUser } from "../db/queries/sleeper-users.js";
-import { getAllSleeperUsers } from "../services/sleeper-users-service.js";
-import { respondWithError, respondWithJSON } from "../lib/json.js";
+import { selectAllSleeperUsers, selectSleeperUser } from "../db/queries/sleeper-users.js";
+import { respondWithJSON } from "../lib/json.js";
 import { NotFoundError } from "../lib/errors.js";
 
 type SleeperUserParams = {
     userId: string;
 };
-
-type SleeperUsersBody = {
-    leagueUsersIds: string[];
-};
-
-// insert league users
-
 
 // working
 export async function handlerGetSleeperUsers(_: Request, res: Response) {

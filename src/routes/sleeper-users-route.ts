@@ -11,6 +11,3 @@ sleeperUsersRoute.get('/', asyncHandler(handlerGetSleeperUsers));
 
 // working
 sleeperUsersRoute.get('/:userId', asyncHandler(handlerGetSleeperUser));
-
-
-// sleeperUsersRoute.put('/sync', asyncHandler(handlerSyncSleeperUser));

@@ -5,19 +5,41 @@ import {
 import { Sleeper } from "../lib/sleeper.js";
 import { normalizeString } from "../lib/helpers.js";
 import { insertSleeperUser } from "../db/queries/sleeper-users.js";
+import { SelectSleeperUser } from "src/db/schema.js";
 
-export async function buildAndInsertSleeperUsersHistory(sleeperUserIds: string[]) {
-    const rawUsersHistory = await getAllSleeperUsers(sleeperUserIds);
-    const sleeperUsers = rawToNormalizedSleeperUsers(rawUsersHistory);
-
-    for (const sleeperUser of sleeperUsers) {
-        await insertSleeperUser(sleeperUser);
-    }
-
-    return sleeperUsers;
+export async function syncSleeperUsers(sleeperUserIds: string[]) {
+    const normalizedUsers = await buildSleeperUsers(sleeperUserIds);
+    return insertSleeperUsers(normalizedUsers);
 }
 
-export async function getAllSleeperUsers(sleeperUserIds: string[]) {
+export async function buildAndInsertSleeperUsersHistory(sleeperUserIds: string[]) {
+    const sleeperUsers = await buildSleeperUsers(sleeperUserIds);
+
+    return insertSleeperUsers(sleeperUsers);
+}
+
+export async function buildSleeperUsers(sleeperUserIds: string[]) {
+    const rawUsers = await getAllSleeperUsersHistory(sleeperUserIds);
+    return rawToNormalizedSleeperUsers(rawUsers);
+}
+
+export async function insertSleeperUsers(sleeperUsers: StrictSleeperUser[]) {
+    const successfulUsers: SelectSleeperUser[] = [];
+    const failedInsertUsers: { userId: string, error: unknown; }[] = [];
+
+    for (const sleeperUser of sleeperUsers) {
+        try {
+            const result = await insertSleeperUser(sleeperUser);
+            successfulUsers.push(result);
+        } catch (error) {
+            failedInsertUsers.push({ userId: sleeperUser.userId, error });
+        }
+    }
+
+    return successfulUsers;
+}
+
+export async function getAllSleeperUsersHistory(sleeperUserIds: string[]) {
     const sleeper = new Sleeper();
     const uniqueUserIds = [...new Set(sleeperUserIds)];
 
@@ -41,9 +63,4 @@ export function rawToNormalizedSleeperUsers(rawUsers: RawSleeperUser[]) {
     );
 
     return normalizedSleeperUsers.map(user => strictSleeperUserSchema.parse(user));
-}
-
-export async function syncSleeperUsers() {
-
-
 }

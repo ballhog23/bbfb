@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { insertLeagueService } from "../services/league-service.js";
+import { syncLeague } from "../services/league-service.js";
 import { selectAllLeagues, selectLeague } from "../db/queries/leagues.js";
 import { NotFoundError } from "../lib/errors.js";
 
@@ -34,9 +34,9 @@ export async function handlerGetLeague(req: Request<LeagueParams>, res: Response
 	respondWithJSON(res, 200, data);
 }
 
-// working, used for sync
-export async function handlerInsertLeague(_: Request, res: Response) {
-	const leagues = await insertLeagueService();
+// working
+export async function handlerSyncLeague(_: Request, res: Response) {
+	const leagues = await syncLeague();
 
 	const data = {
 		status: 'Sleeper league sucessfully inserted.',

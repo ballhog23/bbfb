@@ -4,7 +4,6 @@ import { sql, eq, and } from "drizzle-orm";
 
 // handles initial insertion/sync
 export async function insertLeagueUser(user: StrictInsertLeagueUser) {
-
     const [result] = await db
         .insert(leagueUsersTable)
         .values(user)

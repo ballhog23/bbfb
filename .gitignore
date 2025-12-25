@@ -1,6 +1,7 @@
 .env
 postgres-setup.sql
 players.json
+drop_db.sh
 # Logs
 logs
 *.log
