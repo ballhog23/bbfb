@@ -50,6 +50,10 @@ export async function insertLeagueUsers(leagueUsers: StrictInsertLeagueUser[]) {
         }
     }
 
+    if (failedInsertUsers.length > 0) {
+        throw new AggregateError(failedInsertUsers.map(e => e.error), 'Failed to insert league users');
+    }
+
     return successfulUsers;
 }
 

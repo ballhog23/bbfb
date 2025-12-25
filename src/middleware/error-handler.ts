@@ -30,7 +30,8 @@ export async function errorHandler(err: Error, _: Request, res: Response, __: Ne
 
 	} else if (err instanceof DrizzleError || err instanceof DrizzleQueryError) {
 		message = `CAUSE: ${err.cause}`;
-
+	} else if (err instanceof AggregateError) {
+		console.log(err.errors);
 	}
 
 	if (statusCode >= 500) {

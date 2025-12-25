@@ -52,6 +52,9 @@ export async function insertSleeperLeagues(leagues: StrictInsertLeague[]) {
         }
     }
 
+    if (failedLeagues.length > 0) {
+        throw new AggregateError(failedLeagues.map(e => e.error), 'Failed to insert leagues');
+    }
 
     return successfulLeagues;
 }

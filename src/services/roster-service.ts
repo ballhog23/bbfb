@@ -31,7 +31,6 @@ type RawLeagueRecord = {
 
 // only goal is to return a history of all rosters from all seasons by league/season year for use in normalization.
 // zod loosely validates data on call to sleeper.getLeagueRosters()
-// ! lets also add teamname so we don't have to join sql
 export async function getAllRosters(leagueMap: LeagueMap[]): Promise<RawLeagueRecord[]> {
     const sleeper = new Sleeper();
 
@@ -41,7 +40,7 @@ export async function getAllRosters(leagueMap: LeagueMap[]): Promise<RawLeagueRe
 
     return allRostersByLeague;
 }
-// ! lets also add teamname so we don't have to join sql
+
 export function normalizeRoster(roster: RawRoster, seasonYear: string): StrictRoster {
     // im not sure if an edge case is that a league user could drop all players on their roster and it could be empty
     const starters = roster.starters ? roster.starters.map(playerId => normalizeString(playerId)) : [];
