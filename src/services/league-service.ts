@@ -12,18 +12,7 @@ export async function insertLeagueService() {
     // currently we hardcode league id in config, we can probably get the bbfb redraft league id
     // dynamically by hitting sleepers endpoint for all leagues a user is a part of and figure out how to
     // create our leagues going forward in a unique manner to allow retrival of that id, for now hardcode is simple
-    // const league = await sleeper.getLeague();
-    const league: RawLeague = {
-        league_id: "testtesttestestestest!!!!!!!!!",
-        status: "pre_draft",
-        season: "2029",
-        name: "Test League 2029",
-        avatar: "https://example.com/avatar.png",
-        previous_league_id: null,
-        draft_id: "987654321098765432",
-        roster_positions: ["QB", "RB", "WR", "TE", "FLEX", "K", "DEF"],
-        total_rosters: 12,
-    };
+    const league = await sleeper.getLeague();
     const normalizedLeague = rawToNormalizedLeagueData([league])[0]; // returns the only item in the array
     await insertLeague(normalizedLeague);
     return normalizedLeague;
