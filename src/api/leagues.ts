@@ -33,15 +33,3 @@ export async function handlerGetLeague(req: Request<LeagueParams>, res: Response
 
 	respondWithJSON(res, 200, data);
 }
-
-// working
-export async function handlerSyncLeague(_: Request, res: Response) {
-	const leagues = await syncLeague();
-
-	const data = {
-		status: 'Sleeper league sucessfully inserted.',
-		leagues
-	};
-
-	respondWithJSON(res, 201, data);
-}
