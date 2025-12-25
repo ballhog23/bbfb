@@ -13,5 +13,5 @@ leaguesRoute.get('/', asyncHandler(handlerGetLeagues));
 // working
 leaguesRoute.get('/:leagueId', asyncHandler(handlerGetLeague));
 
-// working
-leaguesRoute.post('/', asyncHandler(handlerInsertLeague));
+// working, used for initial insert on new league season and sync, no need to split between post and put for the same job
+leaguesRoute.put('/', asyncHandler(handlerInsertLeague));

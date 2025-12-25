@@ -46,6 +46,7 @@ export async function handlerInsertLeagueHistory(_: Request, res: Response) {
 	respondWithJSON(res, 201, data);
 }
 
+// working, used for sync
 export async function handlerInsertLeague(_: Request, res: Response) {
 	const leagues = await insertLeagueService();
 
