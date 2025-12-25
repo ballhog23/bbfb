@@ -19,7 +19,6 @@ type RawCurrentLeagueUsersMap = {
     leagueUsers: RawLeagueUser[];
 };
 
-// syncs current season league users
 export async function syncLeagueUsers(currentLeagueUsers: StrictInsertLeagueUser[]) {
     return insertLeagueUsers(currentLeagueUsers);
 }

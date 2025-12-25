@@ -1,10 +1,10 @@
-import { selectLeagueUsers } from "../db/queries/league-users.js";
+import { selectLeagueUsers, selectAllLeagueUsers } from "../db/queries/league-users.js";
 import { syncSleeperUsers } from "./sleeper-users-service.js";
 import { buildCurrentLeagueUsers, syncLeagueUsers } from "./league-users-service.js";
 import { config } from "../config.js";
 
 export async function syncUsers() {
-    const dbLeagueUsersIds = (await selectLeagueUsers(config.league.id)).map(user => user.userId);
+    const dbLeagueUsersIds = (await selectAllLeagueUsers()).map(user => user.userId);
     const uniqueDbLeagueUserIds = new Set(dbLeagueUsersIds);
     const currentLeagueUsers = await buildCurrentLeagueUsers();
     const newSleeperUsersIds: string[] = currentLeagueUsers

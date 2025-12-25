@@ -8,18 +8,25 @@ import { insertLeague } from "../db/queries/leagues.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 
 export async function syncLeague() {
-    try {
-        const sleeper = new Sleeper();
-        // currently we hardcode league id in config, we can probably get the bbfb redraft league id
-        // dynamically by hitting sleepers endpoint for all leagues a user is a part of and figure out how to
-        // create our leagues going forward in a unique manner to allow retrival of that id, for now hardcode is simple
-        const league = await sleeper.getLeague();
-        const normalizedLeague = rawToNormalizedLeagueData([league]);
-        const result = await insertSleeperLeagues(normalizedLeague);
-        return result;
-    } catch (error) {
-        console.log(error);
-    }
+    const sleeper = new Sleeper();
+    // currently we hardcode league id in config, we can probably get the bbfb redraft league id
+    // dynamically by hitting sleepers endpoint for all leagues a user is a part of and figure out how to
+    // create our leagues going forward in a unique manner to allow retrival of that id, for now hardcode is simple
+    const rawLeague: RawLeague = {
+        league_id: "1257436036187824128",
+        status: "pre_draft",
+        season: "2021",
+        name: "Test League 2046",
+        avatar: "https://example.com/avatar.png",
+        previous_league_id: null,
+        draft_id: "987654321098765432",
+        roster_positions: ["QB", "RB", "WR", "TE", "FLEX", "K", "DEF"],
+        total_rosters: 12,
+    };
+    const league = await sleeper.getLeague();
+    const normalizedLeague = rawToNormalizedLeagueData([rawLeague]);
+    const result = await insertSleeperLeagues(normalizedLeague);
+    return result;
 }
 
 export async function buildAndInsertLeagueHistory() {
@@ -44,6 +51,7 @@ export async function insertSleeperLeagues(leagues: StrictInsertLeague[]) {
             failedLeagues.push({ leagueId: league.leagueId, error });
         }
     }
+
 
     return successfulLeagues;
 }

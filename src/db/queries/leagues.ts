@@ -21,7 +21,6 @@ export async function insertLeague(league: StrictInsertLeague): Promise<SelectLe
         })
         .returning();
 
-
     return result;
 }
 
