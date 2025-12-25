@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { syncLeague } from "../services/league-service.js";
 import { selectAllLeagues, selectLeague } from "../db/queries/leagues.js";
 import { NotFoundError } from "../lib/errors.js";
 
