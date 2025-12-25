@@ -4,11 +4,17 @@ import {
 } from '../lib/zod.js';
 import { Sleeper } from "../lib/sleeper.js";
 import { normalizeString } from "../lib/helpers.js";
+import { insertSleeperUser } from "../db/queries/sleeper-users.js";
 
-export async function buildSleeperUsersHistory(sleeperUserIds: string[]) {
+export async function buildAndInsertSleeperUsersHistory(sleeperUserIds: string[]) {
     const rawUsersHistory = await getAllSleeperUsers(sleeperUserIds);
+    const sleeperUsers = rawToNormalizedSleeperUsers(rawUsersHistory);
 
-    return rawToNormalizedSleeperUsers(rawUsersHistory);
+    for (const sleeperUser of sleeperUsers) {
+        await insertSleeperUser(sleeperUser);
+    }
+
+    return sleeperUsers;
 }
 
 export async function getAllSleeperUsers(sleeperUserIds: string[]) {

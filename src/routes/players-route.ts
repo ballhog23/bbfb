@@ -2,8 +2,7 @@ import express from 'express';
 import { asyncHandler } from "../lib/helpers.js";
 import {
     handlerGetPlayers, handlerGetPlayer,
-    handlerInsertPlayers, handlerDeleteNFLPlayers,
-    handlerSyncPlayers
+    handlerInsertPlayers, handlerSyncPlayers
 } from '../api/players.js';
 
 export const playersRoute = express.Router();
@@ -17,5 +16,3 @@ playersRoute.post('/populate-players', asyncHandler(handlerInsertPlayers));
 
 // put used for syncing player data daily
 playersRoute.put('/', asyncHandler(handlerSyncPlayers));
-
-playersRoute.delete('/', asyncHandler(handlerDeleteNFLPlayers));

@@ -1,19 +1,43 @@
-import { SelectLeagueUser, type StrictInsertLeagueUser } from "../db/schema.js";
-import { selectAllLeagues, selectCurrentLeague } from "../db/queries/leagues.js";
-import { selectAllLeagueUsers } from '../db/queries/league-users.js';
+import type { StrictInsertLeagueUser } from "../db/schema.js";
 import { Sleeper } from "../lib/sleeper.js";
-import { strictLeagueUserSchema, RawLeagueUser, NullableRawLeagueUser, StrictLeagueUser, rawLeagueUserSchema, NullableRawLeague } from '../lib/zod.js';
+import {
+    strictLeagueUserSchema, type RawLeagueUser,
+    NullableRawLeagueUser, StrictLeagueUser
+} from '../lib/zod.js';
+import { config } from "../config.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
+import { insertLeagueUser } from "../db/queries/league-users.js";
+import { selectAllLeagues } from "../db/queries/leagues.js";
 
 type RawLeagueUsersMap = {
     leagueId: string;
     leagueUsers: RawLeagueUser[];
 };
 
+type RawCurrentLeagueUsersMap = {
+    leagueId: string;
+    leagueUsers: RawLeagueUser[];
+};
+
+export async function buildCurrentLeagueUsers(sleeper: Sleeper): Promise<RawCurrentLeagueUsersMap[]> {
+    const currentLeagueId = config.league.id;
+    const leagueUsers = await sleeper.getLeagueUsers(currentLeagueId);
+
+    return [{ leagueId: currentLeagueId, leagueUsers }];
+}
+
+export async function insertLeagueUserHistory(leagueUsers: StrictInsertLeagueUser[]) {
+    console.log(leagueUsers);
+    for (const leagueUser of leagueUsers) {
+        await insertLeagueUser(leagueUser);
+    }
+
+    return leagueUsers;
+}
+
 export async function buildLeagueUsersHistory() {
     const leagueHistoryIds = (await selectAllLeagues()).map((league) => league.leagueId);
     const rawUsersHistory = await getAllLeagueUsers(leagueHistoryIds);
-
     return rawToNormalizedLeagueUsers(rawUsersHistory);
 }
 
@@ -36,7 +60,7 @@ export function normalizeLeagueUser(rawUser: NullableRawLeagueUser, leagueId: st
         leagueId: normalizeString(leagueId),
         teamName,
         avatarId,
-        isOwner: rawUser.is_owner ?? null
+        isOwner: rawUser.is_owner ?? false
     } satisfies StrictLeagueUser;
 }
 

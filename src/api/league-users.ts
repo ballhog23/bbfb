@@ -1,7 +1,9 @@
 import type { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
-import { buildLeagueUsersHistory } from "../services/league-users-service.js";
-import { insertLeagueUser, selectLeagueUser, selectAllLeagueUsers, dropAllLeagueUsers, selectLeagueUsers } from "../db/queries/league-users.js";
+import {
+    insertLeagueUser, selectLeagueUser,
+    selectAllLeagueUsers, selectLeagueUsers
+} from "../db/queries/league-users.js";
 import { NotFoundError } from "../lib/errors.js";
 import { StrictInsertLeagueUser } from "src/db/schema.js";
 
@@ -51,38 +53,9 @@ export async function handlerGetLeagueUser(req: Request<LeagueUserParams>, res: 
     respondWithJSON(res, 200, data);
 }
 
-export async function handlerSyncLeagueUsers(_: Request, res: Response) {
-    const leagueUsers = await syncLeagueUsers();
+export async function handlerInsertLeagueUsers(_: Request, res: Response) {
 
-    for (const user of leagueUsers) {
-        await insertLeagueUser(user);
-    }
 
-    respondWithJSON(res, 200, { message: 'synced users with sleeper', leagueUsers });
-}
 
-export async function handlerInsertLeagueUsers(req: Request<{}, {}, LeagueUsersBody>, res: Response) {
-    const { leagueUsers } = req.body;
-
-    if (!Array.isArray(leagueUsers)) {
-        respondWithError(res, 400, `Expected Array, received ${typeof leagueUsers}`);
-        return;
-    }
-
-    if (leagueUsers.length === 0) {
-        respondWithError(res, 400, 'array does not contain raw league users, 0 total.');
-        return;
-    }
-
-    for (const user of leagueUsers) {
-        await insertLeagueUser(user);
-    }
-
-    respondWithJSON(res, 201, { message: 'updated league users', leagueUsers });
-}
-
-export async function handlerDeleteLeagueUsers(_: Request, res: Response) {
-    await dropAllLeagueUsers();
-
-    respondWithJSON(res, 200, 'deleted all league users');
+    respondWithJSON(res, 201, { message: 'updated league users' });
 }

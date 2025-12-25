@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "../lib/json.js";
-import { buildAndInsertLeagueHistory, syncLeague } from "../services/league-service.js";
-import { insertLeague, selectAllLeagues, selectLeague } from "../db/queries/leagues.js";
+import { buildAndInsertLeagueHistory, insertLeagueService } from "../services/league-service.js";
+import { selectAllLeagues, selectLeague } from "../db/queries/leagues.js";
 import { NotFoundError } from "../lib/errors.js";
 
 export type LeagueParams = {
@@ -35,17 +35,6 @@ export async function handlerGetLeague(req: Request<LeagueParams>, res: Response
 }
 
 // working
-export async function handlerSyncLeague(_: Request, res: Response) {
-	const currentLeagueData = await syncLeague();
-
-	const data = {
-		currentLeagueData
-	};
-
-	respondWithJSON(res, 200, data);
-}
-
-// working
 export async function handlerInsertLeagueHistory(_: Request, res: Response) {
 	const leagues = await buildAndInsertLeagueHistory();
 
@@ -57,3 +46,13 @@ export async function handlerInsertLeagueHistory(_: Request, res: Response) {
 	respondWithJSON(res, 201, data);
 }
 
+export async function handlerInsertLeague(_: Request, res: Response) {
+	const leagues = await insertLeagueService();
+
+	const data = {
+		status: 'Sleeper league sucessfully inserted.',
+		leagues
+	};
+
+	respondWithJSON(res, 201, data);
+}

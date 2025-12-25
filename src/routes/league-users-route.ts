@@ -2,8 +2,7 @@ import express from "express";
 import { asyncHandler } from "../lib/helpers.js";
 import {
     handlerGetAllLeagueUsers, handlerGetLeagueUser,
-    handlerDeleteLeagueUsers, handlerGetLeagueUsers,
-    handlerInsertLeagueUsers, // handlerSyncLeagueUsers
+    handlerGetLeagueUsers,
 } from '../api/league-users.js';
 
 export const leagueUsersRoute = express.Router();
@@ -16,8 +15,3 @@ leagueUsersRoute.get('/:leagueId', asyncHandler(handlerGetLeagueUsers));
 // a single league user from a specific league
 leagueUsersRoute.get('/:leagueId/:userId', asyncHandler(handlerGetLeagueUser));
 
-// leagueUsersRoute.put('/sync', asyncHandler(handlerSyncLeagueUsers));
-
-leagueUsersRoute.post('/populate-history', asyncHandler(handlerInsertLeagueUsers));
-
-leagueUsersRoute.delete('/', asyncHandler(handlerDeleteLeagueUsers));
