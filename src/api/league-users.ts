@@ -11,6 +11,7 @@ type LeagueUserParams = {
     leagueId: string;
 };
 
+// working
 export async function handlerGetAllLeagueUsers(_: Request, res: Response) {
     const allUsers = await selectAllLeagueUsers();
     if (allUsers.length === 0) throw new NotFoundError('No users found.');
@@ -22,6 +23,7 @@ export async function handlerGetAllLeagueUsers(_: Request, res: Response) {
     respondWithJSON(res, 200, data);
 }
 
+// working
 export async function handlerGetLeagueUsers(req: Request<LeagueUserParams>, res: Response) {
     const params = req.params;
     const { leagueId } = params;

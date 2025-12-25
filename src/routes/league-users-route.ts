@@ -6,12 +6,12 @@ import {
 } from '../api/league-users.js';
 
 export const leagueUsersRoute = express.Router();
-// all league users history
+
+// working
 leagueUsersRoute.get('/', asyncHandler(handlerGetAllLeagueUsers));
 
-// all league users from a specific league
+// working
 leagueUsersRoute.get('/:leagueId', asyncHandler(handlerGetLeagueUsers));
 
-// a single league user from a specific league
+// working
 leagueUsersRoute.get('/:leagueId/:userId', asyncHandler(handlerGetLeagueUser));
-
