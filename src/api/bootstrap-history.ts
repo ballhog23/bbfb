@@ -23,7 +23,7 @@ export async function handlerHistoryBootstrap(_: Request, res: Response) {
     console.log('LEAGUE USERS POPULATED!');
 
     console.log('POPULATING NFL PLAYERS...');
-    // await buildAndInsertNFLPlayers();
+    await buildAndInsertNFLPlayers();
     console.log('NFL PLAYERS POPULATED!');
 
     respondWithJSON(res, 200, { message: "BOOTSTRAP COMPLETE!" });
