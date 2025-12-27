@@ -7,6 +7,7 @@ export type PlayerParams = {
     playerId: string;
 };
 
+// working
 export async function handlerGetPlayers(_: Request, res: Response) {
     const players = await selectAllNFLPlayers();
     if (players.length === 0) throw new NotFoundError("No players found.");
@@ -25,6 +26,7 @@ export async function handlerGetPlayers(_: Request, res: Response) {
     });
 }
 
+// working
 export async function handlerGetPlayer(req: Request<PlayerParams>, res: Response) {
     const params = req.params;
     const player = await selectNFLPlayer(params.playerId);

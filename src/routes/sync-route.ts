@@ -13,5 +13,5 @@ syncRoute.put("/leagues", asyncHandler(handlerSyncLeague));
 // working
 syncRoute.put("/users", asyncHandler(handlerSyncUsers));
 
-
+// working
 syncRoute.put('/players', asyncHandler(handlerSyncNFLPlayers));

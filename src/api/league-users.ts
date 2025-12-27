@@ -37,6 +37,7 @@ export async function handlerGetLeagueUsers(req: Request<LeagueUserParams>, res:
     respondWithJSON(res, 200, data);
 }
 
+// working
 export async function handlerGetLeagueUser(req: Request<LeagueUserParams>, res: Response) {
     const params = req.params;
     const { userId, leagueId } = params;

@@ -71,13 +71,8 @@ export function normalizeRoster(roster: RawRoster, seasonYear: string): StrictRo
 }
 
 export function rawToNormalizedRosters(rawRosters: RawRoster[], seasonYear: string): StrictRoster[] {
-    const nullableRosters = rawRosters.map(
-        roster => undefinedToNullDeep(roster) as NullableRawRoster
-    );
-
-    const normalizedRosters = nullableRosters.map(
-        roster => normalizeRoster(roster, seasonYear)
-    );
-
-    return normalizedRosters.map(roster => strictRosterSchema.parse(roster));
+    return rawRosters
+        .map(roster => undefinedToNullDeep(roster) as NullableRawRoster)
+        .map(roster => normalizeRoster(roster, seasonYear))
+        .map(roster => strictRosterSchema.parse(roster));
 }

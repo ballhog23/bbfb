@@ -20,6 +20,8 @@ export async function buildAndInsertNFLPlayers() {
     return result;
 }
 
+// perhaps look into parallel insertion with promise.allSettled()
+// we could chunk and still get per player atomicity, and collect success and failures
 export async function insertNFLPlayers(players: StrictInsertNFLPlayer[]) {
     const successfulPlayers: SelectNFLPlayer[] = [];
     const failedPlayers: { playerId: string, error: unknown; }[] = [];
@@ -74,7 +76,6 @@ export function normalizeNFLPlayer(rawPlayer: RawNFLPlayer) {
         injuryStatus,
     } satisfies StrictNFLPLayer;
 }
-
 
 export function rawToNormalizedNFLPlayers(rawPlayer: RawNFLPlayer[]) {
     return rawPlayer

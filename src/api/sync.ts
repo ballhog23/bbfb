@@ -4,7 +4,6 @@ import { syncLeague } from "../services/league-service.js";
 import { syncUsers } from "../services/sync-users-service.js";
 import { syncNFLPlayers } from "../services/players-service.js";
 
-
 // working
 export async function handlerSyncLeague(_: Request, res: Response) {
     const currentLeagueData = await syncLeague();
@@ -16,6 +15,7 @@ export async function handlerSyncLeague(_: Request, res: Response) {
     respondWithJSON(res, 200, data);
 }
 
+// working
 export async function handlerSyncUsers(_: Request, res: Response) {
     const result = await syncUsers();
 
@@ -26,6 +26,7 @@ export async function handlerSyncUsers(_: Request, res: Response) {
     respondWithJSON(res, 200, data);
 }
 
+// working
 export async function handlerSyncNFLPlayers(_: Request, res: Response) {
     const currentNFLPlayers = await syncNFLPlayers();
 
