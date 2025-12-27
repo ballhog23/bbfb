@@ -1,9 +1,6 @@
 import express from 'express';
 import { asyncHandler } from "../lib/helpers.js";
-import {
-    handlerGetPlayers, handlerGetPlayer,
-    handlerInsertPlayers, handlerSyncPlayers
-} from '../api/players.js';
+import { handlerGetPlayers, handlerGetPlayer } from '../api/players.js';
 
 export const playersRoute = express.Router();
 

@@ -86,19 +86,15 @@ export function normalizeLeagueUser(rawUser: NullableRawLeagueUser, leagueId: st
 }
 
 export function rawToNormalizedLeagueUsers(rawUsers: RawLeagueUsersMap[]) {
-    const nullableLeagueUsers = rawUsers.map(
+    return rawUsers.map(
         ({ leagueId, leagueUsers }) => ({
             leagueId,
             leagueUsers: leagueUsers.map(
                 user => undefinedToNullDeep(user) as NullableRawLeagueUser
             )
-        })
-    );
-
-    const normalizedLeagueUsers = nullableLeagueUsers.flatMap(({ leagueId, leagueUsers }) => (
-        leagueUsers.map(user => normalizeLeagueUser(user, leagueId))
-    ));
-
-
-    return normalizedLeagueUsers.map(user => strictLeagueUserSchema.parse(user));
+        }))
+        .flatMap(({ leagueId, leagueUsers }) => (
+            leagueUsers.map(user => normalizeLeagueUser(user, leagueId))
+        ))
+        .map(user => strictLeagueUserSchema.parse(user));
 }

@@ -12,19 +12,8 @@ export async function syncLeague() {
     // currently we hardcode league id in config, we can probably get the bbfb redraft league id
     // dynamically by hitting sleepers endpoint for all leagues a user is a part of and figure out how to
     // create our leagues going forward in a unique manner to allow retrival of that id, for now hardcode is simple
-    const rawLeague: RawLeague = {
-        league_id: "1257436036187824128",
-        status: "pre_draft",
-        season: "2021",
-        name: "Test League 2046",
-        avatar: "https://example.com/avatar.png",
-        previous_league_id: null,
-        draft_id: "987654321098765432",
-        roster_positions: ["QB", "RB", "WR", "TE", "FLEX", "K", "DEF"],
-        total_rosters: 12,
-    };
     const league = await sleeper.getLeague();
-    const normalizedLeague = rawToNormalizedLeagueData([rawLeague]);
+    const normalizedLeague = rawToNormalizedLeagueData([league]);
     const result = await insertSleeperLeagues(normalizedLeague);
     return result;
 }
@@ -107,14 +96,14 @@ export function normalizeLeague(rawLeague: NullableRawLeague) {
 }
 
 export function rawToNormalizedLeagueData(rawLeagues: RawLeague[]): StrictInsertLeague[] {
-    const nullableAllLeagues = rawLeagues.map(
-        rawLeague => undefinedToNullDeep(rawLeague) as NullableRawLeague
-    );
-    const normalizedLeagues = nullableAllLeagues.map(
-        nullableLeague => normalizeLeague(nullableLeague)
-    );
-
-    return normalizedLeagues.map(
-        normalizedLeague => strictLeagueSchema.parse(normalizedLeague)
-    );
+    return rawLeagues
+        .map(
+            rawLeague => undefinedToNullDeep(rawLeague) as NullableRawLeague
+        )
+        .map(
+            nullableLeague => normalizeLeague(nullableLeague)
+        )
+        .map(
+            normalizedLeague => strictLeagueSchema.parse(normalizedLeague)
+        );
 }

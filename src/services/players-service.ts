@@ -1,9 +1,51 @@
-import type { StrictInsertNFLPlayer } from "../db/schema.js";
+import type { SelectNFLPlayer, StrictInsertNFLPlayer } from "../db/schema.js";
 import { Sleeper } from "../lib/sleeper.js";
+import { insertNFLPlayer } from "../db/queries/players.js";
 import { strictNFLPlayerSchema, type RawNFLPlayer, NullableRawNFLPlayer, StrictNFLPLayer } from "../lib/zod.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 
-export async function buildAllNFLPlayers(): Promise<StrictInsertNFLPlayer[]> {
+export async function syncNFLPlayers() {
+    const sleeper = new Sleeper();
+    const players = await sleeper.getAllNFLPlayers();
+    const normalizedPlayers = rawToNormalizedNFLPlayers(players);
+    const result = await insertNFLPlayers(normalizedPlayers);
+
+    return result;
+}
+
+export async function buildAndInsertNFLPlayers() {
+    const players = await buildNFLPlayers();
+    const result = await insertNFLPlayers(players);
+
+    return result;
+}
+
+export async function insertNFLPlayers(players: StrictInsertNFLPlayer[]) {
+    const successfulPlayers: SelectNFLPlayer[] = [];
+    const failedPlayers: { playerId: string, error: unknown; }[] = [];
+
+
+    for (const player of players) {
+
+        try {
+            const result = await insertNFLPlayer(player);
+            successfulPlayers.push(result);
+        } catch (error) {
+            failedPlayers.push({ playerId: player.playerId, error });
+        }
+    }
+
+    if (failedPlayers.length > 0) {
+        throw new AggregateError(
+            failedPlayers.map(e => e.error),
+            'Failed to insert players'
+        );
+    }
+
+    return successfulPlayers;
+}
+
+export async function buildNFLPlayers(): Promise<StrictInsertNFLPlayer[]> {
     const sleeper = new Sleeper();
     const rawNFLPlayers = await sleeper.getAllNFLPlayers();
 
@@ -33,16 +75,10 @@ export function normalizeNFLPlayer(rawPlayer: RawNFLPlayer) {
     } satisfies StrictNFLPLayer;
 }
 
+
 export function rawToNormalizedNFLPlayers(rawPlayer: RawNFLPlayer[]) {
-    const nullableNFLPlayers = rawPlayer.map(
-        player => undefinedToNullDeep(player) as NullableRawNFLPlayer
-    );
-    const normalizedNFLPlayers = nullableNFLPlayers.map(
-        player => normalizeNFLPlayer(player)
-    );
-
-    return normalizedNFLPlayers.map(player => strictNFLPlayerSchema.parse(player));
+    return rawPlayer
+        .map(player => undefinedToNullDeep(player) as NullableRawNFLPlayer)
+        .map(player => normalizeNFLPlayer(player))
+        .map(player => strictNFLPlayerSchema.parse(player));
 }
-
-// syncing players is the same as initial insertion aka buildAllNFLPlayers
-// check route handlers for the sync function

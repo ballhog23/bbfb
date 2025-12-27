@@ -1,20 +1,11 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
 import { NotFoundError } from "../lib/errors.js";
-import { dropAllNFLPlayers, insertNFLPlayer, selectAllNFLPlayers, selectNFLPlayer } from "../db/queries/players.js";
-import { buildAllNFLPlayers } from "../services/players-service.js";
+import { selectAllNFLPlayers, selectNFLPlayer } from "../db/queries/players.js";
 
-export async function handlerInsertPlayers(_: Request, res: Response) {
-    const players = await buildAllNFLPlayers();
-
-    for (const player of players) {
-        await insertNFLPlayer(player);
-    }
-
-    respondWithJSON(res, 201, { status: 'players inserted, success', players });
-}
-
-export const handlerSyncPlayers = handlerInsertPlayers;
+export type PlayerParams = {
+    playerId: string;
+};
 
 export async function handlerGetPlayers(_: Request, res: Response) {
     const players = await selectAllNFLPlayers();
@@ -45,13 +36,3 @@ export async function handlerGetPlayer(req: Request<PlayerParams>, res: Response
         status: 'success'
     });
 }
-
-export async function handlerDeleteNFLPlayers(_: Request, res: Response) {
-    await dropAllNFLPlayers();
-
-    respondWithJSON(res, 200, 'deleted all nfl players');
-}
-
-export type PlayerParams = {
-    playerId: string;
-};

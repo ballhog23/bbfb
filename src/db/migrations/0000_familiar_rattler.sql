@@ -72,8 +72,3 @@ ALTER TABLE "league_users" ADD CONSTRAINT "league_users_user_id_sleeper_users_us
 ALTER TABLE "league_users" ADD CONSTRAINT "league_users_league_id_leagues_league_id_fk" FOREIGN KEY ("league_id") REFERENCES "public"."leagues"("league_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rosters" ADD CONSTRAINT "rosters_owner_id_sleeper_users_user_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."sleeper_users"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rosters" ADD CONSTRAINT "rosters_league_id_leagues_league_id_fk" FOREIGN KEY ("league_id") REFERENCES "public"."leagues"("league_id") ON DELETE no action ON UPDATE no action;
-
-ALTER TABLE league_users
-ADD CONSTRAINT league_users_league_fkey
-FOREIGN KEY (league_id, season)
-REFERENCES leagues (league_id, season);

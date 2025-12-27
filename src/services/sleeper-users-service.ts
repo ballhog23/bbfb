@@ -62,9 +62,7 @@ export function normalizeSleeperUser(rawUser: RawSleeperUser) {
 }
 
 export function rawToNormalizedSleeperUsers(rawUsers: RawSleeperUser[]) {
-    const normalizedSleeperUsers = rawUsers.map(
-        user => normalizeSleeperUser(user)
-    );
-
-    return normalizedSleeperUsers.map(user => strictSleeperUserSchema.parse(user));
+    return rawUsers
+        .map(user => normalizeSleeperUser(user))
+        .map(user => strictSleeperUserSchema.parse(user));
 }

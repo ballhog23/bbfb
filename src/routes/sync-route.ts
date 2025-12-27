@@ -1,8 +1,9 @@
 import express from 'express';
 import { asyncHandler } from "../lib/helpers.js";
-import { handlerSyncLeague } from '../api/sync.js';
-import { handlerSyncUsers } from "../api/sync.js";
-import { handlerSyncPlayers } from "../api/players.js";
+import {
+    handlerSyncLeague, handlerSyncUsers,
+    handlerSyncNFLPlayers
+} from '../api/sync.js';
 
 export const syncRoute = express.Router();
 
@@ -12,4 +13,5 @@ syncRoute.put("/leagues", asyncHandler(handlerSyncLeague));
 // working
 syncRoute.put("/users", asyncHandler(handlerSyncUsers));
 
-syncRoute.put('/players', asyncHandler(handlerSyncPlayers));
+
+syncRoute.put('/players', asyncHandler(handlerSyncNFLPlayers));

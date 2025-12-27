@@ -99,7 +99,7 @@ export const rostersTable = pgTable("rosters", {
         .notNull(),
     season: text().notNull(),
     rosterId: integer().notNull(),
-    starters: text().array().notNull(), // if someone doesn't have any starters this could be empty array
+    starters: text().array().notNull(),
     wins: integer().notNull(),
     ties: integer().notNull(),
     losses: integer().notNull(),

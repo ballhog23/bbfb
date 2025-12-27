@@ -1,7 +1,6 @@
-import { selectLeagueUsers, selectAllLeagueUsers } from "../db/queries/league-users.js";
+import { selectAllLeagueUsers } from "../db/queries/league-users.js";
 import { syncSleeperUsers } from "./sleeper-users-service.js";
 import { buildCurrentLeagueUsers, syncLeagueUsers } from "./league-users-service.js";
-import { config } from "../config.js";
 
 export async function syncUsers() {
     const dbLeagueUsersIds = (await selectAllLeagueUsers()).map(user => user.userId);
@@ -14,5 +13,5 @@ export async function syncUsers() {
     const syncedSleeperUsers = await syncSleeperUsers([...dbLeagueUsersIds, ...newSleeperUsersIds]);
     const syncedLeagueUsers = await syncLeagueUsers(currentLeagueUsers);
 
-    return [...syncedSleeperUsers, ...syncedLeagueUsers];
+    return { sleeperUsers: syncedSleeperUsers, leagueUsers: syncedLeagueUsers };
 }
