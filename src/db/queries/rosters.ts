@@ -1,13 +1,9 @@
-import { sql, eq } from "drizzle-orm";
+import { sql, and, eq, desc } from "drizzle-orm";
 import { db } from "../index.js";
-import { rostersTable, type StrictInsertRoster } from '../schema.js';
+import { leagueUsersTable, rostersTable, NFLPlayersTable, type StrictInsertRoster } from '../schema.js';
 
-// in the future we need to just insert a single leagues season roster, not all current and historical rosters
-// for now we will treat all rosters as the atomic unit on insertion (this should not result in any constraint failures)
-// we will want to treat the single roster as the atomic unit
-// we should also look into writing a postgres trigger for if a rosters ownerId is changed
 export async function insertLeagueRoster(leagueRosters: StrictInsertRoster) {
-    const result = await db
+    const [result] = await db
         .insert(rostersTable)
         .values(leagueRosters)
         .onConflictDoUpdate({
@@ -32,24 +28,163 @@ export async function insertLeagueRoster(leagueRosters: StrictInsertRoster) {
     return result;
 }
 
+// historical
 export async function selectAllRosters() {
     const result = await db
-        .select()
-        .from(rostersTable);
+        .select({
+            userId: leagueUsersTable.userId,
+            teamName: leagueUsersTable.teamName,
+            season: rostersTable.season,
+            wins: rostersTable.wins,
+            losses: rostersTable.losses,
+            players: sql
+                `
+                    jsonb_agg(
+                        jsonb_build_object(
+                            'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
+                            'position', ${NFLPlayersTable.position}
+                        )
+                    ) as player_metadata
+                `,
+        })
+        .from(rostersTable)
+        .innerJoin(leagueUsersTable,
+            and(
+                eq(rostersTable.leagueId, leagueUsersTable.leagueId),
+                eq(rostersTable.ownerId, leagueUsersTable.userId)
+            )
+        )
+        .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
+        .groupBy(
+            leagueUsersTable.userId,
+            leagueUsersTable.teamName,
+            rostersTable.season,
+            rostersTable.wins,
+            rostersTable.losses
+        )
+        .orderBy(desc(rostersTable.season));
 
     return result;
 }
 
-// composite key lookup
-export async function selectRoster(rosterId: string) {
-    // const result = await db
-    //     .select()
-    //     .from(rostersTable)
-    //     .where(eq(rostersTable.rosterId, rosterId));
+// historical per user
+export async function selectUserRosters(userId: string) {
+    const result = await db
+        .select({
+            userId: leagueUsersTable.userId,
+            teamName: leagueUsersTable.teamName,
+            season: rostersTable.season,
+            wins: rostersTable.wins,
+            losses: rostersTable.losses,
+            players: sql
+                `
+                    jsonb_agg(
+                        jsonb_build_object(
+                            'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
+                            'position', ${NFLPlayersTable.position}
+                        )
+                    ) as player_metadata
+                `,
+        })
+        .from(rostersTable)
+        .innerJoin(leagueUsersTable,
+            and(
+                eq(rostersTable.leagueId, leagueUsersTable.leagueId),
+                eq(rostersTable.ownerId, leagueUsersTable.userId)
+            )
+        )
+        .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
+        .where(eq(rostersTable.ownerId, userId))
+        .groupBy(
+            leagueUsersTable.userId,
+            leagueUsersTable.teamName,
+            rostersTable.season,
+            rostersTable.wins,
+            rostersTable.losses
+        )
+        .orderBy(desc(rostersTable.season));
 
-    // return result;
+    return result;
 }
 
-export async function dropAllLeagueRosters() {
-    await db.delete(rostersTable);
+// per season
+export async function selectLeagueRosters(leagueId: string) {
+    const result = await db
+        .select({
+            userId: leagueUsersTable.userId,
+            teamName: leagueUsersTable.teamName,
+            season: rostersTable.season,
+            wins: rostersTable.wins,
+            losses: rostersTable.losses,
+            players: sql
+                `
+                    jsonb_agg(
+                        jsonb_build_object(
+                            'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
+                            'position', ${NFLPlayersTable.position}
+                        )
+                    ) as player_metadata
+                `,
+        })
+        .from(rostersTable)
+        .innerJoin(leagueUsersTable,
+            and(
+                eq(rostersTable.leagueId, leagueUsersTable.leagueId),
+                eq(rostersTable.ownerId, leagueUsersTable.userId)
+            )
+        )
+        .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
+        .where(eq(rostersTable.leagueId, leagueId))
+        .groupBy(
+            leagueUsersTable.userId,
+            leagueUsersTable.teamName,
+            rostersTable.season,
+            rostersTable.wins,
+            rostersTable.losses
+        );
+
+    return result;
+}
+
+// per season per user
+export async function selectLeagueUserRoster(leagueId: string, userId: string) {
+    const result = await db
+        .select({
+            userId: leagueUsersTable.userId,
+            teamName: leagueUsersTable.teamName,
+            season: rostersTable.season,
+            wins: rostersTable.wins,
+            losses: rostersTable.losses,
+            players: sql
+                `
+                    jsonb_agg(
+                        jsonb_build_object(
+                            'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
+                            'position', ${NFLPlayersTable.position}
+                        )
+                    ) as player_metadata
+                `
+        })
+        .from(rostersTable)
+        .innerJoin(leagueUsersTable,
+            and(
+                eq(rostersTable.leagueId, leagueUsersTable.leagueId),
+                eq(rostersTable.ownerId, leagueUsersTable.userId)
+            )
+        )
+        .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
+        .where(
+            and(
+                eq(rostersTable.leagueId, leagueId),
+                eq(rostersTable.ownerId, userId)
+            )
+        )
+        .groupBy(
+            leagueUsersTable.userId,
+            leagueUsersTable.teamName,
+            rostersTable.season,
+            rostersTable.wins,
+            rostersTable.losses
+        );
+    return result;
 }

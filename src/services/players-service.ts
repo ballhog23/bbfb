@@ -22,9 +22,14 @@ export async function buildAndInsertNFLPlayers() {
 
 // perhaps look into parallel insertion with promise.allSettled()
 // we could chunk and still get per player atomicity, and collect success and failures
+// allSettled version took 5.50s concurrency
+// sequential insertion takes 11.87s
 export async function insertNFLPlayers(players: StrictInsertNFLPlayer[]) {
     const successfulPlayers: SelectNFLPlayer[] = [];
     const failedPlayers: { playerId: string, error: unknown; }[] = [];
+    // const results = await Promise.allSettled(
+    //     players.map(async player => await insertNFLPlayer(player))
+    // );
 
 
     for (const player of players) {

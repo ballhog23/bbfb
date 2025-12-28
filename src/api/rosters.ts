@@ -1,12 +1,35 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { selectAllRosters, dropAllLeagueRosters, insertLeagueRoster } from "../db/queries/rosters.js";
-import { NotFoundError } from "../lib/errors.js";
-import { buildLeagueRostersHistory } from "../services/roster-service.js";
+import {
+    selectAllRosters, selectLeagueRosters,
+    selectUserRosters, selectLeagueUserRoster
+} from "../db/queries/rosters.js";
+import { BadRequestError, NotFoundError } from "../lib/errors.js";
 
-export async function handlerGetRosters(_: Request, res: Response) {
+// all history
+export async function handlerGetAllRosters(_: Request, res: Response) {
     const rosters = await selectAllRosters();
     if (rosters.length === 0) throw new NotFoundError("No league rosters found.");
+
+    const data = {
+        rosters
+    };
+
+    respondWithJSON(res, 201, data);
+}
+
+// all history per user
+export async function handlerGetLeagueUserRosters(req: Request<RosterParams>, res: Response) {
+    const params = req.params;
+    const { userId } = params;
+
+    if (!userId)
+        throw new BadRequestError('You must provide a user ID.');
+
+    const rosters = await selectUserRosters(userId);
+
+    if (rosters.length === 0)
+        throw new NotFoundError(`Could not find rosters for User ID: ${userId}`);
 
     const data = {
         rosters
@@ -15,42 +38,44 @@ export async function handlerGetRosters(_: Request, res: Response) {
     res.send(data);
 }
 
-export async function handlerGetRoster(req: Request<RosterParams>, res: Response) {
+// per season
+export async function handlerGetLeagueRosters(req: Request<RosterParams>, res: Response) {
     const params = req.params;
-    const roster = await selectAllRosters();
-    if (roster.length === 0) throw new NotFoundError(`Roster with ID: ${params.rosterId} not found.`);
+    const { leagueId } = params;
+    if (!leagueId)
+        throw new BadRequestError("You must provide a League ID.");
+
+    const rosters = await selectLeagueRosters(leagueId);
+    if (rosters.length === 0) throw new NotFoundError(`Rosters for League ID: ${leagueId} not found.`);
 
     const data = {
-        roster
+        rosters
     };
 
     res.send(data);
 }
 
-// this endpoint is currently treated as a first time insertion of data from sleeper
-// current and present, its main function should solely be first time insertion of all data
-// we should have another endpoint that maintains in season roster functionality
-export async function handlerInsertHistoricalRosters(_: Request, res: Response) {
-    const rosters = await buildLeagueRostersHistory();
+// history per league, per user
+export async function handlerGetLeagueUserRoster(req: Request<RosterParams>, res: Response) {
+    const params = req.params;
+    const { leagueId, userId } = params;
 
-    for (const roster of rosters) {
-        await insertLeagueRoster(roster);
-    }
+    if (!leagueId && !userId)
+        throw new BadRequestError("You must provide a League ID and User ID");
+
+    const rosters = await selectLeagueUserRoster(leagueId, userId);
+
+    if (rosters.length === 0)
+        throw new NotFoundError(`Roster for User ID: ${userId} not found in League ID: ${leagueId}`);
 
     const data = {
-        rosters,
-        status: "ok"
+        rosters
     };
 
     res.send(data);
-}
-
-export async function handlerDeleteRosters(_: Request, res: Response) {
-    await dropAllLeagueRosters();
-
-    respondWithJSON(res, 200, 'deleted all league rosters');
 }
 
 export type RosterParams = {
-    rosterId: string;
+    leagueId: string;
+    userId: string;
 };

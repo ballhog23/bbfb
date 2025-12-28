@@ -2,6 +2,7 @@
 postgres-setup.sql
 players.json
 drop_db.sh
+*.sql
 # Logs
 logs
 *.log

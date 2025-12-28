@@ -8,6 +8,20 @@
       "when": 1766820252377,
       "tag": "0000_familiar_rattler",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766885920432,
+      "tag": "0001_nostalgic_frank_castle",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766886460376,
+      "tag": "0002_colossal_wong",
+      "breakpoints": true
     }
   ]
 }

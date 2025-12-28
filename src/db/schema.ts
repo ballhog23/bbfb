@@ -81,21 +81,12 @@ export const NFLPlayersTable = pgTable("nfl_players", {
 export type SelectNFLPlayer = typeof NFLPlayersTable.$inferSelect;
 export type StrictInsertNFLPlayer = Omit<SelectNFLPlayer, "createdAt" | "updatedAt">;
 
-/**
- * Initially considered using `rosterId` as the primary key, but it's a number 1-12 for every season, so not globally unique.
- * One idea was to prefix the year when normalizing data for insertion, but `rosterId` is also used in the playoff bracket, making that tricky.
- * Using a UUID was considered, but this is a bad idea because it breaks the natural identity of the roster.
- * Instead, we define a composite primary key. 
- * Analogy: A house is defined by its address, not its occupant.
- * Similarly, a roster is uniquely identified by its league (`leagueId`) and its slot (`rosterId`), independent of `ownerId`.
- * we should also look into writing a postgres trigger for if a rosters ownerId is changed
-*/
 export const rostersTable = pgTable("rosters", {
     ownerId: text()
-        .references(() => sleeperUsersTable.userId) // we don't onDelete cascade here, because the whole point is to preserve history
+        .references(() => sleeperUsersTable.userId)
         .notNull(),
     leagueId: text()
-        .references(() => leaguesTable.leagueId) // we don't onDelete cascade here, because the whole point is to preserve history
+        .references(() => leaguesTable.leagueId)
         .notNull(),
     season: text().notNull(),
     rosterId: integer().notNull(),
