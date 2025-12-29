@@ -9,7 +9,7 @@ import { SelectRoster, StrictInsertRoster } from "src/db/schema.js";
 import { insertLeagueRoster } from "../db/queries/rosters.js";
 import { config } from "../config.js";
 
-type LeagueMap = {
+export type LeaguesMap = {
     leagueId: string,
     season: string;
 };
@@ -67,9 +67,13 @@ async function buildCurrentLeagueRosters(): Promise<StrictInsertRoster[]> {
     return rawToNormalizedRosters(rawRosters, config.league.season);
 }
 
+export async function buildLeagueHistoryMap(): Promise<LeaguesMap[]> {
+    return (await selectAllLeagues()).map(({ leagueId, season }) => ({ leagueId, season }));
+}
+
 async function buildLeagueRostersHistory(): Promise<StrictInsertRoster[]> {
-    const leagueHistory: LeagueMap[] = (await selectAllLeagues()).map(({ leagueId, season }) => ({ leagueId, season }));
-    const allRawLeagueRosters = await getAllRosters(leagueHistory);
+    const leagueHistoryMap = await buildLeagueHistoryMap();
+    const allRawLeagueRosters = await getAllRosters(leagueHistoryMap);
     const normalizedLeagueRosters: StrictRoster[] = [];
 
     for (const leagueRosters of allRawLeagueRosters) {
@@ -82,11 +86,11 @@ async function buildLeagueRostersHistory(): Promise<StrictInsertRoster[]> {
     return normalizedLeagueRosters;
 }
 
-async function getAllRosters(leagueMap: LeagueMap[]): Promise<RawLeagueRecord[]> {
+async function getAllRosters(leaguesMap: LeaguesMap[]): Promise<RawLeagueRecord[]> {
     const sleeper = new Sleeper();
 
     const allRostersByLeague = await Promise.all(
-        leagueMap.map(
+        leaguesMap.map(
             async ({ leagueId, season }) => ({ season, rosters: await sleeper.getLeagueRosters(leagueId) })
         )
     );

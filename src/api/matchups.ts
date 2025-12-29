@@ -1,12 +1,21 @@
 import type { Request, Response } from "express";
-import { Sleeper } from '../lib/sleeper.js';
+import { respondWithJSON } from "../lib/json.js";
+import { buildLeagueMatchupHistory } from "../services/matchups-service.js";
 
-export async function handlerMatchups(_: Request, res: Response) {
-    // const sleeper = new Sleeper();
-    // const matchups = await sleeper.getThisWeeksLeagueMatchups(1);
-    // const data = {
-    //     matchups
-    // };
+export async function handlerGetMatchups(_: Request, res: Response) {
+    const matchups = await buildLeagueMatchupHistory();
 
-    // res.send(data);
+    const data = {
+        matchups
+    };
+
+    respondWithJSON(res, 200, data);
+}
+
+export async function handlerGetMatchup(_: Request, res: Response) {
+    const data = {
+        dog: 'cat'
+    };
+
+    respondWithJSON(res, 200, data);
 }

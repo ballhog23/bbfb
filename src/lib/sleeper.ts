@@ -5,7 +5,9 @@ import {
     type RawLeague, RawLeagueUser,
     RawNFLPlayer, RawRoster,
     RawSleeperUser,
-    rawSleeperUserSchema
+    rawSleeperUserSchema,
+    RawMatchup,
+    rawMatchupSchema
 } from "./zod.js";
 import { config } from '../config.js';
 
@@ -61,27 +63,15 @@ export class Sleeper {
         return rosters.map(roster => rawRosterSchema.parse(roster));
     }
 
-    // async getThisWeeksLeagueMatchups(week: number): Promise<RefinedMatchup[]> {
-    //     const url = `${this.baseURL}/league/${this.leagueId}/matchups/${week}`;
-    //     const leagueMatchups = await this.fetchJSON(url);
+    async getWeeklyLeagueMatchups(week: number, leagueId?: string): Promise<RawMatchup[]> {
+        if (!leagueId) leagueId = this.leagueId;
+        const url = `${this.baseURL}league/${leagueId}/matchups/${week}`;
+        const leagueMatchups = await this.fetchJSON(url);
 
-    //     this.assertArray(leagueMatchups);
+        this.assertArray(leagueMatchups);
 
-    //     const looseMatchupData = leagueMatchups.map((matchup) => matchupSchema.parse(matchup));
-    //     const strictMatchupData = this.undefinedToNullDeep(looseMatchupData);
-    //     const normalizedMatchupData = strictMatchupData.map((matchup) => {
-    //         return {
-    //             starters: matchup.starters,
-    //             rosterId: matchup.roster_id,
-    //             players: matchup.players,
-    //             matchupId: matchup.matchup_id,
-    //             points: matchup.points,
-    //             customPoints: matchup.custom_points ?? null,
-    //         } satisfies RefinedMatchup;
-    //     });
-
-    //     return normalizedMatchupData;
-    // }
+        return leagueMatchups.map(matchup => rawMatchupSchema.parse(matchup));
+    }
 
     // async getLeaguePlayoffBracket(bracket: "winners_bracket" | "losers_bracket"): Promise<Bracket[]> {
     //     const url = `${this.baseURL}league/${this.leagueId}/${bracket}`;
@@ -102,8 +92,6 @@ export class Sleeper {
     //     const looseNFLState = NFLStateSchema.parse(NFLState);
     //     return this.undefinedToNullDeep(looseNFLState);
     // };
-
-    // data normalization helpers
 
     private assertObject<T = Record<string, unknown>>(value: unknown): asserts value is T {
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {

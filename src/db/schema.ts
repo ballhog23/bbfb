@@ -1,21 +1,17 @@
-import { primaryKey } from "drizzle-orm/pg-core";
-import { pgTable, timestamp, text, boolean, integer, unique } from "drizzle-orm/pg-core";
+import { foreignKey, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, timestamp, text, boolean, integer, unique, jsonb, numeric } from "drizzle-orm/pg-core";
 
 const timestamps = {
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date())
 };
 
+type OmitTimestamps<T> = Omit<T, "createdAt" | "updatedAt">;
+
 /**
- * enforcing unique constraint on leagues table for now...
+ * enforcing unique season constraint on leagues table for now...
  * if we ever integrate other leagues into this table we could remove the constraint
  * currently we are supporting only the annual redraft league, we could add support of our dynasty but is doubtful
- * 
- * ! RIGHT NOW IN THE UPSERT QUERIES, IF YOU TRY TO UPDATE AN EXISITING LEAGUE ID, TO HAVE A SEASON THAT ALREADY EXISTS
- * ! E.G., UPSERT CURRENT LEAGUE WITH ID OF ABC123, SEASON IS 2025 TO BE -> ID ABC123, SEASON 2021
- * ! AND THE SEASON 2021 IS ALREADY IN THE DATABASE TIED TO A DIFFERENT LEAGUE ID
- * ! THE UNIQUE CONSTRAINT VIOLATION IS MET, BUT NO ONE RELAYS ANY DATA, DRIZZLE/POSTGRES ARE JUST RETURNING AN EMPTY ARRAY
- * ! AND WE GET HTTP 200...
  */
 export const leaguesTable = pgTable("leagues", {
     leagueId: text().primaryKey().notNull(),
@@ -32,7 +28,7 @@ export const leaguesTable = pgTable("leagues", {
     unique().on(t.season)
 ]);
 export type SelectLeague = typeof leaguesTable.$inferSelect;
-export type StrictInsertLeague = Omit<SelectLeague, "createdAt" | "updatedAt">;
+export type StrictInsertLeague = OmitTimestamps<SelectLeague>;
 
 export const sleeperUsersTable = pgTable("sleeper_users", {
     userId: text().primaryKey().notNull(),
@@ -42,7 +38,7 @@ export const sleeperUsersTable = pgTable("sleeper_users", {
     ...timestamps
 });
 export type SelectSleeperUser = typeof sleeperUsersTable.$inferSelect;
-export type StrictInsertSleeperUser = Omit<SelectSleeperUser, "createdAt" | "updatedAt">;
+export type StrictInsertSleeperUser = OmitTimestamps<SelectSleeperUser>;
 
 export const leagueUsersTable = pgTable("league_users", {
     userId: text()
@@ -60,7 +56,7 @@ export const leagueUsersTable = pgTable("league_users", {
 ]);
 
 export type SelectLeagueUser = typeof leagueUsersTable.$inferSelect;
-export type StrictInsertLeagueUser = Omit<SelectLeagueUser, "createdAt" | "updatedAt">;
+export type StrictInsertLeagueUser = OmitTimestamps<SelectLeagueUser>;
 
 // a cool feature will be to extract all player nicknames from league rosters
 // tie them to id here, and store as array of strings
@@ -79,7 +75,7 @@ export const NFLPlayersTable = pgTable("nfl_players", {
 });
 
 export type SelectNFLPlayer = typeof NFLPlayersTable.$inferSelect;
-export type StrictInsertNFLPlayer = Omit<SelectNFLPlayer, "createdAt" | "updatedAt">;
+export type StrictInsertNFLPlayer = OmitTimestamps<SelectNFLPlayer>;
 
 export const rostersTable = pgTable("rosters", {
     ownerId: text()
@@ -107,4 +103,33 @@ export const rostersTable = pgTable("rosters", {
 );
 
 export type SelectRoster = typeof rostersTable.$inferSelect;
-export type StrictInsertRoster = Omit<SelectRoster, "createdAt" | "updatedAt">;
+export type StrictInsertRoster = OmitTimestamps<SelectRoster>;
+
+export const matchupsTable = pgTable("matchups", {
+    leagueId: text()
+        .notNull(),
+    season: text().notNull(),
+    week: integer().notNull(),
+    points: numeric({ scale: 2 }).notNull(),
+    players: text().array().notNull(),
+    rosterId: integer()
+        .notNull(),
+    matchupId: integer(), // NULL MATCHUP ID === BYE WEEK
+    starters: text().array().notNull(),
+    startersPoints: integer().array().notNull(),
+    playersPoints: jsonb().$type<Record<string, string>>(),
+    ...timestamps
+}, (table) => [
+    primaryKey({
+        name: "matchups_identity",
+        columns: [table.leagueId, table.rosterId, table.week]
+    }),
+    foreignKey({
+        name: "league_rosters_identity",
+        columns: [table.leagueId, table.rosterId],
+        foreignColumns: [rostersTable.leagueId, rostersTable.rosterId]
+    })
+]);
+
+export type SelectMatchup = typeof matchupsTable.$inferSelect;
+export type StrictInsertMatchup = OmitTimestamps<SelectMatchup>;

@@ -27,7 +27,8 @@ export async function insertLeague(league: StrictInsertLeague): Promise<SelectLe
 export async function selectAllLeagues() {
     const rows = await db
         .select()
-        .from(leaguesTable);
+        .from(leaguesTable)
+        .orderBy(leaguesTable.season);
 
     return rows;
 }

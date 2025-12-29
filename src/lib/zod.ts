@@ -1,44 +1,15 @@
 import * as z from "zod";
 
-/**
- * allowing null values?
- * A lot of the metadata tied to a user is undefined because it requires that the user
- * has actually interacted with that setting in the Sleeper app/settings.
- * This is okay, we will replace the undefined values with null.
- * 
- * We use looseObject for the same reason above, when it comes to metadata, 
- * i've noticed that sleeper adds additional keys based on interaction with settings or 
- * features like player nicknames, we don't want to not parse any 'extra' data that is added on to the response
- * because we may use that additional data for a future feature.
- * 
- * right now we are focusing on the required data shape, and further narrowing that data
- * before we store it in the database. Data normalization will take place within the /services for each type.
- */
-
 const nullishStringArray = z.nullish(z.array(z.string()));
-const nullishUnknownArray = z.nullish(z.array(z.unknown()));
-const nullishUnknown = z.nullish(z.unknown());
 const nullishString = z.nullish(z.string());
 const nullishNumber = z.nullish(z.number());
 const nullishBoolean = z.nullish(z.boolean());
-const nullishObject = z.nullish(z.object());
 const nullableStringArray = z.nullable(z.array(z.string()));
-const nullableUnknownArray = z.nullable(z.array(z.unknown()));
-const nullableUnknown = z.nullable(z.unknown());
 const nullableString = z.nullable(z.string());
 const nullableNumber = z.nullable(z.number());
 const nullableBoolean = z.nullable(z.boolean());
-const optionalNullishNumber = z.optional(nullishNumber);
-const optionalNullableNumber = z.optional(nullableNumber);
-const recordKeys = z.union([z.string(), z.number(), z.symbol()]);
 const leagueStatusEnum = z.enum(["pre_draft", "drafting", "in_season", "complete", "post_season"]);
 
-// ! LEAGUES ARE OKAY
-/**
- * why two similar schemas?
- * the first schema is what sleeper sends, we loosely validate it, testing for required data.
- * we replace an undefined values with null and then we parse our normalized data against the strictSchema
- */
 export const rawLeagueSchema = z.looseObject({
     league_id: z.string(),
     status: leagueStatusEnum,
@@ -75,7 +46,6 @@ export type NullableRawLeague = {
 };
 export type StrictLeague = z.infer<typeof strictLeagueSchema>;
 
-// ! SLEEPER USERS ARE OKAY
 export const rawSleeperUserSchema = z.looseObject({
     username: z.string(),
     user_id: z.string(),
@@ -91,11 +61,6 @@ export const strictSleeperUserSchema = z.strictObject({
 export type RawSleeperUser = z.infer<typeof rawSleeperUserSchema>;
 export type StrictSleeperUser = z.infer<typeof strictSleeperUserSchema>;
 
-// ! LEAGUE USERS ARE OKAY 
-// noticed that sleeper sends avatar as part of this schema, but the one on the root level appears to be stale
-// it can differ from the avatar stored in Sleeper User schema.
-// sleeper sends a THIRD avatar which is associated with the TEAM. this is only present if a league user adds this
-// this THIRD avatar within the metadata is current, we will parse this and if not we can fall back on the sleeper user 
 export const rawLeagueUserSchema = z.looseObject({
     user_id: z.string(),
     metadata: z.looseObject({
@@ -221,15 +186,56 @@ export type NullableRawRoster = {
 };
 export type StrictRoster = z.infer<typeof strictRosterSchema>;
 
-export const matchupSchema = z.looseObject({
-    starters: z.array(z.string()),
-    roster_id: z.number(),
-    players: z.array(z.string()),
-    matchup_id: z.number(),
+export const rawMatchupSchema = z.looseObject({
     points: z.number(),
-    custom_points: nullishNumber
+    players: z.array(z.string()),
+    roster_id: z.number(),
+    matchup_id: nullishNumber, // NULL MATCHUP ID = BYE WEEK
+    starters: z.array(z.string()),
+    starters_points: z.array(z.number()),
+    players_points: z.nullish(z.record(z.string(), z.number()))
 });
-export type RawMatchup = z.infer<typeof matchupSchema>;
+
+export const strictMatchupSchema = z.strictObject({
+    leagueId: z.string(),
+    season: z.string(),
+    week: z.number(),
+    points: z.string(),
+    players: z.array(z.string()),
+    rosterId: z.number(),
+    matchupId: nullableNumber, // NULL MATCHUP ID = BYE WEEK
+    starters: z.array(z.string()),
+    startersPoints: z.array(z.number()),
+    playersPoints: z.nullable(z.record(z.string(), z.string())),
+});
+
+export type RawMatchup = z.infer<typeof rawMatchupSchema>;
+export type NullableRawMatchup = {
+    points: number,
+    players: string[],
+    roster_id: number,
+    custom_points: number | null,
+    matchup_id: number | null,
+    starters: string[],
+    starters_points: number[],
+    players_points: Record<string, number> | null;
+};
+export type StrictMatchup = z.infer<typeof strictMatchupSchema>;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const NFLStateSchema = z.looseObject({
     week: z.number(),
@@ -261,3 +267,4 @@ export const bracketSchema = z.looseObject({
 });
 export type RawBracketMatchup = z.infer<typeof bracketMatchupSchema>;
 export type RawBracket = z.infer<typeof bracketSchema>;
+
