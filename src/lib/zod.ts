@@ -205,8 +205,8 @@ export const strictMatchupSchema = z.strictObject({
     rosterId: z.number(),
     matchupId: nullableNumber, // NULL MATCHUP ID = BYE WEEK
     starters: z.array(z.string()),
-    startersPoints: z.array(z.number()),
-    playersPoints: z.nullable(z.record(z.string(), z.string())),
+    startersPoints: z.array(z.string()), // numeric type in postgres == string
+    playersPoints: z.record(z.string(), z.string()),
 });
 
 export type RawMatchup = z.infer<typeof rawMatchupSchema>;
@@ -214,41 +214,40 @@ export type NullableRawMatchup = {
     points: number,
     players: string[],
     roster_id: number,
-    custom_points: number | null,
+    starters_points: number[],
     matchup_id: number | null,
     starters: string[],
-    starters_points: number[],
     players_points: Record<string, number> | null;
 };
 export type StrictMatchup = z.infer<typeof strictMatchupSchema>;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export const NFLStateSchema = z.looseObject({
-    week: z.number(),
-    season_type: z.string(),
-    season_start_date: z.string(),
-    season: z.string(),
+export const rawNFLStateSchema = z.looseObject({
+    week: z.number(), // week
+    leg: z.number(), // week of regular season
+    season: z.string(), // current season
+    season_type: z.string(), // pre, post, regular
+    league_season: z.string(), // active season for leagues
     previous_season: z.string(),
-    leg: z.number(),
-    league_season: z.string(),
-    league_create_season: z.string(),
-    display_week: z.number()
+    season_start_date: z.string(), // regular season start
+    display_week: z.number(), // Which week to display in UI, can be different than week
+    league_create_season: z.string(), // flips in December
+    season_has_scores: z.boolean()
 });
-export type RawNFLState = z.infer<typeof NFLStateSchema>;
+export type RawNFLState = z.infer<typeof rawNFLStateSchema>;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const bracketMatchupSchema = z.looseObject({
     w: nullishNumber,

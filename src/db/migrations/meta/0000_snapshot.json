@@ -1,5 +1,5 @@
 {
-  "id": "f8dbd7bc-afc9-4722-99a3-4b2c369e8888",
+  "id": "1b7a9eaf-a69b-435a-9dde-d19d6d4acc73",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -268,6 +268,118 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.matchups": {
+      "name": "matchups",
+      "schema": "",
+      "columns": {
+        "league_id": {
+          "name": "league_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season": {
+          "name": "season",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "week": {
+          "name": "week",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "points": {
+          "name": "points",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "players": {
+          "name": "players",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "roster_id": {
+          "name": "roster_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "matchup_id": {
+          "name": "matchup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "starters": {
+          "name": "starters",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "starters_points": {
+          "name": "starters_points",
+          "type": "numeric[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "players_points": {
+          "name": "players_points",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "league_rosters_identity": {
+          "name": "league_rosters_identity",
+          "tableFrom": "matchups",
+          "tableTo": "rosters",
+          "columnsFrom": [
+            "league_id",
+            "roster_id"
+          ],
+          "columnsTo": [
+            "league_id",
+            "roster_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "matchups_identity": {
+          "name": "matchups_identity",
+          "columns": [
+            "league_id",
+            "roster_id",
+            "week"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

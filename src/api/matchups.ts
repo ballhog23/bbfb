@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { buildLeagueMatchupHistory } from "../services/matchups-service.js";
+import { buildLeagueMatchupHistory, buildCurrentLeagueMatchups } from "../services/matchups-service.js";
 
 export async function handlerGetMatchups(_: Request, res: Response) {
-    const matchups = await buildLeagueMatchupHistory();
+    const matchups = await buildCurrentLeagueMatchups();
 
     const data = {
         matchups

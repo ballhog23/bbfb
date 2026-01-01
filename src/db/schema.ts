@@ -116,8 +116,8 @@ export const matchupsTable = pgTable("matchups", {
         .notNull(),
     matchupId: integer(), // NULL MATCHUP ID === BYE WEEK
     starters: text().array().notNull(),
-    startersPoints: integer().array().notNull(),
-    playersPoints: jsonb().$type<Record<string, string>>(),
+    startersPoints: numeric({ scale: 2 }).array().notNull(),
+    playersPoints: jsonb().$type<Record<string, string>>().notNull(),
     ...timestamps
 }, (table) => [
     primaryKey({

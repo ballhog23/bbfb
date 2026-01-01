@@ -1,13 +1,12 @@
 import {
     rawLeagueSchema, rawLeagueUserSchema,
     rawNFLPlayerSchema, rawRosterSchema,
-
+    rawNFLStateSchema,
     type RawLeague, RawLeagueUser,
     RawNFLPlayer, RawRoster,
-    RawSleeperUser,
-    rawSleeperUserSchema,
-    RawMatchup,
-    rawMatchupSchema
+    RawSleeperUser, rawSleeperUserSchema,
+    RawMatchup, rawMatchupSchema,
+    RawNFLState
 } from "./zod.js";
 import { config } from '../config.js';
 
@@ -83,15 +82,14 @@ export class Sleeper {
     //     return this.undefinedToNullDeep(loosePlayoffBracket);
     // }
 
-    // async getNFLState(): Promise<NFLState> {
-    //     const url = `${this.baseURL}state/nfl`;
-    //     const NFLState = await this.fetchJSON(url);
+    async getNFLState(): Promise<RawNFLState> {
+        const url = `${this.baseURL}state/nfl`;
+        const NFLState = await this.fetchJSON(url);
 
-    //     this.assertObject(NFLState);
+        this.assertObject(NFLState);
 
-    //     const looseNFLState = NFLStateSchema.parse(NFLState);
-    //     return this.undefinedToNullDeep(looseNFLState);
-    // };
+        return rawNFLStateSchema.parse(NFLState);
+    };
 
     private assertObject<T = Record<string, unknown>>(value: unknown): asserts value is T {
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {

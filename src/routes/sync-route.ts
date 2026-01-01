@@ -2,8 +2,10 @@ import express from 'express';
 import { asyncHandler } from "../lib/helpers.js";
 import {
     handlerSyncLeague, handlerSyncUsers,
-    handlerSyncNFLPlayers
+    handlerSyncNFLPlayers, handlerSyncRosters,
+    handlerSyncMatchups
 } from '../api/sync.js';
+
 
 export const syncRoute = express.Router();
 
@@ -14,4 +16,8 @@ syncRoute.put("/leagues", asyncHandler(handlerSyncLeague)); // 1 time per 60 min
 syncRoute.put("/users", asyncHandler(handlerSyncUsers)); // 4 times per 60mins
 
 // working
-syncRoute.put('/players', asyncHandler(handlerSyncNFLPlayers)); // 1 every 24hrs
+syncRoute.put('/players', asyncHandler(handlerSyncNFLPlayers)); // 1 time per 24hrs
+
+syncRoute.put('/rosters', asyncHandler(handlerSyncRosters)); // 4 times per 60 mins
+
+syncRoute.put('/matchups', asyncHandler(handlerSyncMatchups)); // 1 time per 24hrs ?
