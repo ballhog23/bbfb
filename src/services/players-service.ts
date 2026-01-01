@@ -4,16 +4,8 @@ import { insertNFLPlayer } from "../db/queries/players.js";
 import { strictNFLPlayerSchema, type RawNFLPlayer, NullableRawNFLPlayer, StrictNFLPLayer } from "../lib/zod.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 
+
 export async function syncNFLPlayers() {
-    const sleeper = new Sleeper();
-    const players = await sleeper.getAllNFLPlayers();
-    const normalizedPlayers = rawToNormalizedNFLPlayers(players);
-    const result = await insertNFLPlayers(normalizedPlayers);
-
-    return result;
-}
-
-export async function buildAndInsertNFLPlayers() {
     const players = await buildNFLPlayers();
     const result = await insertNFLPlayers(players);
 

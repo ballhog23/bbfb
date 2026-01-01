@@ -4,6 +4,7 @@ import { buildLeagueUsersHistory, buildAndInsertLeagueUserHistory } from "../../
 import { buildAndInsertSleeperUsersHistory } from "../../services/sleeper-users-service.js";
 import { buildAndInsertLeagueRostersHistory } from "../../services/roster-service.js";
 import { buildAndInsertLeagueMatchupHistory } from "../../services/matchups-service.js";
+import { syncNFLPlayers } from '../../services/players-service.js';
 
 export async function bootstrapHistory() {
     return await db.transaction(
@@ -34,7 +35,8 @@ export async function bootstrapHistory() {
             console.log('LEAGUE MATCHUPS POPULATED!');
 
             console.log('POPULATING NFL PLAYERS...');
-            // await buildAndInsertNFLPlayers(tx);
+            // best effort, not historical, doesn't need transaction, synced once every 24hrs
+            await syncNFLPlayers();
             console.log('NFL PLAYERS POPULATED!');
         }
     );
