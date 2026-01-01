@@ -2,13 +2,6 @@ import { sql, eq } from "drizzle-orm";
 import { db } from "../index.js";
 import { StrictInsertNFLPlayer, NFLPlayersTable } from "../schema.js";
 
-// we need to reevaluate the approach for inserting nfl players.
-// the data set is large enough to consider batching.
-// each player is the atomic unit, but we are currently treating a batch of 1k players as the atomic unit
-// we will need hit the players endpoint daily to ensure data regarding players is up to date (injuries etc.)
-// we will for simplicitly sake just use a simple insert/upsert.
-// if performance is an issue we will look into optimizations
-// e.g., batching techniques for large datasets where each row needs to be treated as atomic
 export async function insertNFLPlayer(players: StrictInsertNFLPlayer) {
     const [result] = await db
         .insert(NFLPlayersTable)

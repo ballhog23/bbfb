@@ -8,6 +8,7 @@ import { selectAllLeagues } from "../db/queries/leagues.js";
 import { SelectRoster, StrictInsertRoster } from "src/db/schema.js";
 import { insertLeagueRoster } from "../db/queries/rosters.js";
 import { config } from "../config.js";
+import type { TX } from '../db/index.js';
 
 export type LeaguesMap = {
     leagueId: string,
@@ -26,31 +27,22 @@ export async function syncLeagueRosters() {
     return result;
 }
 
-export async function buildAndInsertLeagueRostersHistory() {
+export async function buildAndInsertLeagueRostersHistory(tx: TX) {
     const rosters = await buildLeagueRostersHistory();
-    const result = await insertLeagueRosters(rosters);
+    const result = await insertLeagueRosters(rosters, tx);
 
     return result;
 }
 
-async function insertLeagueRosters(leagueRosters: StrictInsertRoster[]): Promise<SelectRoster[]> {
+async function insertLeagueRosters(leagueRosters: StrictInsertRoster[], tx?: TX): Promise<SelectRoster[]> {
     const successfulRosters: SelectRoster[] = [];
-    const failedRosters: { rosterId: number, leagueId: string, error: unknown; }[] = [];
+    const BATCH_SIZE = 12; // 12 rosters per league season
 
-    for (const roster of leagueRosters) {
-        try {
-            const result = await insertLeagueRoster(roster);
-            successfulRosters.push(result);
-        } catch (error) {
-            failedRosters.push({ rosterId: roster.rosterId, leagueId: roster.leagueId, error });
-        }
-    }
-
-    if (failedRosters.length > 0) {
-        throw new AggregateError(
-            failedRosters.map(e => e.error),
-            'Failed to insert league users'
-        );
+    for (let i = 0; i < leagueRosters.length; i += BATCH_SIZE) {
+        const chunk = leagueRosters.slice(i, i + BATCH_SIZE);
+        const currentInsert = chunk.map(roster => insertLeagueRoster(roster, tx));
+        const result = await Promise.all(currentInsert);
+        successfulRosters.push(...result);
     }
 
     return successfulRosters;

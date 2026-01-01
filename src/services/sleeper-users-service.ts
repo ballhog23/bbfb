@@ -6,16 +6,17 @@ import { Sleeper } from "../lib/sleeper.js";
 import { normalizeString } from "../lib/helpers.js";
 import { insertSleeperUser } from "../db/queries/sleeper-users.js";
 import { SelectSleeperUser } from "src/db/schema.js";
+import type { TX } from "../db/index.js";
 
 export async function syncSleeperUsers(sleeperUserIds: string[]) {
     const normalizedUsers = await buildSleeperUsers(sleeperUserIds);
     return insertSleeperUsers(normalizedUsers);
 }
 
-export async function buildAndInsertSleeperUsersHistory(sleeperUserIds: string[]) {
+export async function buildAndInsertSleeperUsersHistory(sleeperUserIds: string[], tx: TX) {
     const sleeperUsers = await buildSleeperUsers(sleeperUserIds);
 
-    return insertSleeperUsers(sleeperUsers);
+    return insertSleeperUsers(sleeperUsers, tx);
 }
 
 export async function buildSleeperUsers(sleeperUserIds: string[]) {
@@ -23,21 +24,14 @@ export async function buildSleeperUsers(sleeperUserIds: string[]) {
     return rawToNormalizedSleeperUsers(rawUsers);
 }
 
-export async function insertSleeperUsers(sleeperUsers: StrictSleeperUser[]) {
+export async function insertSleeperUsers(sleeperUsers: StrictSleeperUser[], tx?: TX) {
     const successfulUsers: SelectSleeperUser[] = [];
-    const failedInsertUsers: { userId: string, error: unknown; }[] = [];
-
+    // sequential insert is fine here, our league currently is at 13 total users
+    // we've had one player replaced, max is 12 per league season right now
+    // 13 total
     for (const sleeperUser of sleeperUsers) {
-        try {
-            const result = await insertSleeperUser(sleeperUser);
-            successfulUsers.push(result);
-        } catch (error) {
-            failedInsertUsers.push({ userId: sleeperUser.userId, error });
-        }
-    }
-
-    if (failedInsertUsers.length > 0) {
-        throw new AggregateError(failedInsertUsers.map(e => e.error), 'Failed to insert sleeper users');
+        const result = await insertSleeperUser(sleeperUser, tx);
+        successfulUsers.push(result);
     }
 
     return successfulUsers;

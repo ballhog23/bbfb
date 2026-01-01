@@ -10,7 +10,7 @@ export async function bootstrapHistory() {
         async tx => {
 
             console.log('POPULATING LEAGUES...');
-            await buildAndInsertLeagueHistory();
+            await buildAndInsertLeagueHistory(tx);
             console.log('LEAGUES POPULATED!');
 
             console.log('BUILDING SLEEPER USERS AND LEAGUE USERS HISTORY...');
@@ -18,23 +18,23 @@ export async function bootstrapHistory() {
             const leagueUsersIds = leagueUsers.map(u => u.userId);
 
             console.log('POPULATING SLEEPER USERS...');
-            await buildAndInsertSleeperUsersHistory(leagueUsersIds);
+            await buildAndInsertSleeperUsersHistory(leagueUsersIds, tx);
             console.log('SLEEPER USERS POPULATED!');
 
             console.log('POPULATING LEAGUE USERS...');
-            await buildAndInsertLeagueUserHistory(leagueUsers);
+            await buildAndInsertLeagueUserHistory(leagueUsers, tx);
             console.log('LEAGUE USERS POPULATED!');
 
             console.log('POPULATING LEAGUE ROSTERS...');
-            await buildAndInsertLeagueRostersHistory();
+            await buildAndInsertLeagueRostersHistory(tx);
             console.log('LEAGUE ROSTERS POPULATED!');
 
             console.log('POPULATING LEAGUE MATCHUPS...');
-            await buildAndInsertLeagueMatchupHistory();
+            await buildAndInsertLeagueMatchupHistory(tx);
             console.log('LEAGUE MATCHUPS POPULATED!');
 
             console.log('POPULATING NFL PLAYERS...');
-            // await buildAndInsertNFLPlayers();
+            // await buildAndInsertNFLPlayers(tx);
             console.log('NFL PLAYERS POPULATED!');
         }
     );

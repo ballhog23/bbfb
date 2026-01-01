@@ -6,9 +6,10 @@ import {
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 import { buildLeagueHistoryMap, LeaguesMap } from "./roster-service.js";
 import { insertMatchup } from "../db/queries/matchup.js";
-import { StrictInsertMatchup } from "../db/schema.js";
+import { SelectMatchup, StrictInsertMatchup } from "../db/schema.js";
 import { config } from "../config.js";
 import { BadRequestError } from "../lib/errors.js";
+import type { TX } from "../db/index.js";
 
 type RawWeeklyMatchupRecord = {
     week: number,
@@ -28,22 +29,26 @@ export async function syncMatchups() {
     return results;
 }
 
-export async function buildAndInsertLeagueMatchupHistory() {
+export async function buildAndInsertLeagueMatchupHistory(tx: TX) {
     const matchups = await buildLeagueMatchupHistory();
-    const results = await insertLeagueMatchups(matchups);
+    const results = await insertLeagueMatchups(matchups, tx);
 
     return results;
 }
 
-export async function insertLeagueMatchups(matchups: StrictInsertMatchup[]) {
-    const CHUNK_SIZE = 17;
+export async function insertLeagueMatchups(matchups: StrictInsertMatchup[], tx?: TX) {
+    const successfulMatchups: SelectMatchup[] = [];
+    const CHUNK_SIZE = 12;
 
+    // we chunk by 12 because there are 12 matchups per week (look into 15-17 and how we will manage playoffs)
+    // when building history we treat each seasons week as the batch insert
     for (let i = 0; i < matchups.length; i += CHUNK_SIZE) {
         const chunk = matchups.slice(i, i + CHUNK_SIZE);
-        const currentInsert = chunk.map(matchup => insertMatchup(matchup));
-        await Promise.all(currentInsert);
+        const currentInsert = chunk.map(matchup => insertMatchup(matchup, tx));
+        const result = await Promise.all(currentInsert);
+        successfulMatchups.push(...result);
     }
-    return matchups;
+    return successfulMatchups;
 }
 
 export async function buildCurrentLeagueMatchups() {

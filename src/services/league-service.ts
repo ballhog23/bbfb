@@ -6,6 +6,7 @@ import {
 } from "../lib/zod.js";
 import { insertLeague } from "../db/queries/leagues.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
+import type { TX } from "../db/index.js";
 
 export async function syncLeague() {
     const sleeper = new Sleeper();
@@ -18,31 +19,21 @@ export async function syncLeague() {
     return result;
 }
 
-export async function buildAndInsertLeagueHistory() {
+export async function buildAndInsertLeagueHistory(tx: TX) {
     const leagues = await buildLeagueHistory();
-    const result = await insertSleeperLeagues(leagues);
+    const result = await insertSleeperLeagues(leagues, tx);
 
     return result;
 }
 
-// we may introduce some sort of retry logic in the future, so we are just setting base code for that
-// by collecting any leagues that were not successfully inserted into the database
-// we can write a generic function in the future that can hold this logic in one single place
-export async function insertSleeperLeagues(leagues: StrictInsertLeague[]) {
+export async function insertSleeperLeagues(leagues: StrictInsertLeague[], tx?: TX) {
     const successfulLeagues: SelectLeague[] = [];
-    const failedLeagues: { leagueId: string, error: unknown; }[] = [];
-
+    // sequential insert is fine here, we only have a history of 5 leagues
+    // sleeper has only been around since 2014 so that's 12 years currently
+    // we only allow one type of league per year, db constraint unique on season column
     for (const league of leagues) {
-        try {
-            const result = await insertLeague(league);
-            successfulLeagues.push(result);
-        } catch (error) {
-            failedLeagues.push({ leagueId: league.leagueId, error });
-        }
-    }
-
-    if (failedLeagues.length > 0) {
-        throw new AggregateError(failedLeagues.map(e => e.error), 'Failed to insert leagues');
+        const result = await insertLeague(league, tx);
+        successfulLeagues.push(result);
     }
 
     return successfulLeagues;

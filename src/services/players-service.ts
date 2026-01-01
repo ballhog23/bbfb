@@ -20,32 +20,25 @@ export async function buildAndInsertNFLPlayers() {
     return result;
 }
 
-// perhaps look into parallel insertion with promise.allSettled()
-// we could chunk and still get per player atomicity, and collect success and failures
-// allSettled version took 5.50s concurrency
-// sequential insertion takes 11.87s
 export async function insertNFLPlayers(players: StrictInsertNFLPlayer[]) {
     const successfulPlayers: SelectNFLPlayer[] = [];
     const failedPlayers: { playerId: string, error: unknown; }[] = [];
-    // const results = await Promise.allSettled(
-    //     players.map(async player => await insertNFLPlayer(player))
-    // );
+    const CHUNK_SIZE = 100;
 
+    for (let i = 0; i < players.length; i += CHUNK_SIZE) {
+        const chunk = players.slice(i, i + CHUNK_SIZE);
+        const currentInsert = chunk.map(player => insertNFLPlayer(player));
+        const results = await Promise.allSettled(currentInsert);
 
-    for (const player of players) {
-
-        try {
-            const result = await insertNFLPlayer(player);
-            successfulPlayers.push(result);
-        } catch (error) {
-            failedPlayers.push({ playerId: player.playerId, error });
-        }
+        results.forEach((result, index) => {
+            if (result.status === 'fulfilled') successfulPlayers.push(result.value);
+            else failedPlayers.push({ playerId: chunk[index].playerId, error: result.reason });
+        });
     }
 
     if (failedPlayers.length > 0) {
-        throw new AggregateError(
-            failedPlayers.map(e => e.error),
-            'Failed to insert players'
+        failedPlayers.forEach(player =>
+            console.error(`Player ID: ${player.playerId} failed with ${player.error}`)
         );
     }
 

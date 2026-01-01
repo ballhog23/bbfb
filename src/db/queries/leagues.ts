@@ -1,9 +1,10 @@
 import { sql, eq, ne } from "drizzle-orm";
-import { db } from "../index.js";
+import { db, type TX } from "../index.js";
 import { leaguesTable, SelectLeague, type StrictInsertLeague } from '../schema.js';
 
-export async function insertLeague(league: StrictInsertLeague): Promise<SelectLeague> {
-    const [result] = await db
+export async function insertLeague(league: StrictInsertLeague, tx?: TX) {
+    const conn = tx ?? db;
+    const [result] = await conn
         .insert(leaguesTable)
         .values(league)
         .onConflictDoUpdate({
