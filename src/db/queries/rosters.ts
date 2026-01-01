@@ -1,10 +1,9 @@
 import { sql, and, eq, desc } from "drizzle-orm";
-import { db, type TX } from "../index.js";
+import { db } from "../index.js";
 import { leagueUsersTable, rostersTable, NFLPlayersTable, type StrictInsertRoster } from '../schema.js';
 
-export async function insertLeagueRoster(leagueRosters: StrictInsertRoster, tx?: TX) {
-    const conn = tx ?? db;
-    const [result] = await conn
+export async function insertLeagueRoster(leagueRosters: StrictInsertRoster) {
+    const [result] = await db
         .insert(rostersTable)
         .values(leagueRosters)
         .onConflictDoUpdate({

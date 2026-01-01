@@ -1,10 +1,9 @@
 import { sql, and, eq, desc } from "drizzle-orm";
-import { db, type TX } from "../index.js";
+import { db } from "../index.js";
 import { matchupsTable, StrictInsertMatchup } from "../schema.js";
 
-export async function insertMatchup(matchup: StrictInsertMatchup, tx?: TX) {
-    const conn = tx ?? db;
-    const [result] = await conn
+export async function insertMatchup(matchup: StrictInsertMatchup) {
+    const [result] = await db
         .insert(matchupsTable)
         .values(matchup)
         .onConflictDoUpdate({

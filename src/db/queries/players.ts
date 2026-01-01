@@ -1,5 +1,5 @@
 import { sql, eq } from "drizzle-orm";
-import { db, type TX } from "../index.js";
+import { db } from "../index.js";
 import { StrictInsertNFLPlayer, NFLPlayersTable } from "../schema.js";
 
 export async function insertNFLPlayer(players: StrictInsertNFLPlayer) {

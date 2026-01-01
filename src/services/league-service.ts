@@ -6,7 +6,6 @@ import {
 } from "../lib/zod.js";
 import { insertLeague } from "../db/queries/leagues.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
-import type { TX } from "../db/index.js";
 
 export async function syncLeague() {
     const sleeper = new Sleeper();
@@ -19,20 +18,20 @@ export async function syncLeague() {
     return result;
 }
 
-export async function buildAndInsertLeagueHistory(tx: TX) {
+export async function buildAndInsertLeagueHistory() {
     const leagues = await buildLeagueHistory();
-    const result = await insertSleeperLeagues(leagues, tx);
+    const result = await insertSleeperLeagues(leagues);
 
     return result;
 }
 
-export async function insertSleeperLeagues(leagues: StrictInsertLeague[], tx?: TX) {
+export async function insertSleeperLeagues(leagues: StrictInsertLeague[]) {
     const successfulLeagues: SelectLeague[] = [];
     // sequential insert is fine here, we only have a history of 5 leagues
     // sleeper has only been around since 2014 so that's 12 years currently
     // we only allow one type of league per year, db constraint unique on season column
     for (const league of leagues) {
-        const result = await insertLeague(league, tx);
+        const result = await insertLeague(league);
         successfulLeagues.push(result);
     }
 

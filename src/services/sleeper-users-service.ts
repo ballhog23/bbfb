@@ -10,13 +10,13 @@ import type { TX } from "../db/index.js";
 
 export async function syncSleeperUsers(sleeperUserIds: string[]) {
     const normalizedUsers = await buildSleeperUsers(sleeperUserIds);
-    return insertSleeperUsers(normalizedUsers);
+    return await insertSleeperUsers(normalizedUsers);
 }
 
-export async function buildAndInsertSleeperUsersHistory(sleeperUserIds: string[], tx: TX) {
+export async function buildAndInsertSleeperUsersHistory(sleeperUserIds: string[]) {
     const sleeperUsers = await buildSleeperUsers(sleeperUserIds);
-
-    return insertSleeperUsers(sleeperUsers, tx);
+    const result = await insertSleeperUsers(sleeperUsers);
+    return result;
 }
 
 export async function buildSleeperUsers(sleeperUserIds: string[]) {
@@ -24,13 +24,13 @@ export async function buildSleeperUsers(sleeperUserIds: string[]) {
     return rawToNormalizedSleeperUsers(rawUsers);
 }
 
-export async function insertSleeperUsers(sleeperUsers: StrictSleeperUser[], tx?: TX) {
+export async function insertSleeperUsers(sleeperUsers: StrictSleeperUser[]) {
     const successfulUsers: SelectSleeperUser[] = [];
     // sequential insert is fine here, our league currently is at 13 total users
     // we've had one player replaced, max is 12 per league season right now
     // 13 total
     for (const sleeperUser of sleeperUsers) {
-        const result = await insertSleeperUser(sleeperUser, tx);
+        const result = await insertSleeperUser(sleeperUser);
         successfulUsers.push(result);
     }
 
@@ -41,7 +41,7 @@ export async function getAllSleeperUsersHistory(sleeperUserIds: string[]) {
     const sleeper = new Sleeper();
     const uniqueUserIds = [...new Set(sleeperUserIds)];
 
-    return Promise.all(
+    return await Promise.all(
         uniqueUserIds.map(userId => sleeper.getSleeperUser(userId))
     );
 }

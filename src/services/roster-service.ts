@@ -27,20 +27,20 @@ export async function syncLeagueRosters() {
     return result;
 }
 
-export async function buildAndInsertLeagueRostersHistory(tx: TX) {
+export async function buildAndInsertLeagueRostersHistory() {
     const rosters = await buildLeagueRostersHistory();
-    const result = await insertLeagueRosters(rosters, tx);
+    const result = await insertLeagueRosters(rosters);
 
     return result;
 }
 
-async function insertLeagueRosters(leagueRosters: StrictInsertRoster[], tx?: TX): Promise<SelectRoster[]> {
+async function insertLeagueRosters(leagueRosters: StrictInsertRoster[]): Promise<SelectRoster[]> {
     const successfulRosters: SelectRoster[] = [];
     const BATCH_SIZE = 12; // 12 rosters per league season
 
     for (let i = 0; i < leagueRosters.length; i += BATCH_SIZE) {
         const chunk = leagueRosters.slice(i, i + BATCH_SIZE);
-        const currentInsert = chunk.map(roster => insertLeagueRoster(roster, tx));
+        const currentInsert = chunk.map(roster => insertLeagueRoster(roster));
         const result = await Promise.all(currentInsert);
         successfulRosters.push(...result);
     }

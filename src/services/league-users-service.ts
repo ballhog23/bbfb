@@ -8,7 +8,6 @@ import { config } from "../config.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 import { insertLeagueUser } from "../db/queries/league-users.js";
 import { selectAllLeagues } from "../db/queries/leagues.js";
-import type { TX } from "../db/index.js";
 
 type RawLeagueUsersMap = {
     leagueId: string;
@@ -21,11 +20,11 @@ type RawCurrentLeagueUsersMap = {
 };
 
 export async function syncLeagueUsers(currentLeagueUsers: StrictInsertLeagueUser[]) {
-    return insertLeagueUsers(currentLeagueUsers);
+    return await insertLeagueUsers(currentLeagueUsers);
 }
 
-export async function buildAndInsertLeagueUserHistory(leagueUsers: StrictInsertLeagueUser[], tx: TX) {
-    return insertLeagueUsers(leagueUsers, tx);
+export async function buildAndInsertLeagueUserHistory(leagueUsers: StrictInsertLeagueUser[]) {
+    return await insertLeagueUsers(leagueUsers);
 }
 
 export async function buildCurrentLeagueUsers(): Promise<StrictInsertLeagueUser[]> {
@@ -38,12 +37,12 @@ export async function buildCurrentLeagueUsers(): Promise<StrictInsertLeagueUser[
     );
 }
 
-export async function insertLeagueUsers(leagueUsers: StrictInsertLeagueUser[], tx?: TX) {
+export async function insertLeagueUsers(leagueUsers: StrictInsertLeagueUser[]) {
     const successfulUsers: SelectLeagueUser[] = [];
     // sequential insert is fine, this number isn't too large in our league its 13 total users (historical)
     // per season our league is 12 player
     for (const leagueUser of leagueUsers) {
-        const result = await insertLeagueUser(leagueUser, tx);
+        const result = await insertLeagueUser(leagueUser);
         successfulUsers.push(result);
     }
 

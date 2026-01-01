@@ -1,11 +1,10 @@
 import { sleeperUsersTable, type StrictInsertSleeperUser } from "../schema.js";
-import { db, type TX } from '../index.js';
+import { db } from '../index.js';
 import { sql, eq } from "drizzle-orm";
 
 // handles initial insertion/sync
-export async function insertSleeperUser(user: StrictInsertSleeperUser, tx?: TX) {
-    const conn = tx ?? db;
-    const [result] = await conn
+export async function insertSleeperUser(user: StrictInsertSleeperUser) {
+    const [result] = await db
         .insert(sleeperUsersTable)
         .values(user)
         .onConflictDoUpdate({

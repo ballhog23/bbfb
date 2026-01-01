@@ -1,11 +1,10 @@
 import { leagueUsersTable, type StrictInsertLeagueUser } from '../schema.js';
-import { db, type TX } from '../index.js';
+import { db, } from '../index.js';
 import { sql, eq, and } from "drizzle-orm";
 
 // handles initial insertion/sync
-export async function insertLeagueUser(user: StrictInsertLeagueUser, tx?: TX) {
-    const conn = tx ?? db;
-    const [result] = await conn
+export async function insertLeagueUser(user: StrictInsertLeagueUser) {
+    const [result] = await db
         .insert(leagueUsersTable)
         .values(user)
         .onConflictDoUpdate({
