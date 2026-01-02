@@ -29,3 +29,11 @@ export async function insertMatchup(matchup: StrictInsertMatchup) {
 
     return result;
 }
+
+export async function selectAllMatchups() {
+    const result = await db
+        .select()
+        .from(matchupsTable);
+
+    return result;
+}

@@ -8,7 +8,6 @@ import { buildLeagueHistoryMap, LeaguesMap } from "./roster-service.js";
 import { insertMatchup } from "../db/queries/matchup.js";
 import { SelectMatchup, StrictInsertMatchup } from "../db/schema.js";
 import { config } from "../config.js";
-import { BadRequestError } from "../lib/errors.js";
 
 type RawWeeklyMatchupRecord = {
     week: number,
@@ -22,10 +21,10 @@ type RawLeagueMatchups = {
 };
 
 export async function syncMatchups() {
-    const matchups = await buildCurrentLeagueMatchups();
-    const results = await insertLeagueMatchups(matchups);
+    const matchups = await buildRegularSeasonLeagueMatchups();
+    // const results = await insertLeagueMatchups(matchups);
 
-    return results;
+    return matchups;
 }
 
 export async function buildAndInsertLeagueMatchupHistory() {
@@ -47,18 +46,32 @@ export async function insertLeagueMatchups(matchups: StrictInsertMatchup[]) {
         const result = await Promise.all(currentInsert);
         successfulMatchups.push(...result);
     }
+
     return successfulMatchups;
 }
 
-export async function buildCurrentLeagueMatchups() {
+// The issue we may face is that bye weeks are stored as NULL matchup id
+// if we store all weekly matchups 1-17 at the start of the season, we risk adding multiple rows throughout the season?
+// beacuse the composite key is leagueId, rosterId, week, it would add new rows not update exisiting rows
+// so the approach should more than likely be add 1-14, then when the playoff schedule is set, we can add 15-17
+// the implementation will be nearly identical to fetching all of the matchups in the history of the league
+// i think we will make an endpoint to get sleeper nfl state and store in db to hydrate config object instead of
+// hardcoding things like season and week, expose the sleeper data from our db as source of truth,
+// expose put endpoint for lamda to run refresh functions to maintain snapshots from sleeper
+export async function buildRegularSeasonLeagueMatchups() {
     const sleeper = new Sleeper();
+    const weeks = Array.from({ length: 14 }, (v, i) => i + 1); // weeks 1-14 regular season, 15-17 postseason
     const currentNFLState = await sleeper.getNFLState();
-    const { week, season } = currentNFLState;
-    if (week > 17)
-        throw new BadRequestError('End of fantasy season, will not retrieve any further weekly matchups.');
+    const { season } = currentNFLState;
 
-    const matchups = await sleeper.getWeeklyLeagueMatchups(week, config.league.id);
-    return rawToNormalizedMatchups(matchups, season, week, config.league.id);
+    const matchups = await Promise.all(
+        weeks.map(async week => {
+            const weeklyMatchups = await sleeper.getWeeklyLeagueMatchups(week);
+            return rawToNormalizedMatchups(weeklyMatchups, season, week, config.league.id);
+        })
+    );
+
+    return matchups.flat();
 }
 
 export async function buildLeagueMatchupHistory() {
@@ -87,19 +100,20 @@ export async function getAllMatchupHistory(leaguesMap: LeaguesMap[]) {
 
     // for each leagueId/season, for each week fetch matchups
     const allMatchupsByLeague = await Promise.all(
-        leaguesMap.map(async (leagueMap) => {
-            const { leagueId, season } = leagueMap;
+        leaguesMap.map(
+            async (leagueMap) => {
+                const { leagueId, season } = leagueMap;
 
-            return {
-                season,
-                leagueId,
-                allMatchupsPerWeek: await Promise.all(
-                    weeks.map(
-                        async (week) => ({ week, matchups: await sleeper.getWeeklyLeagueMatchups(week, leagueId) })
+                return {
+                    season,
+                    leagueId,
+                    allMatchupsPerWeek: await Promise.all(
+                        weeks.map(
+                            async (week) => ({ week, matchups: await sleeper.getWeeklyLeagueMatchups(week, leagueId) })
+                        )
                     )
-                )
-            } satisfies RawLeagueMatchups;
-        })
+                } satisfies RawLeagueMatchups;
+            })
     );
 
     return allMatchupsByLeague;
