@@ -1,10 +1,20 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { buildRegularSeasonLeagueMatchups } from "../services/matchups-service.js";
-import { selectAllMatchups } from "../db/queries/matchup.js";
+import {
+    selectAllMatchups, selectLeagueMatchups,
+    selectLeagueMatchupsByWeek, selectSpecificLeagueMatchup
 
-export async function handlerGetMatchups(_: Request, res: Response) {
-    const matchups = await buildRegularSeasonLeagueMatchups();
+} from "../db/queries/matchup.js";
+import { BadRequestError } from "../lib/errors.js";
+
+type MatchupParams = {
+    leagueId: string;
+    week: string;
+    matchupId: string;
+};
+
+export async function handlerGetAllMatchupsHistory(_: Request, res: Response) {
+    const matchups = await selectAllMatchups();
 
     const data = {
         matchups
@@ -13,9 +23,68 @@ export async function handlerGetMatchups(_: Request, res: Response) {
     respondWithJSON(res, 200, data);
 }
 
-export async function handlerGetMatchup(_: Request, res: Response) {
+export async function handlerGetLeagueMatchups(req: Request<MatchupParams>, res: Response) {
+    const params = req.params;
+    const { leagueId } = params;
+    if (!leagueId)
+        throw new BadRequestError('You must provide a League ID');
+
+    const matchups = await selectLeagueMatchups(leagueId);
+    if (matchups.length === 0)
+        throw new BadRequestError(`No matchups found for League ID: ${leagueId}`);
+
     const data = {
-        dog: 'cat'
+        matchups
+    };
+
+    respondWithJSON(res, 200, data);
+}
+
+export async function handlerGetLeagueMatchupsByWeek(req: Request<MatchupParams>, res: Response) {
+    const params = req.params;
+    const { leagueId } = params;
+    const week = Number(params.week);
+
+    if (!leagueId)
+        throw new BadRequestError('You must provide a League ID');
+
+    if (isNaN(week) || !Number.isInteger(week) || week <= 0 || week > 17)
+        throw new BadRequestError('You must provide a valid week number. Ranging 1-17');
+
+    const matchups = await selectLeagueMatchupsByWeek(leagueId, week);
+    if (matchups.length === 0)
+        throw new BadRequestError(`No matchups found for League ID: ${leagueId} during Week: ${week}`);
+
+    const data = {
+        matchups
+    };
+
+    respondWithJSON(res, 200, data);
+}
+
+export async function handlerGetSpecificLeagueMatchup(req: Request<MatchupParams>, res: Response) {
+    const params = req.params;
+    const { leagueId } = params;
+    const week = Number(params.week);
+    const matchupId = Number(params.matchupId);
+
+    if (!leagueId)
+        throw new BadRequestError('You must provide a League ID');
+
+    if (isNaN(week) || !Number.isInteger(week) || week <= 0 || week > 17)
+        throw new BadRequestError('You must provide a valid week number. Ranging 1-17');
+
+    if (isNaN(matchupId) || !Number.isInteger(matchupId) || matchupId <= 0 || matchupId > 6)
+        throw new BadRequestError('You must provide a valid matchup number. Ranging 1-6');
+
+    const matchups = await selectSpecificLeagueMatchup(leagueId, week, matchupId);
+    if (matchups.length === 0)
+        throw new BadRequestError(
+            `No matchups found for League ID: ${leagueId} during Week: ${week} with Matchup ID: ${matchupId}`
+        );
+
+    const data = {
+        matchups
     };
 
     respondWithJSON(res, 200, data);

@@ -9,6 +9,8 @@ import { insertMatchup } from "../db/queries/matchup.js";
 import { SelectMatchup, StrictInsertMatchup } from "../db/schema.js";
 import { config } from "../config.js";
 
+// ! GOAL: WORK ON HISTORICAL PRESENTATION OF DATA BECAUSE ITS THE OFFSEASON, DATA SYNC WE WILL WORK ON NEXT
+// ! DATA SYNC WILL LOOK SOMETHING LIKE, KEEP TRACK OF NFL STATE (SLEEPER LEAGUE SEASON, WEEK) IN DB AND HYDATE CONFIG FROM THERE
 type RawWeeklyMatchupRecord = {
     week: number,
     matchups: RawMatchup[];
@@ -61,6 +63,22 @@ export async function insertLeagueMatchups(matchups: StrictInsertMatchup[]) {
 export async function buildRegularSeasonLeagueMatchups() {
     const sleeper = new Sleeper();
     const weeks = Array.from({ length: 14 }, (v, i) => i + 1); // weeks 1-14 regular season, 15-17 postseason
+    const currentNFLState = await sleeper.getNFLState();
+    const { season } = currentNFLState;
+
+    const matchups = await Promise.all(
+        weeks.map(async week => {
+            const weeklyMatchups = await sleeper.getWeeklyLeagueMatchups(week);
+            return rawToNormalizedMatchups(weeklyMatchups, season, week, config.league.id);
+        })
+    );
+
+    return matchups.flat();
+}
+
+export async function buildPostSeasonLeagueMatchups() {
+    const sleeper = new Sleeper();
+    const weeks = [15, 16, 17]; // weeks 1-14 regular season, 15-17 postseason
     const currentNFLState = await sleeper.getNFLState();
     const { season } = currentNFLState;
 
