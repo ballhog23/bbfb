@@ -1,13 +1,11 @@
 import express from 'express';
 import { asyncHandler } from "../lib/helpers.js";
 import {
-    handlerGetAllMatchupsHistory, handlerGetLeagueMatchups,
+    handlerGetLeagueMatchups,
     handlerGetLeagueMatchupsByWeek, handlerGetSpecificLeagueMatchup
 } from '../api/matchups.js';
 
 export const matchupsRoute = express.Router();
-
-matchupsRoute.get('/', asyncHandler(handlerGetAllMatchupsHistory));
 
 matchupsRoute.get('/leagues/:leagueId', asyncHandler(handlerGetLeagueMatchups));
 

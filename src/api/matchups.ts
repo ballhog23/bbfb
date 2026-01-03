@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
 import {
-    selectAllMatchups, selectLeagueMatchups,
+    selectLeagueMatchups,
     selectLeagueMatchupsByWeek, selectSpecificLeagueMatchup
 
 } from "../db/queries/matchup.js";
@@ -14,15 +14,6 @@ type MatchupParams = {
     matchupId: string;
 };
 
-export async function handlerGetAllMatchupsHistory(_: Request, res: Response) {
-    const matchups = await selectAllMatchups();
-
-    const data = {
-        matchups
-    };
-
-    respondWithJSON(res, 200, data);
-}
 
 export async function handlerGetLeagueMatchups(req: Request<MatchupParams>, res: Response) {
     const params = req.params;

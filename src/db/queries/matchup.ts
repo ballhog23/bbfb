@@ -39,12 +39,6 @@ export async function insertMatchup(matchup: StrictInsertMatchup) {
     return result;
 }
 
-// we wont ever need a selectAll that i can think of now, the front end will just use the more granular queries
-// to retrieve the data on a seasonal, weekly, matchup basis
-export async function selectAllMatchups() {
-
-}
-
 export async function selectLeagueMatchups(leagueId: string) {
     const result = await db
         .select({
