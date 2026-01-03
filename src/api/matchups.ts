@@ -6,6 +6,7 @@ import {
 
 } from "../db/queries/matchup.js";
 import { BadRequestError } from "../lib/errors.js";
+import { writeFileSync } from "node:fs";
 
 type MatchupParams = {
     leagueId: string;
