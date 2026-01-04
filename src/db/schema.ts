@@ -139,7 +139,7 @@ export const matchupOutcomes = pgTable("matchup_outcomes", {
     matchupId: integer(),
     week: integer().notNull(),
     rosterId: integer().notNull(),
-    rosterOwnerId: text().notNull().references(() => rostersTable.ownerId),
+    rosterOwnerId: text().notNull(),
     result: pgEnum('result', ['W', 'L', 'T'])(),
     season: text().notNull(),
     points: numeric({ scale: 2 }).notNull(),
@@ -161,5 +161,4 @@ export const matchupOutcomes = pgTable("matchup_outcomes", {
         foreignColumns: [rostersTable.leagueId, rostersTable.rosterId, rostersTable.ownerId]
     })
 ]
-
 );
