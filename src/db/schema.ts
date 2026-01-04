@@ -134,15 +134,17 @@ export const matchupsTable = pgTable("matchups", {
 export type SelectMatchup = typeof matchupsTable.$inferSelect;
 export type StrictInsertMatchup = OmitTimestamps<SelectMatchup>;
 
+export const resultEnum = pgEnum('result', ['W', 'L', 'T', 'BYE']);
 export const matchupOutcomes = pgTable("matchup_outcomes", {
     leagueId: text().notNull(),
     matchupId: integer(),
     week: integer().notNull(),
     rosterId: integer().notNull(),
-    rosterOwnerId: text().notNull(),
-    result: pgEnum('result', ['W', 'L', 'T', 'BYE'])(),
+    rosterOwnerId: text().notNull(), // this references rostersTable.ownerId
+    outcome: resultEnum().notNull(),
     season: text().notNull(),
-    points: numeric({ scale: 2 }).notNull(),
+    pointsFor: numeric({ scale: 2 }).notNull(),
+    pointsAgainst: numeric({ scale: 2 }).notNull(),
     ...timestamps
 }, (table) => [
     primaryKey({
@@ -161,3 +163,6 @@ export const matchupOutcomes = pgTable("matchup_outcomes", {
     })
 ]
 );
+
+export type SelectMatchupOutcome = typeof matchupOutcomes.$inferSelect;
+export type StrictInsertMatchupOutcome = OmitTimestamps<SelectMatchupOutcome>;

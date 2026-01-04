@@ -8,6 +8,7 @@ import { sleeperUsersRoute } from "./routes/sleeper-users-route.js";
 import { leagueUsersRoute } from "./routes/league-users-route.js";
 import { rostersRoute } from "./routes/rosters-route.js";
 import { matchupsRoute } from "./routes/matchups-route.js";
+import { matchupOutcomesRoute } from "./routes/matchup-outcomes.js";
 import { syncRoute } from "./routes/sync-route.js";
 
 const app = express();
@@ -21,6 +22,7 @@ app.use("/sleeper-users", sleeperUsersRoute);
 app.use("/league-users", leagueUsersRoute);
 app.use("/rosters", rostersRoute);
 app.use("/matchups", matchupsRoute);
+app.use("/matchup-outcomes", matchupOutcomesRoute);
 app.use("/sync", syncRoute);
 
 app.use(errorHandler);

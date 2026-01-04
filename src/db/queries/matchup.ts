@@ -3,6 +3,7 @@ import { db } from "../index.js";
 import {
     leagueUsersTable, matchupsTable,
     rostersTable, NFLPlayersTable,
+    matchupOutcomes,
     type StrictInsertMatchup
 } from "../schema.js";
 
@@ -22,12 +23,9 @@ export async function insertMatchup(matchup: StrictInsertMatchup) {
                 matchupsTable.week
             ],
             set: {
-                leagueId: sql`EXCLUDED.league_id`,
                 season: sql`EXCLUDED.season`,
-                week: sql`EXCLUDED.week`,
                 points: sql`EXCLUDED.points`,
                 players: sql`EXCLUDED.players`,
-                rosterId: sql`EXCLUDED.roster_id`,
                 matchupId: sql`EXCLUDED.matchup_id`,
                 starters: sql`EXCLUDED.starters`,
                 startersPoints: sql`EXCLUDED.starters_points`,
