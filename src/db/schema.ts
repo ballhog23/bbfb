@@ -140,7 +140,7 @@ export const matchupOutcomes = pgTable("matchup_outcomes", {
     week: integer().notNull(),
     rosterId: integer().notNull(),
     rosterOwnerId: text().notNull(),
-    result: pgEnum('result', ['W', 'L', 'T'])(),
+    result: pgEnum('result', ['W', 'L', 'T', 'BYE'])(),
     season: text().notNull(),
     points: numeric({ scale: 2 }).notNull(),
     ...timestamps
@@ -149,7 +149,6 @@ export const matchupOutcomes = pgTable("matchup_outcomes", {
         name: "matchup_outcome_identity",
         columns: [
             table.leagueId,
-            table.matchupId,
             table.rosterOwnerId,
             table.week,
             table.rosterId

@@ -6,14 +6,12 @@ import {
 
 } from "../db/queries/matchup.js";
 import { BadRequestError } from "../lib/errors.js";
-import { writeFileSync } from "node:fs";
 
 type MatchupParams = {
     leagueId: string;
     week: string;
     matchupId: string;
 };
-
 
 export async function handlerGetLeagueMatchups(req: Request<MatchupParams>, res: Response) {
     const params = req.params;

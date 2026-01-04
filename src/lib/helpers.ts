@@ -35,8 +35,10 @@ export function normalizeString(string: string) {
 
     const invisibleCharsRegex = /[\u200B\u200C\u200D\u200E\u200F\u2060\u202F\uFEFF]/g;
     const removedinvisibleChars = string.replace(invisibleCharsRegex, "");
-    const collapedWhiteSpaceRegex = /\s+/g; // matches consecutive white space
-    const collapsedWhiteSpace = removedinvisibleChars.replace(collapedWhiteSpaceRegex, " "); // replace consecutive whitespaces with single space
+    // matches consecutive white space
+    const collapedWhiteSpaceRegex = /\s+/g;
+    // replace consecutive whitespaces with single space
+    const collapsedWhiteSpace = removedinvisibleChars.replace(collapedWhiteSpaceRegex, " ");
     const trimmed = collapsedWhiteSpace.trim();
     const normalized = trimmed.normalize("NFC");
     return normalized;
