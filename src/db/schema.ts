@@ -1,4 +1,4 @@
-import { foreignKey, primaryKey } from "drizzle-orm/pg-core";
+import { foreignKey, pgEnum, primaryKey } from "drizzle-orm/pg-core";
 import { pgTable, timestamp, text, boolean, integer, unique, jsonb, numeric } from "drizzle-orm/pg-core";
 
 const timestamps = {
@@ -133,3 +133,33 @@ export const matchupsTable = pgTable("matchups", {
 
 export type SelectMatchup = typeof matchupsTable.$inferSelect;
 export type StrictInsertMatchup = OmitTimestamps<SelectMatchup>;
+
+export const matchupOutcomes = pgTable("matchup_outcomes", {
+    leagueId: text().notNull(),
+    matchupId: integer(),
+    week: integer().notNull(),
+    rosterId: integer().notNull(),
+    rosterOwnerId: text().notNull().references(() => rostersTable.ownerId),
+    result: pgEnum('result', ['W', 'L', 'T'])(),
+    season: text().notNull(),
+    points: numeric({ scale: 2 }).notNull(),
+    ...timestamps
+}, (table) => [
+    primaryKey({
+        name: "matchup_outcome_identity",
+        columns: [
+            table.leagueId,
+            table.matchupId,
+            table.rosterOwnerId,
+            table.week,
+            table.rosterId
+        ]
+    }),
+    foreignKey({
+        name: "matchups_league_rosters_identity",
+        columns: [table.leagueId, table.rosterId, table.rosterOwnerId],
+        foreignColumns: [rostersTable.leagueId, rostersTable.rosterId, rostersTable.ownerId]
+    })
+]
+
+);
