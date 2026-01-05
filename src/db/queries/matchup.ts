@@ -95,7 +95,7 @@ export async function selectLeagueMatchups(leagueId: string) {
             sleeperUsersTable.displayName,
             matchupsTable.points,
         )
-        .orderBy(matchupsTable.matchupId);
+        .orderBy(matchupsTable.week, matchupsTable.matchupId);
 
     return result;
 }
@@ -225,8 +225,7 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
             leagueUsersTable.teamName,
             sleeperUsersTable.displayName,
             matchupsTable.points,
-        )
-        .orderBy(matchupsTable.matchupId);
+        );
 
     return result;
 }
