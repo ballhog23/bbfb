@@ -1,17 +1,17 @@
 import { sql, eq, and } from "drizzle-orm";
 import { db } from "../index.js";
-import { matchupOutcomes, matchupsTable, rostersTable, leagueUsersTable, type SelectMatchupOutcome } from "../schema.js";
+import { matchupOutcomesTable, matchupsTable, rostersTable, leagueUsersTable, type SelectMatchupOutcome, sleeperUsersTable } from "../schema.js";
 
 export async function insertMatchupOutcome(outcome: SelectMatchupOutcome) {
     const result = await db
-        .insert(matchupOutcomes)
+        .insert(matchupOutcomesTable)
         .values(outcome)
         .onConflictDoUpdate({
             target: [
-                matchupOutcomes.leagueId,
-                matchupOutcomes.rosterOwnerId,
-                matchupOutcomes.week,
-                matchupOutcomes.rosterId,
+                matchupOutcomesTable.leagueId,
+                matchupOutcomesTable.rosterOwnerId,
+                matchupOutcomesTable.week,
+                matchupOutcomesTable.rosterId,
             ],
             set: {
                 matchupId: sql`EXCLUDED.matchup_id`,
@@ -29,7 +29,8 @@ export async function insertMatchupOutcome(outcome: SelectMatchupOutcome) {
 export async function selectAllLeagueMatchupOutcomes() {
     const result = await db
         .select()
-        .from(matchupOutcomes);
+        .from(matchupOutcomesTable)
+        .innerJoin(sleeperUsersTable, eq(matchupOutcomesTable.rosterOwnerId, sleeperUsersTable.userId));
 
     return result;
 }

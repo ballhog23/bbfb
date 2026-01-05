@@ -3,7 +3,6 @@ import { db } from "../index.js";
 import {
     leagueUsersTable, matchupsTable,
     rostersTable, NFLPlayersTable,
-    matchupOutcomes,
     type StrictInsertMatchup,
     sleeperUsersTable
 } from "../schema.js";

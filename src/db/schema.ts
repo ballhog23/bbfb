@@ -135,7 +135,7 @@ export type SelectMatchup = typeof matchupsTable.$inferSelect;
 export type StrictInsertMatchup = OmitTimestamps<SelectMatchup>;
 
 export const resultEnum = pgEnum('result', ['W', 'L', 'T', 'BYE']);
-export const matchupOutcomes = pgTable("matchup_outcomes", {
+export const matchupOutcomesTable = pgTable("matchup_outcomes", {
     leagueId: text().notNull(),
     matchupId: integer(),
     week: integer().notNull(),
@@ -164,5 +164,5 @@ export const matchupOutcomes = pgTable("matchup_outcomes", {
 ]
 );
 
-export type SelectMatchupOutcome = typeof matchupOutcomes.$inferSelect;
+export type SelectMatchupOutcome = typeof matchupOutcomesTable.$inferSelect;
 export type StrictInsertMatchupOutcome = OmitTimestamps<SelectMatchupOutcome>;
