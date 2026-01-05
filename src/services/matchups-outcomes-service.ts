@@ -18,23 +18,24 @@ export type StrictMatchupOutcome = {
 
 export async function buildAndInsertLeagueMatchupOutcomes() {
     const matchups = await buildLeagueMatchupOutcomes();
-    return matchups;
+    const result = await insertLeagueMatchupOutcomes(matchups);
+    return result;
 }
 
-// export async function insertLeagueMatchupOutcomes(matchups: StrictInsertMatchupOutcome[]) {
-//     const successfulMatchups: SelectMatchupOutcome[] = [];
-//     const CHUNK_SIZE = 12; // 6 matchups a week * 2 (winner or loser or tie or bye)
+export async function insertLeagueMatchupOutcomes(matchups: StrictInsertMatchupOutcome[]) {
+    const successfulMatchups: SelectMatchupOutcome[] = [];
+    const CHUNK_SIZE = 12; // 6 matchups a week * 2 (winner or loser or tie or bye)
 
 
-//     for (let i = 0; i < matchups.length; i += CHUNK_SIZE) {
-//         const chunk = matchups.slice(i, i + CHUNK_SIZE);
-//         const currentInsert = chunk.map(matchup => insertMatchupOutcome(matchup));
-//         const result = await Promise.all(currentInsert);
-//         successfulMatchups.push(...result);
-//     }
+    for (let i = 0; i < matchups.length; i += CHUNK_SIZE) {
+        const chunk = matchups.slice(i, i + CHUNK_SIZE);
+        const currentInsert = chunk.map(matchup => insertMatchupOutcome(matchup));
+        const result = (await Promise.all(currentInsert)).flat();
+        successfulMatchups.push(...result);
+    }
 
-//     return successfulMatchups;
-// }
+    return successfulMatchups;
+}
 
 async function buildLeagueMatchupOutcomes() {
     const leagueIds = await buildLeagueHistoryIds();

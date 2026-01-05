@@ -6,6 +6,7 @@ import { buildAndInsertSleeperUsersHistory } from "../services/sleeper-users-ser
 import { buildAndInsertLeagueUserHistory } from "../services/league-users-service.js";
 import { buildAndInsertLeagueRostersHistory } from "../services/roster-service.js";
 import { buildAndInsertLeagueMatchupHistory } from "../services/matchups-service.js";
+import { buildAndInsertLeagueMatchupOutcomes } from "../services/matchups-outcomes-service.js";
 import { syncNFLPlayers } from "../services/players-service.js";
 
 export async function handlerHistoryBootstrap(_: Request, res: Response) {
@@ -32,9 +33,13 @@ export async function handlerHistoryBootstrap(_: Request, res: Response) {
     await buildAndInsertLeagueMatchupHistory();
     console.log('LEAGUE MATCHUPS POPULATED!');
 
+    console.log('POPULATING LEAGUE MATCHUP OUTCOMES...');
+    await buildAndInsertLeagueMatchupOutcomes();
+    console.log('LEAGUE MATCHUPS OUTCOMES POPULATED!');
+
     console.log('POPULATING NFL PLAYERS...');
     // best effort, not historical, doesn't need transaction, synced once every 24hrs
-    await syncNFLPlayers();
+    // await syncNFLPlayers();
     console.log('NFL PLAYERS POPULATED!');
 
     respondWithJSON(res, 200, { message: "BOOTSTRAP COMPLETE!" });

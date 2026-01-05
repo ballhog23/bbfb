@@ -101,7 +101,7 @@ function normalizeRoster(roster: RawRoster, seasonYear: string): StrictRoster {
     const record = roster.metadata?.record ? normalizeString(roster.metadata.record) || null : null;
 
     return {
-        ownerId: normalizeString(roster.owner_id),
+        rosterOwnerId: normalizeString(roster.owner_id),
         leagueId: normalizeString(roster.league_id),
         season: normalizeString(seasonYear), // we derive this during normalization
         rosterId: roster.roster_id,

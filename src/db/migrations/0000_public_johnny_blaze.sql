@@ -1,3 +1,4 @@
+CREATE TYPE "public"."result" AS ENUM('W', 'L', 'T', 'BYE');--> statement-breakpoint
 CREATE TABLE "nfl_players" (
 	"player_id" text PRIMARY KEY NOT NULL,
 	"first_name" text NOT NULL,
@@ -39,6 +40,21 @@ CREATE TABLE "leagues" (
 	CONSTRAINT "leagues_season_unique" UNIQUE("season")
 );
 --> statement-breakpoint
+CREATE TABLE "matchup_outcomes" (
+	"league_id" text NOT NULL,
+	"matchup_id" integer,
+	"week" integer NOT NULL,
+	"roster_id" integer NOT NULL,
+	"roster_owner_id" text NOT NULL,
+	"outcome" "result" NOT NULL,
+	"season" text NOT NULL,
+	"points_for" numeric NOT NULL,
+	"points_against" numeric,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "matchup_outcome_identity" PRIMARY KEY("league_id","roster_owner_id","week","roster_id")
+);
+--> statement-breakpoint
 CREATE TABLE "matchups" (
 	"league_id" text NOT NULL,
 	"season" text NOT NULL,
@@ -56,7 +72,7 @@ CREATE TABLE "matchups" (
 );
 --> statement-breakpoint
 CREATE TABLE "rosters" (
-	"owner_id" text NOT NULL,
+	"roster_owner_id" text NOT NULL,
 	"league_id" text NOT NULL,
 	"season" text NOT NULL,
 	"roster_id" integer NOT NULL,
@@ -86,6 +102,7 @@ CREATE TABLE "sleeper_users" (
 --> statement-breakpoint
 ALTER TABLE "league_users" ADD CONSTRAINT "league_users_user_id_sleeper_users_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."sleeper_users"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "league_users" ADD CONSTRAINT "league_users_league_id_leagues_league_id_fk" FOREIGN KEY ("league_id") REFERENCES "public"."leagues"("league_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "matchup_outcomes" ADD CONSTRAINT "matchup_outcomes_roster_owner_id_sleeper_users_user_id_fk" FOREIGN KEY ("roster_owner_id") REFERENCES "public"."sleeper_users"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "matchup_outcomes" ADD CONSTRAINT "matchups_league_rosters_identity" FOREIGN KEY ("league_id","roster_id") REFERENCES "public"."rosters"("league_id","roster_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "matchups" ADD CONSTRAINT "league_rosters_identity" FOREIGN KEY ("league_id","roster_id") REFERENCES "public"."rosters"("league_id","roster_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "rosters" ADD CONSTRAINT "rosters_owner_id_sleeper_users_user_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."sleeper_users"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "rosters" ADD CONSTRAINT "rosters_league_id_leagues_league_id_fk" FOREIGN KEY ("league_id") REFERENCES "public"."leagues"("league_id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "rosters" ADD CONSTRAINT "rosters_roster_owner_id_sleeper_users_user_id_fk" FOREIGN KEY ("roster_owner_id") REFERENCES "public"."sleeper_users"("user_id") ON DELETE no action ON UPDATE no action;

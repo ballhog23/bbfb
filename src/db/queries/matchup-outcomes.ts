@@ -1,8 +1,12 @@
 import { sql, eq, and } from "drizzle-orm";
 import { db } from "../index.js";
-import { matchupOutcomesTable, matchupsTable, rostersTable, leagueUsersTable, type SelectMatchupOutcome, sleeperUsersTable } from "../schema.js";
+import {
+    matchupOutcomesTable, matchupsTable,
+    rostersTable, leagueUsersTable,
+    sleeperUsersTable, type StrictInsertMatchupOutcome,
+} from "../schema.js";
 
-export async function insertMatchupOutcome(outcome: SelectMatchupOutcome) {
+export async function insertMatchupOutcome(outcome: StrictInsertMatchupOutcome) {
     const result = await db
         .insert(matchupOutcomesTable)
         .values(outcome)
@@ -29,8 +33,7 @@ export async function insertMatchupOutcome(outcome: SelectMatchupOutcome) {
 export async function selectAllLeagueMatchupOutcomes() {
     const result = await db
         .select()
-        .from(matchupOutcomesTable)
-        .innerJoin(sleeperUsersTable, eq(matchupOutcomesTable.rosterOwnerId, sleeperUsersTable.userId));
+        .from(matchupOutcomesTable);
 
     return result;
 }
@@ -43,9 +46,10 @@ export async function selectLeagueMatchupOutcomes(leagueId: string) {
             matchupId: matchupsTable.matchupId,
             week: matchupsTable.week,
             rosterId: matchupsTable.rosterId,
-            rosterOwnerId: rostersTable.ownerId,
+            rosterOwnerId: rostersTable.rosterOwnerId,
             season: matchupsTable.season,
             team: leagueUsersTable.teamName,
+            owner: sleeperUsersTable.displayName,
             pointsFor: matchupsTable.points,
             pointsAgainst: sql<string>`
                 (
@@ -66,12 +70,13 @@ export async function selectLeagueMatchupOutcomes(leagueId: string) {
         ))
         .innerJoin(leagueUsersTable, and(
             eq(leagueUsersTable.leagueId, leagueId),
-            eq(rostersTable.ownerId, leagueUsersTable.userId)
+            eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
         ))
+        .innerJoin(sleeperUsersTable, eq(leagueUsersTable.userId, sleeperUsersTable.userId))
         .where(
             eq(matchupsTable.leagueId, leagueId)
         )
-        .orderBy(matchupsTable.matchupId, matchupsTable.week);
+        .orderBy(matchupsTable.week);
 
     return result;
 }

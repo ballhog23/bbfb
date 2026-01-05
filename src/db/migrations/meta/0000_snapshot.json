@@ -1,5 +1,5 @@
 {
-  "id": "8f93c39e-98cc-44fa-81b7-1a27b88fc4a6",
+  "id": "34037054-923c-4990-9797-0fa108e27d3e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -272,6 +272,127 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.matchup_outcomes": {
+      "name": "matchup_outcomes",
+      "schema": "",
+      "columns": {
+        "league_id": {
+          "name": "league_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "matchup_id": {
+          "name": "matchup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "week": {
+          "name": "week",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "roster_id": {
+          "name": "roster_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "roster_owner_id": {
+          "name": "roster_owner_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "outcome": {
+          "name": "outcome",
+          "type": "result",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season": {
+          "name": "season",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "points_for": {
+          "name": "points_for",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "points_against": {
+          "name": "points_against",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "matchup_outcomes_roster_owner_id_sleeper_users_user_id_fk": {
+          "name": "matchup_outcomes_roster_owner_id_sleeper_users_user_id_fk",
+          "tableFrom": "matchup_outcomes",
+          "tableTo": "sleeper_users",
+          "columnsFrom": [
+            "roster_owner_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "matchups_league_rosters_identity": {
+          "name": "matchups_league_rosters_identity",
+          "tableFrom": "matchup_outcomes",
+          "tableTo": "rosters",
+          "columnsFrom": [
+            "league_id",
+            "roster_id"
+          ],
+          "columnsTo": [
+            "league_id",
+            "roster_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "matchup_outcome_identity": {
+          "name": "matchup_outcome_identity",
+          "columns": [
+            "league_id",
+            "roster_owner_id",
+            "week",
+            "roster_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.matchups": {
       "name": "matchups",
       "schema": "",
@@ -388,8 +509,8 @@
       "name": "rosters",
       "schema": "",
       "columns": {
-        "owner_id": {
-          "name": "owner_id",
+        "roster_owner_id": {
+          "name": "roster_owner_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -489,28 +610,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "rosters_owner_id_sleeper_users_user_id_fk": {
-          "name": "rosters_owner_id_sleeper_users_user_id_fk",
+        "rosters_roster_owner_id_sleeper_users_user_id_fk": {
+          "name": "rosters_roster_owner_id_sleeper_users_user_id_fk",
           "tableFrom": "rosters",
           "tableTo": "sleeper_users",
           "columnsFrom": [
-            "owner_id"
+            "roster_owner_id"
           ],
           "columnsTo": [
             "user_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "rosters_league_id_leagues_league_id_fk": {
-          "name": "rosters_league_id_leagues_league_id_fk",
-          "tableFrom": "rosters",
-          "tableTo": "leagues",
-          "columnsFrom": [
-            "league_id"
-          ],
-          "columnsTo": [
-            "league_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -582,7 +690,18 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.result": {
+      "name": "result",
+      "schema": "public",
+      "values": [
+        "W",
+        "L",
+        "T",
+        "BYE"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

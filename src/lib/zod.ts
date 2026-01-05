@@ -148,7 +148,7 @@ export const rawRosterSchema = z.looseObject({
     }),
 });
 export const strictRosterSchema = z.strictObject({
-    ownerId: z.string(),
+    rosterOwnerId: z.string(),
     leagueId: z.string(),
     season: z.string(),
     rosterId: z.number(),

@@ -78,12 +78,8 @@ export type SelectNFLPlayer = typeof NFLPlayersTable.$inferSelect;
 export type StrictInsertNFLPlayer = OmitTimestamps<SelectNFLPlayer>;
 
 export const rostersTable = pgTable("rosters", {
-    ownerId: text()
-        .references(() => sleeperUsersTable.userId)
-        .notNull(),
-    leagueId: text()
-        .references(() => leaguesTable.leagueId)
-        .notNull(),
+    rosterOwnerId: text().references(() => sleeperUsersTable.userId).notNull(),
+    leagueId: text().notNull(),
     season: text().notNull(),
     rosterId: integer().notNull(),
     starters: text().array().notNull(),
@@ -140,11 +136,11 @@ export const matchupOutcomesTable = pgTable("matchup_outcomes", {
     matchupId: integer(),
     week: integer().notNull(),
     rosterId: integer().notNull(),
-    rosterOwnerId: text().notNull(), // this references rostersTable.ownerId
+    rosterOwnerId: text().references(() => sleeperUsersTable.userId).notNull(), // this references rostersTable.ownerId
     outcome: resultEnum().notNull(),
     season: text().notNull(),
     pointsFor: numeric({ scale: 2 }).notNull(),
-    pointsAgainst: numeric({ scale: 2 }).notNull(),
+    pointsAgainst: numeric({ scale: 2 }),
     ...timestamps
 }, (table) => [
     primaryKey({
@@ -158,8 +154,8 @@ export const matchupOutcomesTable = pgTable("matchup_outcomes", {
     }),
     foreignKey({
         name: "matchups_league_rosters_identity",
-        columns: [table.leagueId, table.rosterId, table.rosterOwnerId],
-        foreignColumns: [rostersTable.leagueId, rostersTable.rosterId, rostersTable.ownerId]
+        columns: [table.leagueId, table.rosterId],
+        foreignColumns: [rostersTable.leagueId, rostersTable.rosterId]
     })
 ]
 );
