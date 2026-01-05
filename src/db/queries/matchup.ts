@@ -4,7 +4,8 @@ import {
     leagueUsersTable, matchupsTable,
     rostersTable, NFLPlayersTable,
     matchupOutcomes,
-    type StrictInsertMatchup
+    type StrictInsertMatchup,
+    sleeperUsersTable
 } from "../schema.js";
 
 // we could look how to handle matchupId is null... we could coalesce the value, but we have to cast as ::text which
@@ -44,6 +45,7 @@ export async function selectLeagueMatchups(leagueId: string) {
             week: matchupsTable.week,
             matchupId: matchupsTable.matchupId,
             team: leagueUsersTable.teamName,
+            owner: sleeperUsersTable.displayName,
             pointsTotal: matchupsTable.points,
             players: sql
                 `
@@ -81,6 +83,7 @@ export async function selectLeagueMatchups(leagueId: string) {
             sql`TRUE`
         )
         .innerJoin(NFLPlayersTable, eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`))
+        .innerJoin(sleeperUsersTable, eq(leagueUsersTable.userId, sleeperUsersTable.userId))
         .where(
             eq(matchupsTable.leagueId, leagueId)
         )
@@ -89,6 +92,7 @@ export async function selectLeagueMatchups(leagueId: string) {
             matchupsTable.week,
             matchupsTable.matchupId,
             leagueUsersTable.teamName,
+            sleeperUsersTable.displayName,
             matchupsTable.points,
         )
         .orderBy(matchupsTable.matchupId);
@@ -103,6 +107,7 @@ export async function selectLeagueMatchupsByWeek(leagueId: string, week: number)
             week: matchupsTable.week,
             matchupId: matchupsTable.matchupId,
             team: leagueUsersTable.teamName,
+            owner: sleeperUsersTable.displayName,
             pointsTotal: matchupsTable.points,
             players: sql
                 `
@@ -140,6 +145,7 @@ export async function selectLeagueMatchupsByWeek(leagueId: string, week: number)
             sql`TRUE`
         )
         .innerJoin(NFLPlayersTable, eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`))
+        .innerJoin(sleeperUsersTable, eq(leagueUsersTable.userId, sleeperUsersTable.userId))
         .where(
             and(
                 eq(matchupsTable.leagueId, leagueId),
@@ -151,6 +157,7 @@ export async function selectLeagueMatchupsByWeek(leagueId: string, week: number)
             matchupsTable.week,
             matchupsTable.matchupId,
             leagueUsersTable.teamName,
+            sleeperUsersTable.displayName,
             matchupsTable.points,
         )
         .orderBy(matchupsTable.matchupId);
@@ -165,6 +172,7 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
             week: matchupsTable.week,
             matchupId: matchupsTable.matchupId,
             team: leagueUsersTable.teamName,
+            owner: sleeperUsersTable.displayName,
             pointsTotal: matchupsTable.points,
             players: sql
                 `
@@ -202,6 +210,7 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
             sql`TRUE`
         )
         .innerJoin(NFLPlayersTable, eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`))
+        .innerJoin(sleeperUsersTable, eq(leagueUsersTable.userId, sleeperUsersTable.userId))
         .where(
             and(
                 eq(matchupsTable.leagueId, leagueId),
@@ -214,6 +223,7 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
             matchupsTable.week,
             matchupsTable.matchupId,
             leagueUsersTable.teamName,
+            sleeperUsersTable.displayName,
             matchupsTable.points,
         )
         .orderBy(matchupsTable.matchupId);
