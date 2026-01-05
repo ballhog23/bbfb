@@ -1,4 +1,4 @@
-import { sql, eq, and, sum, isNotNull, desc, } from "drizzle-orm";
+import { sql, eq, and, sum, isNotNull, desc, count, lt, gte, } from "drizzle-orm";
 import { db } from "../index.js";
 import {
     matchupOutcomesTable, matchupsTable,
@@ -8,7 +8,11 @@ import {
 
 // sleeper only accounts for total points scored as weeks 1-14 (regular season)
 // we are going to account for total points scored all time, even if it was a bye week and even if it's the post season
+// we can select regular season and post season data...
+// 2025 we started using the league median, so if you score above the median of the league scores, and win the matchup
+// you got 2 wins, if you won the matchup but scored less than median, you got 1W 1L
 
+//
 export async function insertMatchupOutcome(outcome: StrictInsertMatchupOutcome) {
     const result = await db
         .insert(matchupOutcomesTable)
@@ -44,7 +48,7 @@ export async function selectAllLeagueMatchupOutcomes() {
 export async function selectLeaguePointsScoredPerUser(leagueId: string) {
     const result = await db
         .selectDistinct({
-            ownerId: sleeperUsersTable.userId,
+            userId: sleeperUsersTable.userId,
             name: sleeperUsersTable.displayName,
             points: sum(matchupOutcomesTable.pointsFor)
 
@@ -54,7 +58,12 @@ export async function selectLeaguePointsScoredPerUser(leagueId: string) {
             sleeperUsersTable,
             eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId)
         )
-        .where(eq(matchupOutcomesTable.leagueId, leagueId))
+        .where(
+            and(
+                eq(matchupOutcomesTable.leagueId, leagueId),
+                lt(matchupOutcomesTable.week, 15)
+            )
+        )
         .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName)
         .orderBy(desc(sum(matchupOutcomesTable.pointsFor)));
 
@@ -64,7 +73,7 @@ export async function selectLeaguePointsScoredPerUser(leagueId: string) {
 export async function selectAllTimePointsScoredPerUser() {
     const result = await db
         .select({
-            ownerId: sleeperUsersTable.userId,
+            userId: sleeperUsersTable.userId,
             name: sleeperUsersTable.displayName,
             points: sum(matchupOutcomesTable.pointsFor)
         })
@@ -75,6 +84,67 @@ export async function selectAllTimePointsScoredPerUser() {
 
     return result;
 
+}
+
+
+export async function selectRegularSeasonWLRPerUser(leagueId: string) {
+    const result = await db
+        .select({
+            userId: sleeperUsersTable.userId,
+            name: sleeperUsersTable.displayName,
+            teamName: leagueUsersTable.teamName,
+            wins: sum(sql<number>`
+                CASE
+                    WHEN matchup_outcomes.outcome = 'W' THEN 1
+                    ELSE 0
+                END
+            `),
+            losses: sum(sql<number>`
+                CASE
+                    WHEN matchup_outcomes.outcome = 'L' THEN 1
+                    ELSE 0
+                END
+            `),
+        })
+        .from(matchupOutcomesTable)
+        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId))
+        .innerJoin(leagueUsersTable, eq(leagueUsersTable.leagueId, leagueId))
+        .where(
+            and(
+                eq(matchupOutcomesTable.leagueId, leagueId),
+                eq(matchupOutcomesTable.rosterOwnerId, leagueUsersTable.userId),
+                lt(matchupOutcomesTable.week, 15)
+            )
+        )
+        .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName, leagueUsersTable.teamName)
+        .orderBy(sleeperUsersTable.userId, sleeperUsersTable.displayName);
+
+    return result;
+}
+
+export async function selectAllTimeWinLossRatioPerUser() {
+    const result = await db
+        .select({
+            userId: sleeperUsersTable.userId,
+            name: sleeperUsersTable.displayName,
+            wins: sum(sql<number>`
+                CASE
+                    WHEN matchup_outcomes.outcome = 'W' THEN 1
+                    ELSE 0
+                END
+            `),
+            losses: sum(sql<number>`
+                CASE
+                    WHEN matchup_outcomes.outcome = 'L' THEN 1
+                    ELSE 0
+                END
+            `),
+        })
+        .from(matchupOutcomesTable)
+        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId))
+        .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName);
+
+    return result;
 }
 
 // query to build data for insertion into matchup outcomes
