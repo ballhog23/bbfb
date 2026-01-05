@@ -9,7 +9,7 @@ export async function insertLeagueRoster(leagueRosters: StrictInsertRoster) {
         .onConflictDoUpdate({
             target: [rostersTable.leagueId, rostersTable.rosterId],
             set: {
-                ownerId: sql`EXCLUDED.owner_id`,
+                rosterOwnerId: sql`EXCLUDED.roster_owner_id`,
                 season: sql`EXCLUDED.season`,
                 starters: sql`EXCLUDED.starters`,
                 wins: sql`EXCLUDED.wins`,
@@ -51,7 +51,7 @@ export async function selectAllRosters() {
         .innerJoin(leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
-                eq(rostersTable.ownerId, leagueUsersTable.userId)
+                eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
         .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
@@ -90,11 +90,11 @@ export async function selectUserRosters(userId: string) {
         .innerJoin(leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
-                eq(rostersTable.ownerId, leagueUsersTable.userId)
+                eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
         .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
-        .where(eq(rostersTable.ownerId, userId))
+        .where(eq(rostersTable.rosterOwnerId, userId))
         .groupBy(
             leagueUsersTable.userId,
             leagueUsersTable.teamName,
@@ -130,7 +130,7 @@ export async function selectLeagueRosters(leagueId: string) {
         .innerJoin(leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
-                eq(rostersTable.ownerId, leagueUsersTable.userId)
+                eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
         .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
@@ -169,14 +169,14 @@ export async function selectLeagueUserRoster(leagueId: string, userId: string) {
         .innerJoin(leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
-                eq(rostersTable.ownerId, leagueUsersTable.userId)
+                eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
         .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
         .where(
             and(
                 eq(rostersTable.leagueId, leagueId),
-                eq(rostersTable.ownerId, userId)
+                eq(rostersTable.rosterOwnerId, userId)
             )
         )
         .groupBy(

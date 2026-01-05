@@ -1,4 +1,4 @@
-import { sql, and, eq, desc } from "drizzle-orm";
+import { sql, and, eq, desc, isNotNull } from "drizzle-orm";
 import { db } from "../index.js";
 import {
     leagueUsersTable, matchupsTable,
@@ -6,11 +6,6 @@ import {
     type StrictInsertMatchup,
     sleeperUsersTable
 } from "../schema.js";
-
-// we could look how to handle matchupId is null... we could coalesce the value, but we have to cast as ::text which
-// is not type safe when we send back to backend, so we would have to parse back to Number() which could be weird ?
-// matchupId: sql`COALESCE(${matchupsTable.matchupId}::text, 'bye')`, we can't send matchupId 0 but then again
-// why not just fucking null check on and send bye to frontend? idk
 
 export async function insertMatchup(matchup: StrictInsertMatchup) {
     const [result] = await db
@@ -75,7 +70,7 @@ export async function selectLeagueMatchups(leagueId: string) {
         ))
         .innerJoin(leagueUsersTable, and(
             eq(leagueUsersTable.leagueId, leagueId),
-            eq(rostersTable.ownerId, leagueUsersTable.userId)
+            eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
         ))
         .leftJoinLateral(
             sql`jsonb_each_text(${matchupsTable.playersPoints}) as player_scoring(player_id, points)`,
@@ -107,8 +102,8 @@ export async function selectLeagueMatchupsByWeek(leagueId: string, week: number)
             matchupId: matchupsTable.matchupId,
             team: leagueUsersTable.teamName,
             owner: sleeperUsersTable.displayName,
-            pointsTotal: matchupsTable.points,
-            players: sql
+            points: matchupsTable.points,
+            rosterPlayers: sql
                 `
                     jsonb_agg(
                         CASE 
@@ -131,20 +126,24 @@ export async function selectLeagueMatchupsByWeek(leagueId: string, week: number)
 
         })
         .from(matchupsTable)
-        .innerJoin(rostersTable, and(
-            eq(rostersTable.leagueId, leagueId),
-            eq(rostersTable.rosterId, matchupsTable.rosterId)
-        ))
-        .innerJoin(leagueUsersTable, and(
-            eq(leagueUsersTable.leagueId, leagueId),
-            eq(rostersTable.ownerId, leagueUsersTable.userId)
-        ))
+        .innerJoin(rostersTable,
+            and(
+                eq(rostersTable.leagueId, leagueId),
+                eq(matchupsTable.rosterId, rostersTable.rosterId)
+            )
+        )
+        .innerJoin(leagueUsersTable,
+            and(
+                eq(leagueUsersTable.leagueId, leagueId),
+                eq(leagueUsersTable.userId, rostersTable.rosterOwnerId,)
+            )
+        )
         .leftJoinLateral(
             sql`jsonb_each_text(${matchupsTable.playersPoints}) as player_scoring(player_id, points)`,
             sql`TRUE`
         )
         .innerJoin(NFLPlayersTable, eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`))
-        .innerJoin(sleeperUsersTable, eq(leagueUsersTable.userId, sleeperUsersTable.userId))
+        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId))
         .where(
             and(
                 eq(matchupsTable.leagueId, leagueId),
@@ -173,7 +172,7 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
             team: leagueUsersTable.teamName,
             owner: sleeperUsersTable.displayName,
             pointsTotal: matchupsTable.points,
-            players: sql
+            rosterPlayers: sql
                 `
                     jsonb_agg(
                         CASE 
@@ -202,14 +201,14 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
         ))
         .innerJoin(leagueUsersTable, and(
             eq(leagueUsersTable.leagueId, leagueId),
-            eq(rostersTable.ownerId, leagueUsersTable.userId)
+            eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
         ))
         .leftJoinLateral(
             sql`jsonb_each_text(${matchupsTable.playersPoints}) as player_scoring(player_id, points)`,
             sql`TRUE`
         )
         .innerJoin(NFLPlayersTable, eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`))
-        .innerJoin(sleeperUsersTable, eq(leagueUsersTable.userId, sleeperUsersTable.userId))
+        .innerJoin(sleeperUsersTable, eq(rostersTable.rosterOwnerId, sleeperUsersTable.userId))
         .where(
             and(
                 eq(matchupsTable.leagueId, leagueId),

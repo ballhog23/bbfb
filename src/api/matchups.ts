@@ -20,6 +20,7 @@ export async function handlerGetLeagueMatchups(req: Request<MatchupParams>, res:
         throw new BadRequestError('You must provide a League ID');
 
     const matchups = await selectLeagueMatchups(leagueId);
+
     if (matchups.length === 0)
         throw new BadRequestError(`No matchups found for League ID: ${leagueId}`);
 
@@ -66,8 +67,9 @@ export async function handlerGetSpecificLeagueMatchup(req: Request<MatchupParams
 
     if (isNaN(matchupId) || !Number.isInteger(matchupId) || matchupId <= 0 || matchupId > 6)
         throw new BadRequestError('You must provide a valid matchup number. Ranging 1-6');
-
+    console.log(leagueId, week, matchupId);
     const matchups = await selectSpecificLeagueMatchup(leagueId, week, matchupId);
+    console.log(matchups);
     if (matchups.length === 0)
         throw new BadRequestError(
             `No matchups found for League ID: ${leagueId} during Week: ${week} with Matchup ID: ${matchupId}`
