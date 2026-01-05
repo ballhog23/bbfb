@@ -1,10 +1,13 @@
-import { sql, eq, and } from "drizzle-orm";
+import { sql, eq, and, sum, isNotNull, desc, } from "drizzle-orm";
 import { db } from "../index.js";
 import {
     matchupOutcomesTable, matchupsTable,
     rostersTable, leagueUsersTable,
     sleeperUsersTable, type StrictInsertMatchupOutcome,
 } from "../schema.js";
+
+// sleeper only accounts for total points scored as weeks 1-14 (regular season)
+// we are going to account for total points scored all time, even if it was a bye week and even if it's the post season
 
 export async function insertMatchupOutcome(outcome: StrictInsertMatchupOutcome) {
     const result = await db
@@ -36,6 +39,42 @@ export async function selectAllLeagueMatchupOutcomes() {
         .from(matchupOutcomesTable);
 
     return result;
+}
+
+export async function selectLeaguePointsScoredPerUser(leagueId: string) {
+    const result = await db
+        .selectDistinct({
+            ownerId: sleeperUsersTable.userId,
+            name: sleeperUsersTable.displayName,
+            points: sum(matchupOutcomesTable.pointsFor)
+
+        })
+        .from(matchupOutcomesTable)
+        .innerJoin(
+            sleeperUsersTable,
+            eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId)
+        )
+        .where(eq(matchupOutcomesTable.leagueId, leagueId))
+        .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName)
+        .orderBy(desc(sum(matchupOutcomesTable.pointsFor)));
+
+    return result;
+}
+
+export async function selectAllTimePointsScoredPerUser() {
+    const result = await db
+        .select({
+            ownerId: sleeperUsersTable.userId,
+            name: sleeperUsersTable.displayName,
+            points: sum(matchupOutcomesTable.pointsFor)
+        })
+        .from(matchupOutcomesTable)
+        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId))
+        .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName)
+        .orderBy(desc(sum(matchupOutcomesTable.pointsFor)));
+
+    return result;
+
 }
 
 // query to build data for insertion into matchup outcomes
