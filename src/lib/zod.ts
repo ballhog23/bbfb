@@ -9,6 +9,7 @@ const nullableString = z.nullable(z.string());
 const nullableNumber = z.nullable(z.number());
 const nullableBoolean = z.nullable(z.boolean());
 const leagueStatusEnum = z.enum(["pre_draft", "drafting", "in_season", "complete", "post_season"]);
+const playoffBracketTypeEnum = z.enum(['winners_bracket', 'losers_bracket']);
 
 export const rawLeagueSchema = z.looseObject({
     league_id: z.string(),
@@ -235,8 +236,8 @@ export const rawNFLStateSchema = z.looseObject({
 });
 export type RawNFLState = z.infer<typeof rawNFLStateSchema>;
 
-const nullishWinningTeamFromMatchupSchema = z.looseObject({
-    w: nullishNumber,
+const winningTeamFromMatchupSchema = z.looseObject({
+    w: z.number(),
 })
     .refine(
         data => !('l' in data), { error: 'l property must not exist' }
@@ -245,8 +246,8 @@ const nullishWinningTeamFromMatchupSchema = z.looseObject({
         data => 'w' in data, { error: 'w property must exist' }
     );
 
-const nullishLosingTeamFromMatchupSchema = z.looseObject({
-    l: nullishNumber
+const losingTeamFromMatchupSchema = z.looseObject({
+    l: z.number()
 })
     .refine(
         data => !('w' in data), { error: 'w property must not exist' }
@@ -257,35 +258,17 @@ const nullishLosingTeamFromMatchupSchema = z.looseObject({
 
 const nullishTeamFromMatchupSchema = z.nullish(
     z.xor(
-        [nullishWinningTeamFromMatchupSchema, nullishLosingTeamFromMatchupSchema]
+        [winningTeamFromMatchupSchema, losingTeamFromMatchupSchema]
     )
 );
-const nullableWinningTeamFromMatchupSchema = z.looseObject({
-    w: nullableNumber,
-})
-    .refine(
-        data => !('l' in data), { error: 'l property must not exist' }
-    )
-    .refine(
-        data => 'w' in data, { error: 'w property must exist' }
-    );
 
-const nullableLosingTeamFromMatchupSchema = z.looseObject({
-    l: nullableNumber
-})
-    .refine(
-        data => !('w' in data), { error: 'w property must not exist' }
-    )
-    .refine(
-        data => 'l' in data, { error: 'l property must exist' }
-    );
 const nullableTeamFromMatchupSchema = z.nullable(
     z.xor(
-        [nullableWinningTeamFromMatchupSchema, nullableLosingTeamFromMatchupSchema]
+        [winningTeamFromMatchupSchema, losingTeamFromMatchupSchema]
     )
 );
 type NullableTeamFromMatchup = z.infer<typeof nullableTeamFromMatchupSchema>;
-export const rawBracketSchema = z.looseObject({
+export const rawBracketMatchupSchema = z.looseObject({
     m: z.number(),
     r: z.number(),
     l: nullishNumber,
@@ -296,7 +279,7 @@ export const rawBracketSchema = z.looseObject({
     t1_from: nullishTeamFromMatchupSchema,
     t2_from: nullishTeamFromMatchupSchema,
 });
-export const strictBracketSchema = z.strictObject({
+export const strictBracketMatchupSchema = z.strictObject({
     m: z.number(),
     r: z.number(),
     l: nullableNumber,
@@ -307,8 +290,8 @@ export const strictBracketSchema = z.strictObject({
     t1From: nullableTeamFromMatchupSchema,
     t2From: nullableTeamFromMatchupSchema,
 });
-export type RawBracket = z.infer<typeof rawBracketSchema>;
-export type NullableBracket = {
+export type RawBracketMatchup = z.infer<typeof rawBracketMatchupSchema>;
+export type NullableRawBracketMatchup = {
     m: number;
     r: number;
     l: number | null;
@@ -319,4 +302,9 @@ export type NullableBracket = {
     t1_from: NullableTeamFromMatchup;
     t2_from: NullableTeamFromMatchup;
 };
-export type StrictBracket = z.infer<typeof strictBracketSchema>;
+export type StrictBracketMatchup = z.infer<typeof strictBracketMatchupSchema>;
+export const strictBracketMapSchema = z.strictObject({
+    bracketType: playoffBracketTypeEnum,
+    bracketMatchups: z.array(strictBracketMatchupSchema)
+});
+export type StrictBracketMap = z.infer<typeof strictBracketMapSchema>;

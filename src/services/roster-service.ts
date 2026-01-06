@@ -89,7 +89,7 @@ async function getAllRosters(leaguesMap: LeaguesMap[]): Promise<RawLeagueRecord[
     return allRostersByLeague;
 }
 
-function normalizeRoster(roster: RawRoster, seasonYear: string): StrictRoster {
+function normalizeRoster(roster: NullableRawRoster, seasonYear: string): StrictRoster {
     // im not sure if an edge case is that a league user could drop all players on their roster and it could be empty
     const starters = roster.starters ? roster.starters.map(playerId => normalizeString(playerId)) : [];
     const players = roster.players ? roster.players.map(playerId => normalizeString(playerId)) : [];
