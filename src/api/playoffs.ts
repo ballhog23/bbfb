@@ -1,16 +1,13 @@
 import type { Request, Response } from "express";
-import { Sleeper } from '../lib/sleeper.js';
+import { buildPlayoffMatchups } from "../services/playoffs.js";
+import { respondWithJSON } from "../lib/json.js";
 
-export async function handlerPlayoffs(_: Request, res: Response) {
-    // const sleeper = new Sleeper();
-    // const losersBracket = await sleeper.getLeaguePlayoffBracket('losers_bracket');
-    // const winnersBracket = await sleeper.getLeaguePlayoffBracket('winners_bracket');
-    // const data = {
-    //     losersBracket,
-    //     winnersBracket
-    // };
+export async function handlerGetPlayoffBracket(_: Request, res: Response) {
+    const matchups = await buildPlayoffMatchups();
 
+    const data = {
+        matchups
+    };
 
-
-    // res.send(data);
+    respondWithJSON(res, 200, data);
 }

@@ -8,7 +8,6 @@ import { selectAllLeagues } from "../db/queries/leagues.js";
 import { SelectRoster, StrictInsertRoster } from "src/db/schema.js";
 import { insertLeagueRoster } from "../db/queries/rosters.js";
 import { config } from "../config.js";
-import type { TX } from '../db/index.js';
 
 export type LeaguesMap = {
     leagueId: string,

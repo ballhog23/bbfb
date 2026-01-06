@@ -235,25 +235,57 @@ export const rawNFLStateSchema = z.looseObject({
 });
 export type RawNFLState = z.infer<typeof rawNFLStateSchema>;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export const bracketMatchupSchema = z.looseObject({
+const nullishWinningTeamFromMatchupSchema = z.looseObject({
     w: nullishNumber,
-    l: nullishNumber,
-});
-export const bracketSchema = z.looseObject({
+})
+    .refine(
+        data => !('l' in data), { error: 'l property must not exist' }
+    )
+    .refine(
+        data => 'w' in data, { error: 'w property must exist' }
+    );
+
+const nullishLosingTeamFromMatchupSchema = z.looseObject({
+    l: nullishNumber
+})
+    .refine(
+        data => !('w' in data), { error: 'w property must not exist' }
+    )
+    .refine(
+        data => 'l' in data, { error: 'l property must exist' }
+    );
+
+const nullishTeamFromMatchupSchema = z.nullish(
+    z.xor(
+        [nullishWinningTeamFromMatchupSchema, nullishLosingTeamFromMatchupSchema]
+    )
+);
+const nullableWinningTeamFromMatchupSchema = z.looseObject({
+    w: nullableNumber,
+})
+    .refine(
+        data => !('l' in data), { error: 'l property must not exist' }
+    )
+    .refine(
+        data => 'w' in data, { error: 'w property must exist' }
+    );
+
+const nullableLosingTeamFromMatchupSchema = z.looseObject({
+    l: nullableNumber
+})
+    .refine(
+        data => !('w' in data), { error: 'w property must not exist' }
+    )
+    .refine(
+        data => 'l' in data, { error: 'l property must exist' }
+    );
+const nullableTeamFromMatchupSchema = z.nullable(
+    z.xor(
+        [nullableWinningTeamFromMatchupSchema, nullableLosingTeamFromMatchupSchema]
+    )
+);
+type NullableTeamFromMatchup = z.infer<typeof nullableTeamFromMatchupSchema>;
+export const rawBracketSchema = z.looseObject({
     m: z.number(),
     r: z.number(),
     l: nullishNumber,
@@ -261,9 +293,30 @@ export const bracketSchema = z.looseObject({
     p: nullishNumber,
     t1: nullishNumber,
     t2: nullishNumber,
-    t1_from: bracketMatchupSchema.nullish(),
-    t2_from: bracketMatchupSchema.nullish(),
+    t1_from: nullishTeamFromMatchupSchema,
+    t2_from: nullishTeamFromMatchupSchema,
 });
-export type RawBracketMatchup = z.infer<typeof bracketMatchupSchema>;
-export type RawBracket = z.infer<typeof bracketSchema>;
-
+export const strictBracketSchema = z.strictObject({
+    m: z.number(),
+    r: z.number(),
+    l: nullableNumber,
+    w: nullableNumber,
+    p: nullableNumber,
+    t1: nullableNumber,
+    t2: nullableNumber,
+    t1From: nullableTeamFromMatchupSchema,
+    t2From: nullableTeamFromMatchupSchema,
+});
+export type RawBracket = z.infer<typeof rawBracketSchema>;
+export type NullableBracket = {
+    m: number;
+    r: number;
+    l: number | null;
+    w: number | null;
+    p: number | null;
+    t1: number | null;
+    t2: number | null;
+    t1_from: NullableTeamFromMatchup;
+    t2_from: NullableTeamFromMatchup;
+};
+export type StrictBracket = z.infer<typeof strictBracketSchema>;

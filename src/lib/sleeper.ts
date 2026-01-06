@@ -6,7 +6,8 @@ import {
     RawNFLPlayer, RawRoster,
     RawSleeperUser, rawSleeperUserSchema,
     RawMatchup, rawMatchupSchema,
-    RawNFLState
+    RawNFLState, RawBracket,
+    rawBracketSchema
 } from "./zod.js";
 import { config } from '../config.js';
 
@@ -72,15 +73,14 @@ export class Sleeper {
         return leagueMatchups.map(matchup => rawMatchupSchema.parse(matchup));
     }
 
-    // async getLeaguePlayoffBracket(bracket: "winners_bracket" | "losers_bracket"): Promise<Bracket[]> {
-    //     const url = `${this.baseURL}league/${this.leagueId}/${bracket}`;
-    //     const playoffBracket = await this.fetchJSON(url);
+    async getLeaguePlayoffBracket(bracket: "winners_bracket" | "losers_bracket"): Promise<RawBracket[]> {
+        const url = `${this.baseURL}league/${this.leagueId}/${bracket}`;
+        const playoffBracket = await this.fetchJSON(url);
 
-    //     this.assertArray(playoffBracket);
-
-    //     const loosePlayoffBracket = playoffBracket.map((bracket) => bracketSchema.parse(bracket));
-    //     return this.undefinedToNullDeep(loosePlayoffBracket);
-    // }
+        this.assertArray(playoffBracket);
+        console.log(playoffBracket);
+        return playoffBracket.map(bracket => rawBracketSchema.parse(bracket));
+    }
 
     async getNFLState(): Promise<RawNFLState> {
         const url = `${this.baseURL}state/nfl`;
