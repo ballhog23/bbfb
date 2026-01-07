@@ -170,19 +170,13 @@ export const playoffsTable = pgTable("playoff_bracket_matchups", {
         .notNull(),
     bracketType: text().notNull(),
     bracketMatchupId: integer().notNull(),
-    matchupId: integer()
-        .references(() => matchupsTable.matchupId)
-        .notNull(), // points at matchups table
+    matchupId: integer().notNull(), // points at matchups table
     round: integer().notNull(),
-    loserId: integer()
-        .references(() => rostersTable.rosterId),
-    winnerId: integer()
-        .references(() => rostersTable.rosterId),
+    loserId: integer(),
+    winnerId: integer(),
     place: integer(), // null in first round
-    t1: integer()
-        .references(() => rostersTable.rosterId),
-    t2: integer()
-        .references(() => rostersTable.rosterId),
+    t1: integer(),
+    t2: integer(),
     t1From: jsonb().$type<NullableTeamFromMatchup>(),
     t2From: jsonb().$type<NullableTeamFromMatchup>(),
     ...timestamps

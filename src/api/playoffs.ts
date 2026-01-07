@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
-import { selectAllPlayoffMatchups } from "../db/queries/playoffs.js";
+import { selectAllPlayoffMatchups, selectPlayoffMatchupsPerSeason } from "../db/queries/playoffs.js";
 import { respondWithJSON } from "../lib/json.js";
 
 export async function handlerGetPlayoffBracket(_: Request, res: Response) {
-    const matchups = await selectAllPlayoffMatchups();
+    const matchups = await selectPlayoffMatchupsPerSeason('1257436036187824128');
 
     const data = {
         matchups

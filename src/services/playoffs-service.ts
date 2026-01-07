@@ -1,13 +1,12 @@
 import { Sleeper } from "../lib/sleeper.js";
 import {
     strictBracketMatchupSchema,
-    type StrictBracketMatchup, NullableRawBracketMatchup,
-    RawBracketMatchup
+    type NullableRawBracketMatchup, RawBracketMatchup
 } from "../lib/zod.js";
 import { selectPlayoffMatchups } from "../db/queries/matchup.js";
 import { undefinedToNullDeep } from "../lib/helpers.js";
 import { SelectPlayoffMatchup, StrictInsertPlayoffMatchup } from "src/db/schema.js";
-import { insertPlayoffMatchup } from "src/db/queries/playoffs.js";
+import { insertPlayoffMatchup } from "../db/queries/playoffs.js";
 
 type WinnersBracket = 'winners_bracket';
 type LosersBracket = 'losers_bracket';

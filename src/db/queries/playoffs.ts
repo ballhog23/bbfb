@@ -20,8 +20,8 @@ export async function insertPlayoffMatchup(matchup: StrictInsertPlayoffMatchup) 
                 place: sql`EXCLUDED.place`,
                 t1: sql`EXCLUDED.t1`,
                 t2: sql`EXCLUDED.t2`,
-                t1From: sql`EXCLUDED.t1From`,
-                t2From: sql`EXCLUDED.t2From`,
+                t1From: sql`EXCLUDED.t1_from`,
+                t2From: sql`EXCLUDED.t2_from`,
             }
         })
         .returning();
@@ -33,6 +33,15 @@ export async function selectAllPlayoffMatchups() {
     const result = await db
         .select()
         .from(playoffsTable);
+
+    return result;
+}
+
+export async function selectPlayoffMatchupsPerSeason(leagueId: string) {
+    const result = await db
+        .select()
+        .from(playoffsTable)
+        .where(eq(playoffsTable.leagueId, leagueId));
 
     return result;
 }

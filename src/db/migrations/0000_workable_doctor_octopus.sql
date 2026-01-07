@@ -71,6 +71,24 @@ CREATE TABLE "matchups" (
 	CONSTRAINT "matchups_identity" PRIMARY KEY("league_id","roster_id","week")
 );
 --> statement-breakpoint
+CREATE TABLE "playoff_bracket_matchups" (
+	"league_id" text NOT NULL,
+	"bracket_type" text NOT NULL,
+	"bracket_matchup_id" integer NOT NULL,
+	"matchup_id" integer NOT NULL,
+	"round" integer NOT NULL,
+	"loser_id" integer,
+	"winner_id" integer,
+	"place" integer,
+	"t1" integer,
+	"t2" integer,
+	"t1_from" jsonb,
+	"t2_from" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "playoff_bracket_matchups_identity" PRIMARY KEY("league_id","bracket_type","bracket_matchup_id")
+);
+--> statement-breakpoint
 CREATE TABLE "rosters" (
 	"roster_owner_id" text NOT NULL,
 	"league_id" text NOT NULL,
@@ -105,4 +123,5 @@ ALTER TABLE "league_users" ADD CONSTRAINT "league_users_league_id_leagues_league
 ALTER TABLE "matchup_outcomes" ADD CONSTRAINT "matchup_outcomes_roster_owner_id_sleeper_users_user_id_fk" FOREIGN KEY ("roster_owner_id") REFERENCES "public"."sleeper_users"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "matchup_outcomes" ADD CONSTRAINT "matchups_league_rosters_identity" FOREIGN KEY ("league_id","roster_id") REFERENCES "public"."rosters"("league_id","roster_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "matchups" ADD CONSTRAINT "league_rosters_identity" FOREIGN KEY ("league_id","roster_id") REFERENCES "public"."rosters"("league_id","roster_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "playoff_bracket_matchups" ADD CONSTRAINT "playoff_bracket_matchups_league_id_leagues_league_id_fk" FOREIGN KEY ("league_id") REFERENCES "public"."leagues"("league_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rosters" ADD CONSTRAINT "rosters_roster_owner_id_sleeper_users_user_id_fk" FOREIGN KEY ("roster_owner_id") REFERENCES "public"."sleeper_users"("user_id") ON DELETE no action ON UPDATE no action;

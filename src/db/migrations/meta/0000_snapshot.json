@@ -1,5 +1,5 @@
 {
-  "id": "34037054-923c-4990-9797-0fa108e27d3e",
+  "id": "19831f44-d5e4-4eef-bcff-23fbbf54f573",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -497,6 +497,128 @@
             "league_id",
             "roster_id",
             "week"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.playoff_bracket_matchups": {
+      "name": "playoff_bracket_matchups",
+      "schema": "",
+      "columns": {
+        "league_id": {
+          "name": "league_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bracket_type": {
+          "name": "bracket_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bracket_matchup_id": {
+          "name": "bracket_matchup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "matchup_id": {
+          "name": "matchup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "round": {
+          "name": "round",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loser_id": {
+          "name": "loser_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "winner_id": {
+          "name": "winner_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "place": {
+          "name": "place",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "t1": {
+          "name": "t1",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "t2": {
+          "name": "t2",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "t1_from": {
+          "name": "t1_from",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "t2_from": {
+          "name": "t2_from",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "playoff_bracket_matchups_league_id_leagues_league_id_fk": {
+          "name": "playoff_bracket_matchups_league_id_leagues_league_id_fk",
+          "tableFrom": "playoff_bracket_matchups",
+          "tableTo": "leagues",
+          "columnsFrom": [
+            "league_id"
+          ],
+          "columnsTo": [
+            "league_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "playoff_bracket_matchups_identity": {
+          "name": "playoff_bracket_matchups_identity",
+          "columns": [
+            "league_id",
+            "bracket_type",
+            "bracket_matchup_id"
           ]
         }
       },
