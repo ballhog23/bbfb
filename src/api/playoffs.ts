@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
-import { buildPlayoffMatchups, buildPlayoffBracketHistory } from "../services/playoffs-service.js";
+import { selectAllPlayoffMatchups } from "../db/queries/playoffs.js";
 import { respondWithJSON } from "../lib/json.js";
 
 export async function handlerGetPlayoffBracket(_: Request, res: Response) {
-    const matchups = await buildPlayoffBracketHistory();
+    const matchups = await selectAllPlayoffMatchups();
 
     const data = {
         matchups

@@ -5,8 +5,9 @@ import {
     RawBracketMatchup
 } from "../lib/zod.js";
 import { selectPlayoffMatchups } from "../db/queries/matchup.js";
-import { undefinedToNullDeep, buildLeagueHistoryIds } from "../lib/helpers.js";
+import { undefinedToNullDeep } from "../lib/helpers.js";
 import { SelectPlayoffMatchup, StrictInsertPlayoffMatchup } from "src/db/schema.js";
+import { insertPlayoffMatchup } from "src/db/queries/playoffs.js";
 
 type WinnersBracket = 'winners_bracket';
 type LosersBracket = 'losers_bracket';
@@ -20,8 +21,8 @@ type RawBracketMap = {
 };
 const bracketTypes: BracketTypesArray = ['winners_bracket', 'losers_bracket'];
 
-// for sync process
-export async function buildPlayoffMatchups() {
+
+export async function syncPlayoffMatchups() {
     // const sleeper = new Sleeper();
     // const rawBrackets: RawBracketMap[] = await Promise.all(
     //     bracketTypes.map(
@@ -34,23 +35,28 @@ export async function buildPlayoffMatchups() {
     // return rawToNormalizedPlayoffBrackets(rawBrackets);
 }
 
-// async function insertPlayoffBracketMatchups(bracketMatchups: StrictBracketMap[]) {
-//     const successfulMatchups: SelectPlayoffMatchup[] = [];
-//     const CHUNK_SIZE = 7;
+async function insertPlayoffBracketMatchups(bracketMatchups: StrictInsertPlayoffMatchup[]) {
+    const successfulMatchups: SelectPlayoffMatchup[] = [];
+    const CHUNK_SIZE = 14;
 
+    for (let i = 0; i < bracketMatchups.length; i += CHUNK_SIZE) {
+        const chunk = bracketMatchups.slice(i, i + CHUNK_SIZE);
+        const currentInsert = chunk.map(matchup => insertPlayoffMatchup(matchup));
+        const result = (await Promise.all(currentInsert)).flat();
+        successfulMatchups.push(...result);
+    }
 
-//     for (let i = 0; i < bracketMatchups.length; i += CHUNK_SIZE) {
-//         const chunk = bracketMatchups.slice(i, i + CHUNK_SIZE);
-//         const currentInsert = chunk.map(matchup => insertMatchupOutcome(matchup));
-//         const result = (await Promise.all(currentInsert)).flat();
-//         successfulMatchups.push(...result);
-//     }
+    return successfulMatchups;
 
-//     return successfulMatchups;
+}
 
-// }
+export async function buildAndInsertPlayoffBracketHistory() {
+    const matchups = await buildPlayoffBracketHistory();
+    const result = await insertPlayoffBracketMatchups(matchups);
+    return result;
+}
 
-export async function buildPlayoffBracketHistory() {
+async function buildPlayoffBracketHistory() {
     const playoffHistory = await getAllPlayoffBracketsHistory();
     const normalizedHistory = rawToNormalizedPlayoffBracketMatchups(playoffHistory);
     return normalizedHistory;
