@@ -1,5 +1,6 @@
 import { foreignKey, pgEnum, primaryKey } from "drizzle-orm/pg-core";
 import { pgTable, timestamp, text, boolean, integer, unique, jsonb, numeric } from "drizzle-orm/pg-core";
+import type { NullableTeamFromMatchup } from "../lib/zod.js";
 
 const timestamps = {
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -162,3 +163,39 @@ export const matchupOutcomesTable = pgTable("matchup_outcomes", {
 
 export type SelectMatchupOutcome = typeof matchupOutcomesTable.$inferSelect;
 export type StrictInsertMatchupOutcome = OmitTimestamps<SelectMatchupOutcome>;
+
+export const playoffsTable = pgTable("playoff_bracket_matchups", {
+    leagueId: text()
+        .references(() => leaguesTable.leagueId)
+        .notNull(),
+    bracketType: text().notNull(),
+    bracketMatchupId: integer().notNull(),
+    matchupId: integer()
+        .references(() => matchupsTable.matchupId)
+        .notNull(), // points at matchups table
+    round: integer().notNull(),
+    loserId: integer()
+        .references(() => rostersTable.rosterId),
+    winnerId: integer()
+        .references(() => rostersTable.rosterId),
+    place: integer(), // null in first round
+    t1: integer()
+        .references(() => rostersTable.rosterId),
+    t2: integer()
+        .references(() => rostersTable.rosterId),
+    t1From: jsonb().$type<NullableTeamFromMatchup>(),
+    t2From: jsonb().$type<NullableTeamFromMatchup>(),
+    ...timestamps
+}, (table) => [
+    primaryKey({
+        name: "playoff_bracket_matchups_identity",
+        columns: [
+            table.leagueId,
+            table.bracketType,
+            table.bracketMatchupId,
+        ]
+    })
+]);
+
+export type SelectPlayoffMatchup = typeof playoffsTable.$inferSelect;
+export type StrictInsertPlayoffMatchup = OmitTimestamps<SelectPlayoffMatchup>;

@@ -72,7 +72,7 @@ export class Sleeper {
         return leagueMatchups.map(matchup => rawMatchupSchema.parse(matchup));
     }
 
-    async getLeaguePlayoffBracket(bracket: "winners_bracket" | "losers_bracket"): Promise<RawBracketMatchup[]> {
+    async getLeaguePlayoffBracket(bracket: "winners_bracket" | "losers_bracket", leagueId = this.leagueId): Promise<RawBracketMatchup[]> {
         const url = `${this.baseURL}league/${this.leagueId}/${bracket}`;
         const playoffBracket = await this.fetchJSON(url);
 

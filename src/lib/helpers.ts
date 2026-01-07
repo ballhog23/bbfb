@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction, RequestHandler } from "express";
+import { selectAllLeagues } from "../db/queries/leagues.js";
 
 export type AsyncRequestHandler<P = Record<string, any>> = (
     req: Request<P>,
@@ -55,3 +56,7 @@ export function buildUserAvatarURLs(avatarId: string): AvatarURLs {
 type ThumbURL = `https://sleepercdn.com/avatars/thumbs/${string}`;
 type FullURL = `https://sleepercdn.com/avatars/${string}`;
 type AvatarURLs = [ThumbURL, FullURL];
+
+export async function buildLeagueHistoryIds(): Promise<string[]> {
+    return (await selectAllLeagues()).map(({ leagueId }) => leagueId);
+}

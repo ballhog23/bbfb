@@ -1,4 +1,4 @@
-import { sql, and, eq, desc, isNotNull } from "drizzle-orm";
+import { sql, and, eq, desc, gte, isNotNull } from "drizzle-orm";
 import { db } from "../index.js";
 import {
     leagueUsersTable, matchupsTable,
@@ -224,6 +224,27 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
             sleeperUsersTable.displayName,
             matchupsTable.points,
         );
+
+    return result;
+}
+
+// used to help populate playoffs_bracket_matchups table
+export async function selectPlayoffMatchups() {
+    const result = await db
+        .selectDistinct({
+            leagueId: matchupsTable.leagueId,
+            season: matchupsTable.season,
+            week: matchupsTable.week,
+            matchupId: matchupsTable.matchupId,
+        })
+        .from(matchupsTable)
+        .where(
+            and(
+                gte(matchupsTable.week, 15),
+                isNotNull(matchupsTable.matchupId)
+            )
+        )
+        .orderBy(matchupsTable.season, matchupsTable.week);
 
     return result;
 }

@@ -155,6 +155,7 @@ export async function selectLeagueUserRoster(leagueId: string, userId: string) {
             season: rostersTable.season,
             wins: rostersTable.wins,
             losses: rostersTable.losses,
+            rosterId: rostersTable.rosterId,
             players: sql
                 `
                     jsonb_agg(
@@ -184,7 +185,8 @@ export async function selectLeagueUserRoster(leagueId: string, userId: string) {
             leagueUsersTable.teamName,
             rostersTable.season,
             rostersTable.wins,
-            rostersTable.losses
+            rostersTable.losses,
+            rostersTable.rosterId,
         );
     return result;
 }

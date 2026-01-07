@@ -1,6 +1,6 @@
 import { SelectMatchupOutcome, StrictInsertMatchupOutcome } from "src/db/schema.js";
-import { selectAllLeagues } from "../db/queries/leagues.js";
 import { selectLeagueMatchupOutcomes, insertMatchupOutcome } from "../db/queries/matchup-outcomes.js";
+import { buildLeagueHistoryIds } from "../lib/helpers.js";
 
 // we define the type here instead of zod file, because we don't need to parse already normalized data 
 // that we fetched from the matchups table, that data has been validated before insertion
@@ -69,8 +69,4 @@ function normalizeMatchupOutcome(matchups: StrictMatchupOutcome[]) {
     }
 
     return normalizedMatchups;
-}
-
-async function buildLeagueHistoryIds(): Promise<string[]> {
-    return (await selectAllLeagues()).map(({ leagueId }) => leagueId);
 }
