@@ -281,21 +281,26 @@ export const rawBracketMatchupSchema = z.looseObject({
 });
 export const strictBracketMatchupSchema = z.strictObject({
     leagueId: z.string(),
-    matchupId: z.number(),
+    matchupId: nullableNumber,
     t1: nullableNumber,
     t2: nullableNumber,
     bracketType: z.string(),
-    t1From: nullableTeamFromMatchupSchema,
-    t2From: nullableTeamFromMatchupSchema,
+    t1FromWinner: nullableNumber,
+    t1FromLoser: nullableNumber,
+    t2FromWinner: nullableNumber,
+    t2FromLoser: nullableNumber,
     bracketMatchupId: z.number(),
     round: z.number(),
     loserId: nullableNumber,
     winnerId: nullableNumber,
     place: nullableNumber,
+    week: z.number()
 });
 export type RawBracketMatchup = z.infer<typeof rawBracketMatchupSchema>;
 export type NullableRawBracketMatchup = {
-    matchupId: number;
+    matchupId: number | null;
+    leagueId: string;
+    week: number;
     m: number;
     r: number;
     l: number | null;

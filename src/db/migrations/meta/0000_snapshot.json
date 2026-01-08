@@ -1,5 +1,5 @@
 {
-  "id": "19831f44-d5e4-4eef-bcff-23fbbf54f573",
+  "id": "b34a6094-536b-4e0c-842e-4b64c07f9dc4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -531,6 +531,12 @@
           "name": "matchup_id",
           "type": "integer",
           "primaryKey": false,
+          "notNull": false
+        },
+        "week": {
+          "name": "week",
+          "type": "integer",
+          "primaryKey": false,
           "notNull": true
         },
         "round": {
@@ -569,15 +575,27 @@
           "primaryKey": false,
           "notNull": false
         },
-        "t1_from": {
-          "name": "t1_from",
-          "type": "jsonb",
+        "t1_from_winner": {
+          "name": "t1_from_winner",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "t2_from": {
-          "name": "t2_from",
-          "type": "jsonb",
+        "t1_from_loser": {
+          "name": "t1_from_loser",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "t2_from_winner": {
+          "name": "t2_from_winner",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "t2_from_loser": {
+          "name": "t2_from_loser",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },

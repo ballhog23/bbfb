@@ -33,17 +33,17 @@ export async function handlerHistoryBootstrap(_: Request, res: Response) {
     await buildAndInsertLeagueMatchupHistory();
     console.log('LEAGUE MATCHUPS TABLE POPULATED!');
 
-    console.log('POPULATING LEAGUE MATCHUPS TABLE...');
-    await buildAndInsertPlayoffBracketHistory();
-    console.log('LEAGUE MATCHUPS TABLE POPULATED!');
-
     console.log('POPULATING LEAGUE PLAYOFFS TABLE...');
     await buildAndInsertLeagueMatchupOutcomes();
     console.log('LEAGUE PLAYOFFS TABLE POPULATED!');
 
-    console.log('POPULATING NFL PLAYERS TABLE...');
-    await syncNFLPlayers();
-    console.log('NFL PLAYERS TABLE POPULATED!');
+    console.log('POPULATING LEAGUE MATCHUPS TABLE...');
+    await buildAndInsertPlayoffBracketHistory();
+    console.log('LEAGUE MATCHUPS TABLE POPULATED!');
+
+    // console.log('POPULATING NFL PLAYERS TABLE...');
+    // await syncNFLPlayers();
+    // console.log('NFL PLAYERS TABLE POPULATED!');
 
     respondWithJSON(res, 200, { message: "BOOTSTRAP COMPLETE!" });
 }
