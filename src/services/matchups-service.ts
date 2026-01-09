@@ -5,7 +5,7 @@ import {
 } from "../lib/zod.js";
 import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
 import { buildLeagueHistoryMap, LeaguesMap } from "./roster-service.js";
-import { insertMatchup } from "../db/queries/matchup.js";
+import { insertMatchup } from "../db/queries/matchups.js";
 import { SelectMatchup, StrictInsertMatchup } from "../db/schema.js";
 import { config } from "../config.js";
 

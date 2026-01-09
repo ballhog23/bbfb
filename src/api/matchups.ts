@@ -4,7 +4,7 @@ import {
     selectLeagueMatchups,
     selectLeagueMatchupsByWeek, selectSpecificLeagueMatchup
 
-} from "../db/queries/matchup.js";
+} from "../db/queries/matchups.js";
 import { BadRequestError } from "../lib/errors.js";
 
 type MatchupParams = {

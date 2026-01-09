@@ -4,7 +4,7 @@ import {
     type NullableRawBracketMatchup, RawBracketMatchup,
     NullableTeamFromMatchup
 } from "../lib/zod.js";
-import { selectPlayoffMatchups, type TempPlayoffMatchupRow } from "../db/queries/matchup.js";
+import { selectPlayoffMatchups, type TempPlayoffMatchupRow } from "../db/queries/matchups.js";
 import { undefinedToNullDeep } from "../lib/helpers.js";
 import { SelectMatchup, SelectPlayoffMatchup, StrictInsertPlayoffMatchup } from "../db/schema.js";
 import { insertPlayoffMatchup } from "../db/queries/playoffs.js";
