@@ -246,7 +246,6 @@ export async function selectPlayoffMatchups() {
         .where(
             and(
                 isNotNull(matchupsTable.matchupId),
-                eq(matchupsTable.season, '2025'),
                 gte(matchupsTable.week, 15)
             )
         )
@@ -271,7 +270,6 @@ export async function selectPlayoffMatchups() {
         .where(
             and(
                 isNull(matchupsTable.matchupId),
-                eq(matchupsTable.season, '2025'),
                 gte(matchupsTable.week, 15)
             )
         );

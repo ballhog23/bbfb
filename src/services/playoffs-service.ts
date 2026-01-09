@@ -67,18 +67,14 @@ async function buildPlayoffBracketHistory() {
 
 export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
     const playoffMatchups = await selectPlayoffMatchups(); // includes BYEs
-    const bracketTypes: BracketTypesUnion[] = ["winners_bracket", "losers_bracket"];
-    const sleeper = new Sleeper();
-
     const leagueIds = Array.from(new Set(playoffMatchups.map((m) => m.leagueId)));
-
     const historicalBracketsRaw = await Promise.all(
         leagueIds.map(async (leagueId) =>
             Promise.all(
                 bracketTypes.map(async (bracketType) => {
                     const bracketMatchups = await sleeper.getLeaguePlayoffBracket(bracketType, leagueId);
 
-                    // 1️⃣ Normal matchups
+                    // head to heads
                     const mappedMatchups: RawBracketWithMatchupId[] = bracketMatchups.map((matchup) => {
                         const week = 14 + matchup.r;
 
@@ -126,13 +122,14 @@ export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
                         } satisfies RawBracketWithMatchupId;
                     });
 
-
-
-                    // 2️⃣ BYEs: only round 1, only once per league
+                    // BYEs: only round 1, week 17 null matchup_ids provide no meaning to a bracket structure
+                    // we still need a unique bracketMatchupId aka m, because it's part of the PK
+                    // since the PK consists of leagueId, week, bracketMatchupId, this sequence will range -1 through -4 inclusive
+                    let byeCounter = -1;
                     const byeMatchups: RawBracketWithMatchupId[] = playoffMatchups
                         .filter((row) => row.leagueId === leagueId && row.isBye && row.week === 15)
                         .map((row) => ({
-                            m: 0, // placeholder
+                            m: byeCounter--, // placeholder
                             r: 1,
                             t1: row.homeTeam,
                             t2: row.awayTeam,
@@ -141,7 +138,7 @@ export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
                             w: null,
                             l: null,
                             p: null,
-                            matchupId: row.matchupId, // null
+                            matchupId: row.matchupId,
                             week: row.week,
                             isBye: true
                         } satisfies RawBracketWithMatchupId));
@@ -158,10 +155,6 @@ export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
 
     return historicalBracketsRaw.flat().flat();
 }
-
-
-
-
 
 function normalizePlayoffBracketMatchup(
     matchup: NullableRawBracketMatchup,
