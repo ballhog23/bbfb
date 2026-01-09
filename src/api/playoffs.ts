@@ -6,7 +6,7 @@ import { getAllPlayoffBracketsHistory } from "../services/playoffs-service.js";
 
 export async function handlerGetPlayoffBracket(_: Request, res: Response) {
     // const matchups = await selectPlayoffMatchupsPerSeason('1118232706736807936');
-    const matchups = await getAllPlayoffBracketsHistory();
+    const matchups = await selectPlayoffMatchups();
 
     const data = {
         matchups

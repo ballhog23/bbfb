@@ -4,7 +4,8 @@ import {
     leagueUsersTable, matchupsTable,
     rostersTable, NFLPlayersTable,
     type StrictInsertMatchup,
-    sleeperUsersTable
+    sleeperUsersTable,
+    SelectPlayoffMatchup
 } from "../schema.js";
 
 export async function insertMatchup(matchup: StrictInsertMatchup) {
@@ -229,14 +230,53 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
 }
 
 // used to help populate playoffs_bracket_matchups table
-export async function selectPlayoffMatchups() {
-    const result = await db
-        .select()
-        .from(matchupsTable)
-        .where(
-            gte(matchupsTable.week, 15),
-        )
-        .orderBy(matchupsTable.season, matchupsTable.week);
+// select all actual head-to-heads, select all bye 'matchups_id is null' union all
+export async function selectPlayoffMatchups(): Promise<DerivedPlayoffMatchupRow[]> {
+    const result = await db.execute(
+        sql<DerivedPlayoffMatchupRow[]> `
+            WITH real_matchups AS (
+            SELECT
+                league_id AS "leagueId",
+                matchup_id AS "matchupId",
+                season,
+                week,
+                MAX(roster_id) AS "homeTeam",
+                MIN(roster_id) AS "awayTeam",
+                FALSE AS "isByeMatchup"
+            FROM matchups
+            WHERE matchup_id IS NOT NULL AND week >= 15
+            GROUP BY league_id, matchup_id, season, week
+            ),
+            
+            bye_matchups AS (
+            SELECT
+                league_id AS "leagueId",
+                matchup_id AS "matchupId",
+                season,
+                week,
+                roster_id AS "homeTeam",
+                NULL::integer AS "awayTeam",
+                TRUE AS "isByeMatchup"
+            FROM matchups
+            WHERE matchup_id IS NULL AND week >= 15
+            )
+
+            SELECT * FROM real_matchups
+            UNION ALL
+            SELECT * FROM bye_matchups
+            ORDER BY season DESC, week ASC, "matchupId" ASC NULLS LAST;
+        `
+    );
 
     return result;
 }
+
+export type DerivedPlayoffMatchupRow = {
+    leagueId: string;
+    matchupId: number | null;
+    season: string;
+    week: number;
+    homeTeam: number;
+    awayTeam: number | null;
+    isByeMatchup: boolean;
+};

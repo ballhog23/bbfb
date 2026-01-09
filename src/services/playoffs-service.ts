@@ -4,7 +4,7 @@ import {
     type NullableRawBracketMatchup, RawBracketMatchup,
     NullableTeamFromMatchup
 } from "../lib/zod.js";
-import { selectPlayoffMatchups } from "../db/queries/matchup.js";
+import { selectPlayoffMatchups, type TempPlayoffMatchups } from "../db/queries/matchup.js";
 import { undefinedToNullDeep } from "../lib/helpers.js";
 import { SelectMatchup, SelectPlayoffMatchup, StrictInsertPlayoffMatchup } from "../db/schema.js";
 import { insertPlayoffMatchup } from "../db/queries/playoffs.js";
@@ -67,7 +67,7 @@ async function buildPlayoffBracketHistory() {
 
 export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
     const sleeper = new Sleeper();
-    const playoffMatchups: SelectMatchup[] = await selectPlayoffMatchups();
+    const playoffMatchups: TempPlayoffMatchups[] = await selectPlayoffMatchups();
     const leagueIds: string[] = Array.from(
         new Set(
             playoffMatchups.map(matchup => matchup.leagueId)
@@ -108,48 +108,52 @@ export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
         const partiallyNormalizedMatchups = bracketMatchups.map(matchup => {
             const leagueMap = matchupsByLeagueAndWeek.get(leagueId);
             if (!leagueMap) throw new Error(`League ID: ${leagueId} does not exist.`);
-            if (!matchup.r) throw new Error(`Sleeper did not send a round key indicating the round of the post-season playoff.`);
-            const week = 14 + matchup.r; // matchup.round is 1, 2, or 3. post season starts week 15, 14+1,14+2,14+3
+            if (!matchup.r) throw new Error(`Sleeper did not send a round key.`);
+
+            const week = 14 + matchup.r; // 14 + 1, 14 + 2, 14 + 3 represents week of league season
             const weekMap = leagueMap.get(week);
             if (!weekMap) throw new Error(`Week: ${week} does not exist.`);
-            // now we can search through the week map for the matchup that has roster ids correlating to the sleeper response
-            let t1: number | null = null;
-            let t2: number | null = null;
-            // we dont partially normalize for t1From and t2From because the normalizing function takes care of that
-            let w: number | null = null;
-            let l: number | null = null;
-            let p: number | null = null;
+
+            // Grab t1/t2 straight from Sleeper
+            const t1 = matchup.t1 ?? null;
+            const t2 = matchup.t2 ?? null;
+            const w = matchup.w ?? null;
+            const l = matchup.l ?? null;
+            const p = matchup.p ?? null;
+
+            // Collect all roster IDs for this matchup
+            const rosterIds = [t1, t2].filter((id): id is number => id !== null);
+
+            // Find all DB rows that match any of the roster IDs
+            const dbRows = weekMap.filter(el => rosterIds.includes(el.rosterId));
+
+            // Deduplicate matchup IDs
+            const matchupIds = Array.from(new Set(dbRows.map(row => row.matchupId))).filter(Boolean) as number[];
+
+            // Determine the correct matchupId
             let matchupId: number | null = null;
-            // if t1 and t2 are null we know its a round 17 'bye week'
-            // really its just a league user who is not participating in a 1v1 matchup.
-            // TS really wants me to continue to narrow for undefined not just null...
-            if (matchup.t1 !== null && matchup.t2 !== null && matchup.t1 !== undefined && matchup.t2 !== undefined) {
-                t1 = matchup.t1;
-                t2 = matchup.t2;
-                const dbMatchup = weekMap.find(element => t1 === element.rosterId && t2 === element.rosterId);
-                matchupId = dbMatchup?.matchupId ?? null;
-                w = matchup.w ?? null;
-                l = matchup.l ?? null;
-                p = matchup.p ?? null;
-            } else if (matchup.t1 !== null && matchup.t1 !== undefined) {
-                t1 = matchup.t1; const dbMatchup = weekMap.find(element => t1 === element.rosterId && t2 === element.rosterId);
-                matchupId = dbMatchup?.matchupId ?? null;
-                w = matchup.w ?? null;
-                l = matchup.l ?? null;
-                p = matchup.p ?? null;
-            } else if (matchup.t2 !== null && matchup.t2 !== undefined) {
-                t2 = matchup.t2; const dbMatchup = weekMap.find(element => t1 === element.rosterId && t2 === element.rosterId);
-                matchupId = dbMatchup?.matchupId ?? null;
-                w = matchup.w ?? null;
-                l = matchup.l ?? null;
-                p = matchup.p ?? null;
+            if (matchupIds.length === 1) {
+                matchupId = matchupIds[0];
+            } else if (matchupIds.length > 1) {
+                console.warn('Multiple matchupIds found for', rosterIds, 'week', week, matchupIds);
+                matchupId = matchupIds[0]; // pick first or handle differently
+            } else {
+                matchupId = null; // bye week
             }
 
             return {
                 ...matchup,
-                t1, t2, w, l, p, matchupId, week
+                t1,
+                t2,
+                w,
+                l,
+                p,
+                matchupId,
+                week
             } satisfies RawBracketWithMatchupId;
         });
+
+
 
         // wrap back in RawBracketMap shape
         return {
