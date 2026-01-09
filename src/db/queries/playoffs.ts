@@ -47,7 +47,7 @@ export async function selectPlayoffMatchupsPerSeason(leagueId: string) {
         .where(
             eq(playoffsTable.leagueId, leagueId)
         )
-        .orderBy(playoffsTable.week, playoffsTable.round, playoffsTable.bracketType);
+        .orderBy(desc(playoffsTable.bracketType), playoffsTable.week, sql`${playoffsTable.matchupId} NULLS LAST`);
 
     return result;
 }

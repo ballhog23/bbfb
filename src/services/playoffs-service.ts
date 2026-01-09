@@ -68,22 +68,23 @@ async function buildPlayoffBracketHistory() {
 export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
     const playoffMatchups = await selectPlayoffMatchups(); // includes BYEs
     const leagueIds = Array.from(new Set(playoffMatchups.map((m) => m.leagueId)));
+
     const historicalBracketsRaw = await Promise.all(
         leagueIds.map(async (leagueId) =>
             Promise.all(
                 bracketTypes.map(async (bracketType) => {
                     const bracketMatchups = await sleeper.getLeaguePlayoffBracket(bracketType, leagueId);
 
-                    // head to heads
+                    // Map head-to-head matchups
                     const mappedMatchups: RawBracketWithMatchupId[] = bracketMatchups.map((matchup) => {
                         const week = 14 + matchup.r;
 
-                        // Get all DB rows for this league/week
+                        // DB rows for this league/week, excluding byes
                         const dbRowsForWeek = playoffMatchups.filter(
                             (row) => row.leagueId === leagueId && row.week === week && !row.isBye
                         );
 
-                        // Collect matchup IDs that contain either t1 or t2
+                        // Find matchup IDs containing either t1 or t2
                         const matchingMatchupIds = Array.from(
                             new Set(
                                 dbRowsForWeek
@@ -97,13 +98,12 @@ export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
                             )
                         );
 
-                        // Determine correct matchupId
                         let matchupId: number | null = null;
                         if (matchingMatchupIds.length === 1) {
                             matchupId = matchingMatchupIds[0];
                         } else if (matchingMatchupIds.length > 1) {
                             console.warn("Multiple matchupIds found for matchup:", matchup, matchingMatchupIds);
-                            matchupId = matchingMatchupIds[0]; // pick first
+                            matchupId = matchingMatchupIds[0];
                         }
 
                         return {
@@ -122,26 +122,26 @@ export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
                         } satisfies RawBracketWithMatchupId;
                     });
 
-                    // BYEs: only round 1, week 17 null matchup_ids provide no meaning to a bracket structure
-                    // we still need a unique bracketMatchupId aka m, because it's part of the PK
-                    // since the PK consists of leagueId, week, bracketMatchupId, this sequence will range -1 through -4 inclusive
+                    // BYEs: only round 1, week 15
+                    const bracketTeams = bracketType === 'winners_bracket' ? [1, 2, 3, 4, 5, 6] : [7, 8, 9, 10, 11, 12];
+                    const headToHeadTeams = mappedMatchups.flatMap(m => [m.t1, m.t2].filter(Boolean) as number[]);
+                    const byeTeams = bracketTeams.filter(t => !headToHeadTeams.includes(t)).slice(0, 2);
+
                     let byeCounter = -1;
-                    const byeMatchups: RawBracketWithMatchupId[] = playoffMatchups
-                        .filter((row) => row.leagueId === leagueId && row.isBye && row.week === 15)
-                        .map((row) => ({
-                            m: byeCounter--, // placeholder
-                            r: 1,
-                            t1: row.homeTeam,
-                            t2: row.awayTeam,
-                            t1_from: null,
-                            t2_from: null,
-                            w: null,
-                            l: null,
-                            p: null,
-                            matchupId: row.matchupId,
-                            week: row.week,
-                            isBye: true
-                        } satisfies RawBracketWithMatchupId));
+                    const byeMatchups: RawBracketWithMatchupId[] = byeTeams.map(team => ({
+                        m: byeCounter--,
+                        r: 1,
+                        t1: team,
+                        t2: null,
+                        t1_from: null,
+                        t2_from: null,
+                        w: null,
+                        l: null,
+                        p: null,
+                        matchupId: null,
+                        week: 15,
+                        isBye: true
+                    }));
 
                     return {
                         leagueId,
@@ -155,6 +155,7 @@ export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
 
     return historicalBracketsRaw.flat().flat();
 }
+
 
 function normalizePlayoffBracketMatchup(
     matchup: NullableRawBracketMatchup,

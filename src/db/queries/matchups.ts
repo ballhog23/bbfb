@@ -277,6 +277,7 @@ export async function selectPlayoffMatchups() {
     const unionQuery = real
         .unionAll(byes)
         .orderBy(
+            sql`league_id`,
             sql`week ASC`,
             sql`matchup_id ASC NULLS LAST`,
             sql`"homeTeam" ASC`
