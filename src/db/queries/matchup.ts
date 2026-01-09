@@ -231,52 +231,64 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
 
 // used to help populate playoffs_bracket_matchups table
 // select all actual head-to-heads, select all bye 'matchups_id is null' union all
-export async function selectPlayoffMatchups(): Promise<DerivedPlayoffMatchupRow[]> {
-    const result = await db.execute(
-        sql<DerivedPlayoffMatchupRow[]> `
-            WITH real_matchups AS (
-            SELECT
-                league_id AS "leagueId",
-                matchup_id AS "matchupId",
-                season,
-                week,
-                MAX(roster_id) AS "homeTeam",
-                MIN(roster_id) AS "awayTeam",
-                FALSE AS "isByeMatchup"
-            FROM matchups
-            WHERE matchup_id IS NOT NULL AND week >= 15
-            GROUP BY league_id, matchup_id, season, week
-            ),
-            
-            bye_matchups AS (
-            SELECT
-                league_id AS "leagueId",
-                matchup_id AS "matchupId",
-                season,
-                week,
-                roster_id AS "homeTeam",
-                NULL::integer AS "awayTeam",
-                TRUE AS "isByeMatchup"
-            FROM matchups
-            WHERE matchup_id IS NULL AND week >= 15
+export async function selectPlayoffMatchups() {
+    const real = db
+        .select({
+            leagueId: matchupsTable.leagueId,
+            matchupId: matchupsTable.matchupId,
+            season: matchupsTable.season,
+            week: matchupsTable.week,
+            homeTeam: sql<number>`MIN(${matchupsTable.rosterId})`.as('homeTeam'),
+            awayTeam: sql<number | null>`MAX(${matchupsTable.rosterId})`.as('awayTeam'),
+            isBye: sql<boolean>`FALSE`
+        })
+        .from(matchupsTable)
+        .where(
+            and(
+                isNotNull(matchupsTable.matchupId),
+                eq(matchupsTable.season, '2025'),
+                gte(matchupsTable.week, 15)
             )
+        )
+        .groupBy(
+            matchupsTable.leagueId,
+            matchupsTable.matchupId,
+            matchupsTable.season,
+            matchupsTable.week
+        );
 
-            SELECT * FROM real_matchups
-            UNION ALL
-            SELECT * FROM bye_matchups
-            ORDER BY season DESC, week ASC, "matchupId" ASC NULLS LAST;
-        `
-    );
+    const byes = db
+        .select({
+            leagueId: matchupsTable.leagueId,
+            matchupId: matchupsTable.matchupId,
+            season: matchupsTable.season,
+            week: matchupsTable.week,
+            homeTeam: matchupsTable.rosterId,
+            awayTeam: sql<number | null>`NULL::integer`.as('awayTeam'),
+            isBye: sql<boolean>`TRUE`
+        })
+        .from(matchupsTable)
+        .where(
+            and(
+                isNull(matchupsTable.matchupId),
+                eq(matchupsTable.season, '2025'),
+                gte(matchupsTable.week, 15)
+            )
+        );
+
+    const unionQuery = real
+        .unionAll(byes)
+        .orderBy(
+            sql`week ASC`,
+            sql`matchup_id ASC NULLS LAST`,
+            sql`"homeTeam" ASC`
+        );
+
+    const result = await unionQuery;
 
     return result;
 }
 
-export type DerivedPlayoffMatchupRow = {
-    leagueId: string;
-    matchupId: number | null;
-    season: string;
-    week: number;
-    homeTeam: number;
-    awayTeam: number | null;
-    isByeMatchup: boolean;
-};
+export type TempPlayoffMatchupRow = Awaited<
+    ReturnType<typeof selectPlayoffMatchups>
+>[number];

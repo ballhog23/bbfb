@@ -4,7 +4,7 @@ import {
     type NullableRawBracketMatchup, RawBracketMatchup,
     NullableTeamFromMatchup
 } from "../lib/zod.js";
-import { selectPlayoffMatchups, type TempPlayoffMatchups } from "../db/queries/matchup.js";
+import { selectPlayoffMatchups, type TempPlayoffMatchupRow } from "../db/queries/matchup.js";
 import { undefinedToNullDeep } from "../lib/helpers.js";
 import { SelectMatchup, SelectPlayoffMatchup, StrictInsertPlayoffMatchup } from "../db/schema.js";
 import { insertPlayoffMatchup } from "../db/queries/playoffs.js";
@@ -23,7 +23,7 @@ type RawBracketMap = {
     bracketMatchups: RawBracketMatchup[] | RawBracketWithMatchupId[];
 };
 const bracketTypes: BracketTypesTuple = ['winners_bracket', 'losers_bracket'];
-
+const sleeper = new Sleeper();
 
 export async function syncPlayoffMatchups() {
     // const sleeper = new Sleeper();
@@ -66,105 +66,102 @@ async function buildPlayoffBracketHistory() {
 }
 
 export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
+    const playoffMatchups = await selectPlayoffMatchups(); // includes BYEs
+    const bracketTypes: BracketTypesUnion[] = ["winners_bracket", "losers_bracket"];
     const sleeper = new Sleeper();
-    const playoffMatchups: TempPlayoffMatchups[] = await selectPlayoffMatchups();
-    const leagueIds: string[] = Array.from(
-        new Set(
-            playoffMatchups.map(matchup => matchup.leagueId)
-        )
-    );
-    const historicalBrackets = await Promise.all(
-        leagueIds.map(async leagueId =>
-            await Promise.all(
-                bracketTypes.map(async bracketType => ({
-                    leagueId,
-                    bracketType,
-                    bracketMatchups: await sleeper.getLeaguePlayoffBracket(bracketType, leagueId)
-                } satisfies RawBracketMap))
+
+    const leagueIds = Array.from(new Set(playoffMatchups.map((m) => m.leagueId)));
+
+    const historicalBracketsRaw = await Promise.all(
+        leagueIds.map(async (leagueId) =>
+            Promise.all(
+                bracketTypes.map(async (bracketType) => {
+                    const bracketMatchups = await sleeper.getLeaguePlayoffBracket(bracketType, leagueId);
+
+                    // 1️⃣ Normal matchups
+                    const mappedMatchups: RawBracketWithMatchupId[] = bracketMatchups.map((matchup) => {
+                        const week = 14 + matchup.r;
+
+                        // Get all DB rows for this league/week
+                        const dbRowsForWeek = playoffMatchups.filter(
+                            (row) => row.leagueId === leagueId && row.week === week && !row.isBye
+                        );
+
+                        // Collect matchup IDs that contain either t1 or t2
+                        const matchingMatchupIds = Array.from(
+                            new Set(
+                                dbRowsForWeek
+                                    .filter(
+                                        (row) =>
+                                            (row.homeTeam === matchup.t1 || row.awayTeam === matchup.t1) ||
+                                            (row.homeTeam === matchup.t2 || row.awayTeam === matchup.t2)
+                                    )
+                                    .map((row) => row.matchupId)
+                                    .filter((id): id is number => id != null)
+                            )
+                        );
+
+                        // Determine correct matchupId
+                        let matchupId: number | null = null;
+                        if (matchingMatchupIds.length === 1) {
+                            matchupId = matchingMatchupIds[0];
+                        } else if (matchingMatchupIds.length > 1) {
+                            console.warn("Multiple matchupIds found for matchup:", matchup, matchingMatchupIds);
+                            matchupId = matchingMatchupIds[0]; // pick first
+                        }
+
+                        return {
+                            m: matchup.m,
+                            r: matchup.r,
+                            t1: matchup.t1 ?? null,
+                            t2: matchup.t2 ?? null,
+                            t1_from: matchup.t1_from ?? null,
+                            t2_from: matchup.t2_from ?? null,
+                            w: matchup.w ?? null,
+                            l: matchup.l ?? null,
+                            p: matchup.p ?? null,
+                            matchupId,
+                            week,
+                            isBye: false
+                        } satisfies RawBracketWithMatchupId;
+                    });
+
+
+
+                    // 2️⃣ BYEs: only round 1, only once per league
+                    const byeMatchups: RawBracketWithMatchupId[] = playoffMatchups
+                        .filter((row) => row.leagueId === leagueId && row.isBye && row.week === 15)
+                        .map((row) => ({
+                            m: 0, // placeholder
+                            r: 1,
+                            t1: row.homeTeam,
+                            t2: row.awayTeam,
+                            t1_from: null,
+                            t2_from: null,
+                            w: null,
+                            l: null,
+                            p: null,
+                            matchupId: row.matchupId, // null
+                            week: row.week,
+                            isBye: true
+                        } satisfies RawBracketWithMatchupId));
+
+                    return {
+                        leagueId,
+                        bracketType,
+                        bracketMatchups: [...mappedMatchups, ...byeMatchups]
+                    } satisfies RawBracketMap;
+                })
             )
         )
     );
-    // hashmap for lookup per season per week of matchup data
-    const matchupsByLeagueAndWeek = new Map<string, Map<number, SelectMatchup[]>>();
-    for (const matchup of playoffMatchups) {
-        // set leagueId key if not exists
-        if (!matchupsByLeagueAndWeek.has(matchup.leagueId)) {
-            matchupsByLeagueAndWeek.set(matchup.leagueId, new Map<number, SelectMatchup[]>());
-        }
 
-        // insert matchups per league per week
-        const weekMap = matchupsByLeagueAndWeek.get(matchup.leagueId);
-        if (!weekMap?.has(matchup.week)) {
-            weekMap?.set(matchup.week, []);
-        }
-
-        // find week key per league and insert matchup with matching week
-        weekMap?.get(matchup.week)?.push(matchup);
-    }
-
-    const historicalBracketMap = historicalBrackets.flat().flatMap(bracket => {
-        const { leagueId, bracketMatchups, bracketType } = bracket;
-
-        const partiallyNormalizedMatchups = bracketMatchups.map(matchup => {
-            const leagueMap = matchupsByLeagueAndWeek.get(leagueId);
-            if (!leagueMap) throw new Error(`League ID: ${leagueId} does not exist.`);
-            if (!matchup.r) throw new Error(`Sleeper did not send a round key.`);
-
-            const week = 14 + matchup.r; // 14 + 1, 14 + 2, 14 + 3 represents week of league season
-            const weekMap = leagueMap.get(week);
-            if (!weekMap) throw new Error(`Week: ${week} does not exist.`);
-
-            // Grab t1/t2 straight from Sleeper
-            const t1 = matchup.t1 ?? null;
-            const t2 = matchup.t2 ?? null;
-            const w = matchup.w ?? null;
-            const l = matchup.l ?? null;
-            const p = matchup.p ?? null;
-
-            // Collect all roster IDs for this matchup
-            const rosterIds = [t1, t2].filter((id): id is number => id !== null);
-
-            // Find all DB rows that match any of the roster IDs
-            const dbRows = weekMap.filter(el => rosterIds.includes(el.rosterId));
-
-            // Deduplicate matchup IDs
-            const matchupIds = Array.from(new Set(dbRows.map(row => row.matchupId))).filter(Boolean) as number[];
-
-            // Determine the correct matchupId
-            let matchupId: number | null = null;
-            if (matchupIds.length === 1) {
-                matchupId = matchupIds[0];
-            } else if (matchupIds.length > 1) {
-                console.warn('Multiple matchupIds found for', rosterIds, 'week', week, matchupIds);
-                matchupId = matchupIds[0]; // pick first or handle differently
-            } else {
-                matchupId = null; // bye week
-            }
-
-            return {
-                ...matchup,
-                t1,
-                t2,
-                w,
-                l,
-                p,
-                matchupId,
-                week
-            } satisfies RawBracketWithMatchupId;
-        });
+    return historicalBracketsRaw.flat().flat();
+}
 
 
 
-        // wrap back in RawBracketMap shape
-        return {
-            leagueId,
-            bracketType,
-            bracketMatchups: partiallyNormalizedMatchups
-        } satisfies RawBracketMap;
-    });
 
-    return historicalBracketMap;
-};
 
 function normalizePlayoffBracketMatchup(
     matchup: NullableRawBracketMatchup,
