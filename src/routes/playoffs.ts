@@ -4,4 +4,4 @@ import { handlerGetPlayoffBracket } from "../api/playoffs.js";
 
 export const playoffsRoute = express.Router();
 
-playoffsRoute.get('/', asyncHandler(handlerGetPlayoffBracket));
+playoffsRoute.get('/leagues/:leagueId', asyncHandler(handlerGetPlayoffBracket));

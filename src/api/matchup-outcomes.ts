@@ -1,17 +1,39 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { } from "../db/queries/matchups.js";
-import { BadRequestError } from "../lib/errors.js";
+import { selectLeagueMatchups } from "../db/queries/matchups.js";
+import { BadRequestError, NotFoundError } from "../lib/errors.js";
 import {
     selectAllLeagueMatchupOutcomes, selectRegularSeasonWLRPerUser,
     selectAllTimeWinLossRatioPerUser, selectLeaguePointsScoredPerUser,
-    selectAllTimePointsScoredPerUser
+    selectAllTimePointsScoredPerUser, selectWeeklyLeagueMatchupOutcomes
 } from "../db/queries/matchup-outcomes.js";
 
-export async function handlerGetLeagueMatchupOutcomes(_: Request, res: Response) {
+type MatchupOutcomesParams = {
+    leagueId: string;
+    week: string;
+};
 
+export async function handlerGetLeagueMatchupOutcomes(_: Request, res: Response) {
     const matchups = await selectRegularSeasonWLRPerUser('1257436036187824128');
 
+    const data = {
+        matchups
+    };
+
+    respondWithJSON(res, 200, data);
+}
+
+export async function handlerGetWeeklyMatchupOutcomes(req: Request<MatchupOutcomesParams>, res: Response) {
+    const params = req.params;
+    const { leagueId } = params;
+    if (!leagueId)
+        throw new NotFoundError(`You must provide a League ID.`);
+
+    const week = Number(params.week);
+    if (isNaN(week) || !Number.isInteger(week) || week <= 0 || week > 17)
+        throw new BadRequestError('You must provide a valid week number. Ranging 1-17');
+
+    const matchups = await selectWeeklyLeagueMatchupOutcomes(leagueId, week);
 
     const data = {
         matchups

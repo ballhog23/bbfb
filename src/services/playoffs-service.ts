@@ -172,9 +172,6 @@ export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
     return historicalBracketsRaw.flat().flat();
 }
 
-
-
-
 function normalizePlayoffBracketMatchup(
     matchup: NullableRawBracketMatchup,
     bracketType: BracketTypesUnion,

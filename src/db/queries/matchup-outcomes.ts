@@ -86,7 +86,6 @@ export async function selectAllTimePointsScoredPerUser() {
 
 }
 
-
 export async function selectRegularSeasonWLRPerUser(leagueId: string) {
     const result = await db
         .select({
@@ -186,6 +185,20 @@ export async function selectLeagueMatchupOutcomes(leagueId: string) {
             eq(matchupsTable.leagueId, leagueId)
         )
         .orderBy(matchupsTable.week);
+
+    return result;
+}
+
+export async function selectWeeklyLeagueMatchupOutcomes(leagueId: string, week: number) {
+    const result = await db
+        .select()
+        .from(matchupOutcomesTable)
+        .where(
+            and(
+                eq(matchupOutcomesTable.leagueId, leagueId),
+                eq(matchupOutcomesTable.week, week)
+            )
+        );
 
     return result;
 }

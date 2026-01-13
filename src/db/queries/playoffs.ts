@@ -1,6 +1,11 @@
 import { sql, eq, and, sum, isNotNull, desc, count, lt, gte, isNull } from "drizzle-orm";
 import { db } from "../index.js";
-import { leagueUsersTable, matchupsTable, playoffsTable, matchupOutcomesTable, rostersTable, type StrictInsertPlayoffMatchup } from "../schema.js";
+import {
+    leagueUsersTable, matchupsTable,
+    playoffsTable, matchupOutcomesTable,
+    rostersTable,
+    type StrictInsertPlayoffMatchup
+} from "../schema.js";
 
 export async function insertPlayoffMatchup(matchup: StrictInsertPlayoffMatchup) {
     const [result] = await db
@@ -47,7 +52,11 @@ export async function selectPlayoffMatchupsPerSeason(leagueId: string) {
         .where(
             eq(playoffsTable.leagueId, leagueId)
         )
-        .orderBy(desc(playoffsTable.bracketType), playoffsTable.week, sql`${playoffsTable.matchupId} NULLS LAST`);
+        .orderBy(
+            desc(playoffsTable.bracketType),
+            playoffsTable.week,
+            sql`${playoffsTable.matchupId} NULLS LAST`
+        );
 
     return result;
 }
