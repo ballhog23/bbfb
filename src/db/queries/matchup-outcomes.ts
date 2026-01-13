@@ -146,6 +146,20 @@ export async function selectAllTimeWinLossRatioPerUser() {
     return result;
 }
 
+export async function selectWeeklyLeagueMatchupOutcomes(leagueId: string, week: number) {
+    const result = await db
+        .select()
+        .from(matchupOutcomesTable)
+        .where(
+            and(
+                eq(matchupOutcomesTable.leagueId, leagueId),
+                eq(matchupOutcomesTable.week, week)
+            )
+        );
+
+    return result;
+}
+
 // query to build data for insertion into matchup outcomes
 export async function selectLeagueMatchupOutcomes(leagueId: string) {
     const result = await db
@@ -185,20 +199,6 @@ export async function selectLeagueMatchupOutcomes(leagueId: string) {
             eq(matchupsTable.leagueId, leagueId)
         )
         .orderBy(matchupsTable.week);
-
-    return result;
-}
-
-export async function selectWeeklyLeagueMatchupOutcomes(leagueId: string, week: number) {
-    const result = await db
-        .select()
-        .from(matchupOutcomesTable)
-        .where(
-            and(
-                eq(matchupOutcomesTable.leagueId, leagueId),
-                eq(matchupOutcomesTable.week, week)
-            )
-        );
 
     return result;
 }
