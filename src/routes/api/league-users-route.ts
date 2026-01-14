@@ -1,9 +1,9 @@
 import express from "express";
-import { asyncHandler } from "../lib/helpers.js";
+import { asyncHandler } from "../../lib/helpers.js";
 import {
     handlerGetAllLeagueUsers, handlerGetLeagueUser,
     handlerGetLeagueUsers,
-} from '../api/league-users.js';
+} from '../../api/league-users.js';
 
 export const leagueUsersRoute = express.Router();
 

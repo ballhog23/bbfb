@@ -1,8 +1,8 @@
 import express from 'express';
-import { asyncHandler } from "../lib/helpers.js";
+import { asyncHandler } from "../../lib/helpers.js";
 import {
   handlerGetLeagues, handlerGetLeague,
-} from '../api/leagues.js';
+} from '../../api/leagues.js';
 
 export const leaguesRoute = express.Router();
 

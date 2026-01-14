@@ -1,8 +1,8 @@
 import express from "express";
-import { asyncHandler } from "../lib/helpers.js";
+import { asyncHandler } from "../../lib/helpers.js";
 import {
     handlerGetSleeperUser, handlerGetSleeperUsers,
-} from "../api/sleeper-users.js";
+} from "../../api/sleeper-users.js";
 
 export const sleeperUsersRoute = express.Router();
 

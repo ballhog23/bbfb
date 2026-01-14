@@ -1,9 +1,9 @@
 import express from 'express';
-import { asyncHandler } from "../lib/helpers.js";
+import { asyncHandler } from "../../lib/helpers.js";
 import {
     handlerGetLeagueMatchups,
     handlerGetLeagueMatchupsByWeek, handlerGetSpecificLeagueMatchup
-} from '../api/matchups.js';
+} from '../../api/matchups.js';
 
 export const matchupsRoute = express.Router();
 

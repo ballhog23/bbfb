@@ -1,10 +1,10 @@
 import express from 'express';
-import { asyncHandler } from "../lib/helpers.js";
+import { asyncHandler } from "../../lib/helpers.js";
 import {
     handlerSyncLeague, handlerSyncUsers,
     handlerSyncNFLPlayers, handlerSyncRosters,
     handlerSyncMatchups
-} from '../api/sync.js';
+} from '../../api/sync.js';
 
 
 export const syncRoute = express.Router();
