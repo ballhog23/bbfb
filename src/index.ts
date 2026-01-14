@@ -25,7 +25,7 @@ app.set('view engine', 'pug');
 app.set('views', join(__dirname, '../src/views/pages'));
 app.use(compression());
 app.use(express.json());
-app.use(express.static(join(__dirname, 'public')));
+app.use(express.static(join(__dirname, '../src/public')));
 app.use("/index", indexRoute);
 app.use("/players", playersRoute);
 app.use("/bootstrap-history", bootstrapRoute);
