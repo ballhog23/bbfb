@@ -1,7 +1,56 @@
-html {
-    background-color:  #000;
+:root {
+  /* Team / Brand */
+  --ff-blue-primary: #0033a0;
+  --ff-blue-hover: #00257a;
+  --ff-blue-highlight: #3b82f6;
+
+  /* Core Backgrounds */
+  --ff-bg-page: #050b1e;
+  --ff-bg-surface: #0a1a3f;
+  --ff-bg-card: #111827;
+  --ff-bg-row-hover: #0f172a;
+
+  /* Text */
+  --ff-text-primary: #ffffff;
+  --ff-text-secondary: #d1d5db;
+  --ff-text-muted: #9ca3af;
+  --ff-text-disabled: #6b7280;
+
+  /* Dividers / Borders */
+  --ff-border-default: #1f2937;
+  --ff-border-strong: #2a3348;
+
+  /* Game States */
+  --ff-win: #16a34a;
+  --ff-loss: #d62828;
+  --ff-tie: #f59e0b;
+
+  /* Status / Highlights */
+  --ff-accent-gold: #f5b700;   /* playoff spot, leader */
+  --ff-accent-cyan: #00c2ff;   /* active / selected */
+  --ff-accent-purple: #7c3aed;/* special weeks, finals */
+
+  /* Buttons */
+  --ff-btn-primary-bg: var(--ff-blue-primary);
+  --ff-btn-primary-hover: var(--ff-blue-hover);
+  --ff-btn-secondary-bg: #1f2937;
+
+  /* Tables / Matchups */
+  --ff-table-header-bg: #020617;
+  --ff-table-row-alt: #0a1a3f;
+
+  /* Shadows */
+  --ff-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+html, body {
+    background-color:  var(--ff-bg-page);
 }
 
 h1 {
-    color: #0033a0;
+    color: var( --ff-text-primary);
+}
+
+p {
+    color: var(--ff-text-secondary)
 }

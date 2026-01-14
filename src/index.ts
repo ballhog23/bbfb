@@ -17,16 +17,16 @@ import { matchupOutcomesRoute } from "./routes/api/matchup-outcomes.js";
 import { playoffsRoute } from "./routes/api/playoffs.js";
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+export const __filename = fileURLToPath(import.meta.url);
+export const __dirname = dirname(__filename);
 app.set('view engine', 'pug');
 // this will need to change in prod, we will need to copy templates to /dist, tsc does not compile pug files
 // look into a tool like cpx
-app.set('views', join(__dirname, '../src/views/pages'));
+app.set('views', join(__dirname, '/views/pages'));
 app.use(compression());
 app.use(express.json());
-app.use(express.static(join(__dirname, '../src/public')));
-app.use("/index", indexRoute);
+app.use(express.static(join(__dirname, 'public')));
+app.use("/", indexRoute);
 app.use("/players", playersRoute);
 app.use("/bootstrap-history", bootstrapRoute);
 app.use("/leagues", leaguesRoute);
