@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "target": "ESNext",
+        "module": "none",
+        "rootDir": "./src/public",
+        "outDir": "./dist/public",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "./src/public/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
