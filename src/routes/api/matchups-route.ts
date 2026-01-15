@@ -5,10 +5,10 @@ import {
     handlerGetLeagueMatchupsByWeek, handlerGetSpecificLeagueMatchup
 } from '../../api/matchups.js';
 
-export const matchupsRoute = express.Router();
+export const apiMatchupsRoute = express.Router();
 
-matchupsRoute.get('/leagues/:leagueId', asyncHandler(handlerGetLeagueMatchups));
+apiMatchupsRoute.get('/leagues/:leagueId', asyncHandler(handlerGetLeagueMatchups));
 
-matchupsRoute.get('/leagues/:leagueId/weeks/:week', asyncHandler(handlerGetLeagueMatchupsByWeek));
+apiMatchupsRoute.get('/leagues/:leagueId/weeks/:week', asyncHandler(handlerGetLeagueMatchupsByWeek));
 
-matchupsRoute.get('/leagues/:leagueId/weeks/:week/matchups/:matchupId', asyncHandler(handlerGetSpecificLeagueMatchup));
+apiMatchupsRoute.get('/leagues/:leagueId/weeks/:week/matchups/:matchupId', asyncHandler(handlerGetSpecificLeagueMatchup));

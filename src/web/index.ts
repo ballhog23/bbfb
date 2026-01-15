@@ -1,9 +1,8 @@
 import type { Request, Response } from "express";
-import {
-    selectAllLeagueUsers,
-} from "../db/queries/league-users.js";
-import { NotFoundError } from "../lib/errors.js";
+import { selectLeagueWinner } from "../db/queries/playoffs.js";
+import { config } from "../config.js";
 
 export async function handlerRenderIndex(_: Request, res: Response) {
-    res.render('index');
+    const recentWinner = await selectLeagueWinner(config.league.id);
+    res.render('index', { recentWinner });
 }

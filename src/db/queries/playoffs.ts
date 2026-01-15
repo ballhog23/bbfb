@@ -60,3 +60,31 @@ export async function selectPlayoffMatchupsPerSeason(leagueId: string) {
 
     return result;
 }
+
+export async function selectLeagueWinner(leagueId: string) {
+    const [result] = await db
+        .select({
+            teamName: leagueUsersTable.teamName,
+            avatar: leagueUsersTable.avatarId,
+        })
+        .from(playoffsTable)
+        .innerJoin(rostersTable,
+            and(
+                eq(playoffsTable.leagueId, rostersTable.leagueId),
+                eq(playoffsTable.winnerId, rostersTable.rosterId)
+            )
+        )
+        .innerJoin(leagueUsersTable,
+            eq(playoffsTable.leagueId, leagueUsersTable.leagueId),
+        )
+        .where(
+            and(
+                eq(playoffsTable.leagueId, leagueId),
+                eq(playoffsTable.week, 17),
+                eq(playoffsTable.bracketType, 'winners_bracket'),
+                eq(playoffsTable.place, 1)
+            )
+        );
+
+    return result;
+}

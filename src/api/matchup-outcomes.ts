@@ -3,9 +3,7 @@ import { respondWithJSON } from "../lib/json.js";
 import { selectLeagueMatchups } from "../db/queries/matchups.js";
 import { BadRequestError, NotFoundError } from "../lib/errors.js";
 import {
-    selectAllLeagueMatchupOutcomes, selectRegularSeasonWLRPerUser,
-    selectAllTimeWinLossRatioPerUser, selectLeaguePointsScoredPerUser,
-    selectAllTimePointsScoredPerUser, selectWeeklyLeagueMatchupOutcomes
+    selectLeagueSeasonMatchupOutcomes, selectWeeklyLeagueMatchupOutcomes
 } from "../db/queries/matchup-outcomes.js";
 
 type MatchupOutcomesParams = {
@@ -13,9 +11,13 @@ type MatchupOutcomesParams = {
     week: string;
 };
 
-export async function handlerGetLeagueMatchupOutcomes(_: Request, res: Response) {
-    const matchups = await selectRegularSeasonWLRPerUser('1257436036187824128');
+export async function handlerGetLeagueMatchupOutcomes(req: Request<MatchupOutcomesParams>, res: Response) {
+    const params = req.params;
+    const { leagueId } = params;
+    if (!leagueId)
+        throw new NotFoundError(`You must provide a League ID.`);
 
+    const matchups = await selectLeagueSeasonMatchupOutcomes(leagueId);
     const data = {
         matchups
     };

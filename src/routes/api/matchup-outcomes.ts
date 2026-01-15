@@ -6,7 +6,7 @@ import {
 
 } from '../../api/matchup-outcomes.js';
 
-export const matchupOutcomesRoute = express.Router();
+export const apiMatchupOutcomesRoute = express.Router();
 
-matchupOutcomesRoute.get('/', asyncHandler(handlerGetLeagueMatchupOutcomes));
-matchupOutcomesRoute.get('/leagues/:leagueId/weeks/:week', asyncHandler(handlerGetWeeklyMatchupOutcomes));
+apiMatchupOutcomesRoute.get('/leagues/:leagueId', asyncHandler(handlerGetLeagueMatchupOutcomes));
+apiMatchupOutcomesRoute.get('/leagues/:leagueId/weeks/:week', asyncHandler(handlerGetWeeklyMatchupOutcomes));

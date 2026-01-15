@@ -4,10 +4,10 @@ import {
   handlerGetLeagues, handlerGetLeague,
 } from '../../api/leagues.js';
 
-export const leaguesRoute = express.Router();
+export const apiLeaguesRoute = express.Router();
 
 // working
-leaguesRoute.get('/', asyncHandler(handlerGetLeagues));
+apiLeaguesRoute.get('/', asyncHandler(handlerGetLeagues));
 
 // working
-leaguesRoute.get('/:leagueId', asyncHandler(handlerGetLeague));
+apiLeaguesRoute.get('/:leagueId', asyncHandler(handlerGetLeague));

@@ -1,6 +1,6 @@
-import { sql, eq, ne } from "drizzle-orm";
+import { sql, eq, ne, desc } from "drizzle-orm";
 import { db } from "../index.js";
-import { leaguesTable, SelectLeague, type StrictInsertLeague } from '../schema.js';
+import { leaguesTable, type StrictInsertLeague } from '../schema.js';
 
 export async function insertLeague(league: StrictInsertLeague) {
     const [result] = await db
@@ -28,7 +28,7 @@ export async function selectAllLeagues() {
     const rows = await db
         .select()
         .from(leaguesTable)
-        .orderBy(leaguesTable.season);
+        .orderBy(desc(leaguesTable.season));
 
     return rows;
 }
@@ -50,3 +50,16 @@ export async function selectCurrentLeague() {
 
     return result;
 }
+
+// export async function allLeaguesDropdown() {
+//     const result = await db
+//         .select({
+//             id: leaguesTable.leagueId,
+//             season: leaguesTable.season,
+//             leagueName: leaguesTable.leagueName
+//         })
+//         .from(leaguesTable)
+//         .orderBy(leaguesTable.season);
+
+//     return result;
+// }

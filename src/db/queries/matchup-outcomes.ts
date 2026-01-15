@@ -45,6 +45,30 @@ export async function selectAllLeagueMatchupOutcomes() {
     return result;
 }
 
+export async function selectLeagueSeasonMatchupOutcomes(leagueId: string) {
+    const result = await db
+        .select()
+        .from(matchupOutcomesTable)
+        .where(eq(matchupOutcomesTable.leagueId, leagueId))
+        .orderBy(matchupOutcomesTable.week, matchupOutcomesTable.matchupId);
+
+    return result;
+}
+
+export async function selectWeeklyLeagueMatchupOutcomes(leagueId: string, week: number) {
+    const result = await db
+        .select()
+        .from(matchupOutcomesTable)
+        .where(
+            and(
+                eq(matchupOutcomesTable.leagueId, leagueId),
+                eq(matchupOutcomesTable.week, week)
+            )
+        );
+
+    return result;
+}
+
 export async function selectLeaguePointsScoredPerUser(leagueId: string) {
     const result = await db
         .selectDistinct({
@@ -142,20 +166,6 @@ export async function selectAllTimeWinLossRatioPerUser() {
         .from(matchupOutcomesTable)
         .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId))
         .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName);
-
-    return result;
-}
-
-export async function selectWeeklyLeagueMatchupOutcomes(leagueId: string, week: number) {
-    const result = await db
-        .select()
-        .from(matchupOutcomesTable)
-        .where(
-            and(
-                eq(matchupOutcomesTable.leagueId, leagueId),
-                eq(matchupOutcomesTable.week, week)
-            )
-        );
 
     return result;
 }

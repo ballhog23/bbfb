@@ -1,5 +1,22 @@
-html
+doctype html
+html(lang="en-US")
     head
-        title = 'BBFB LEAGUES'
-    body
-    h1= 'LEAGUE HISTORY'
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        link(rel="stylesheet", href="/css/main.css")
+        if canonical
+            link(rel="canonical", href= origin + "/leagues")
+        script(src=`/js/index.js` defer)
+        title BBFB
+    body 
+    main
+    header
+        h1 Bleed Blue Fantasy Football League History
+    section.leagues
+        h2 BBFB SEASON #{currentLeague.season}
+        select(name="leagues select", onchange="location.href='/leagues/' + this.value")
+            each league in allLeagues
+                option(
+                    value=league.leagueId
+                    selected=league.leagueId === currentLeague.leagueId ? true : false
+                )= league.leagueName

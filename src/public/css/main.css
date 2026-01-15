@@ -54,3 +54,10 @@ h1 {
 p {
     color: var(--ff-text-secondary)
 }
+
+img {
+    height: 10rem;
+    width: 10rem;
+    display: block;
+    object-fit: cover;
+}
