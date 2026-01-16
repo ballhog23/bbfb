@@ -6,7 +6,6 @@ import { Sleeper } from "../lib/sleeper.js";
 import { normalizeString } from "../lib/helpers.js";
 import { insertSleeperUser } from "../db/queries/sleeper-users.js";
 import { SelectSleeperUser } from "src/db/schema.js";
-import type { TX } from "../db/index.js";
 
 export async function syncSleeperUsers(sleeperUserIds: string[]) {
     const normalizedUsers = await buildSleeperUsers(sleeperUserIds);

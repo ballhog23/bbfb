@@ -11,16 +11,15 @@ export type LeagueParams = {
 
 // handles select-a-season/week filtering
 export async function handlerGetLeague(req: Request<LeagueParams>, res: Response) {
-	const params = req.params;
-	const { leagueId } = params;
+	const leagueId = req.params.leagueId ?? config.league.id;
 
 	const allLeagues = await selectAllLeagues();
 	const allLeagueIds = allLeagues.map(({ leagueId }) => leagueId);
 
-	if (!allLeagueIds.find(id => leagueId === id))
+	if (!allLeagueIds.some(id => leagueId === id))
 		return res.status(404).render('error', { req });
 
-	const currentLeague = await selectLeague(leagueId);
+	const [currentLeague] = allLeagues.filter(league => league.leagueId === leagueId);
 	const canonical = leagueId === config.league.id;
 	const origin = `${req.protocol}://${req.get('host')}`;
 	res.render('leagues', { currentLeague, allLeagues, canonical, origin });

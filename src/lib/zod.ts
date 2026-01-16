@@ -10,6 +10,8 @@ const nullableNumber = z.nullable(z.number());
 const nullableBoolean = z.nullable(z.boolean());
 const leagueStatusEnum = z.enum(["pre_draft", "drafting", "in_season", "complete", "post_season"]);
 const playoffBracketTypeEnum = z.enum(['winners_bracket', 'losers_bracket']);
+const nflStateEnum = z.enum(['pre', 'regular', 'post', 'off']);
+const leagueStateEnum = z.enum(['regular', 'post', 'off']);
 
 export const rawLeagueSchema = z.looseObject({
     league_id: z.string(),
@@ -222,19 +224,48 @@ export type NullableRawMatchup = {
 };
 export type StrictMatchup = z.infer<typeof strictMatchupSchema>;
 
+// all of this data in this object is NFL RELATED NOT LEAGUE SETTINGS RELATED
+// we will build our logic around this incoming raw data and build our league state
 export const rawNFLStateSchema = z.looseObject({
-    week: z.number(), // week
-    leg: z.number(), // week of regular season
+    week: nullishNumber, // week
+    leg: nullishNumber, // week of regular season
     season: z.string(), // current season
-    season_type: z.string(), // pre, post, regular
+    season_type: nflStateEnum, // pre, post, regular
     league_season: z.string(), // active season for leagues
     previous_season: z.string(),
     season_start_date: z.string(), // regular season start
-    display_week: z.number(), // Which week to display in UI, can be different than week
+    display_week: nullishNumber, // Which week to display in UI, can be different than week
     league_create_season: z.string(), // flips in December
     season_has_scores: z.boolean()
 });
+export const strictLeagueStateSchema = z.strictObject({
+    week: nullableNumber,
+    leg: nullableNumber,
+    season: z.string(),
+    seasonType: leagueStateEnum,
+    leagueSeason: z.string(),
+    previousSeason: z.string(),
+    seasonStartDate: z.string(),
+    displayWeek: nullableNumber,
+    leagueCreateSeason: z.string(),
+    seasonHasScores: z.boolean(),
+    isLeagueActive: z.boolean()
+});
+
 export type RawNFLState = z.infer<typeof rawNFLStateSchema>;
+export type NullableRawNFLState = {
+    week: number | null;
+    leg: number | null;
+    season: string;
+    season_type: "pre" | "regular" | "post" | "off";
+    league_season: string;
+    previous_season: string;
+    season_start_date: string;
+    display_week: number | null;
+    league_create_season: string;
+    season_has_scores: boolean;
+};
+export type StrictLeagueState = z.infer<typeof strictLeagueStateSchema>;
 
 const winningTeamFromMatchupSchema = z.looseObject({
     w: z.number(),
@@ -284,7 +315,7 @@ export const strictBracketMatchupSchema = z.strictObject({
     matchupId: nullableNumber,
     t1: nullableNumber,
     t2: nullableNumber,
-    bracketType: z.string(),
+    bracketType: playoffBracketTypeEnum,
     t1FromWinner: nullableNumber,
     t1FromLoser: nullableNumber,
     t2FromWinner: nullableNumber,
