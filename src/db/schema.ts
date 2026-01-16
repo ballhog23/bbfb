@@ -196,3 +196,22 @@ export const playoffsTable = pgTable("playoff_bracket_matchups", {
 
 export type SelectPlayoffMatchup = typeof playoffsTable.$inferSelect;
 export type StrictInsertPlayoffMatchup = OmitTimestamps<SelectPlayoffMatchup>;
+
+export const seasonTypeEnum = pgEnum('season_type', ['regular', 'post', 'off']);
+export const leagueStateTable = pgTable("league_state", {
+    week: integer().notNull(),
+    leg: integer().notNull(),
+    season: text().notNull(),
+    seasonType: seasonTypeEnum().notNull(),
+    leagueSeason: text().notNull(),
+    previousSeason: text().notNull(),
+    seasonStartDate: text().notNull(),
+    displayWeek: integer().notNull(),
+    leagueCreateSeason: text().notNull(),
+    seasonHasScores: boolean().notNull(),
+    isLeagueActive: boolean().notNull(),
+    ...timestamps
+});
+
+export type SelectLeagueState = typeof leagueStateTable.$inferSelect;
+export type StrictInsertLeagueState = OmitTimestamps<SelectLeagueState>;
