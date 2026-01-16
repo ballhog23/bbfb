@@ -2,7 +2,7 @@ import { strictLeagueStateSchema, type RawNFLState, NullableRawNFLState, StrictL
 import { Sleeper } from "../lib/sleeper.js";
 import { normalizeString, undefinedToNullDeep } from "../lib/helpers.js";
 
-export async function getSleeperNFLState() {
+export async function getSleeperNFLState(): Promise<RawNFLState> {
     const sleeper = new Sleeper();
     return await sleeper.getNFLState();
 }
@@ -81,6 +81,7 @@ export function rawToNormalizedLeagueState(rawNFLState: RawNFLState) {
 }
 
 // eventbridge + lambda
+// if the function returns null we know that we don't want to run snapshots
 export async function getAndNormalizeLeagueState(): Promise<StrictLeagueState | null> {
     const rawNFLState = await getSleeperNFLState();
     const leg = rawNFLState.leg;
