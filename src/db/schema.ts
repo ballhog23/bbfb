@@ -201,14 +201,10 @@ export const seasonTypeEnum = pgEnum('season_type', ['regular', 'post', 'off']);
 export const leagueStateTable = pgTable("league_state", {
     week: integer().notNull(),
     leg: integer().notNull(),
-    season: text().notNull(),
+    season: text().notNull().unique('league_season'),
     seasonType: seasonTypeEnum().notNull(),
-    leagueSeason: text().notNull(),
     previousSeason: text().notNull(),
-    seasonStartDate: text().notNull(),
     displayWeek: integer().notNull(),
-    leagueCreateSeason: text().notNull(),
-    seasonHasScores: boolean().notNull(),
     isLeagueActive: boolean().notNull(),
     ...timestamps
 });

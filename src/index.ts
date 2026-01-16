@@ -38,13 +38,14 @@ app.use("/leagues", leaguesRoute);
 app.use("/api/leagues", apiLeaguesRoute);
 app.use("/api/matchup-outcomes", apiMatchupOutcomesRoute);
 app.use("/api/matchups", apiMatchupsRoute);
+app.use("/api/bootstrap-history", bootstrapRoute);
+app.use("/api/sync", syncRoute);
+
 app.use("/players", playersRoute);
-app.use("/bootstrap-history", bootstrapRoute);
 app.use("/sleeper-users", sleeperUsersRoute);
 app.use("/league-users", leagueUsersRoute);
 app.use("/rosters", rostersRoute);
 app.use("/playoffs", playoffsRoute);
-app.use("/sync", syncRoute);
 
 app.use(errorHandler);
 

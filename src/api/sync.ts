@@ -5,6 +5,7 @@ import { syncUsers } from "../services/sync-users-service.js";
 import { syncNFLPlayers } from "../services/players-service.js";
 import { syncLeagueRosters } from "../services/roster-service.js";
 import { syncMatchups } from "../services/matchups-service.js";
+import { syncLeagueState } from "../services/nfl-state-service.js";
 
 // working
 export async function handlerSyncLeague(_: Request, res: Response) {
@@ -39,6 +40,7 @@ export async function handlerSyncNFLPlayers(_: Request, res: Response) {
     respondWithJSON(res, 200, data);
 }
 
+// working
 export async function handlerSyncRosters(_: Request, res: Response) {
     const rosters = await syncLeagueRosters();
 
@@ -49,11 +51,23 @@ export async function handlerSyncRosters(_: Request, res: Response) {
     respondWithJSON(res, 200, data);
 }
 
+// working
 export async function handlerSyncMatchups(_: Request, res: Response) {
     const matchups = await syncMatchups();
 
     const data = {
         matchups
+    };
+
+    respondWithJSON(res, 200, data);
+}
+
+// working
+export async function handlerSyncLeagueState(_: Request, res: Response) {
+    const leagueState = await syncLeagueState();
+
+    const data = {
+        leagueState
     };
 
     respondWithJSON(res, 200, data);

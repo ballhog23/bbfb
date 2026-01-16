@@ -320,12 +320,8 @@ export const strictLeagueStateSchema = z.strictObject({
     leg: z.number(),
     season: z.string(),
     seasonType: leagueStateEnum,
-    leagueSeason: z.string(),
     previousSeason: z.string(),
-    seasonStartDate: z.string(),
     displayWeek: z.number(),
-    leagueCreateSeason: z.string(),
-    seasonHasScores: z.boolean(),
     isLeagueActive: z.boolean()
 });
 

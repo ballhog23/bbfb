@@ -1,5 +1,5 @@
 {
-  "id": "9bf59ef4-96de-4dc5-a4ed-3398fca762b9",
+  "id": "f1d5ec11-97d1-4bcc-9481-a2cb4a54f6ba",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -87,6 +87,84 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.league_state": {
+      "name": "league_state",
+      "schema": "",
+      "columns": {
+        "week": {
+          "name": "week",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "leg": {
+          "name": "leg",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season": {
+          "name": "season",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season_type": {
+          "name": "season_type",
+          "type": "season_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_season": {
+          "name": "previous_season",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_week": {
+          "name": "display_week",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_league_active": {
+          "name": "is_league_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "league_season": {
+          "name": "league_season",
+          "nullsNotDistinct": false,
+          "columns": [
+            "season"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -839,6 +917,15 @@
         "L",
         "T",
         "BYE"
+      ]
+    },
+    "public.season_type": {
+      "name": "season_type",
+      "schema": "public",
+      "values": [
+        "regular",
+        "post",
+        "off"
       ]
     }
   },

@@ -1,4 +1,5 @@
 CREATE TYPE "public"."result" AS ENUM('W', 'L', 'T', 'BYE');--> statement-breakpoint
+CREATE TYPE "public"."season_type" AS ENUM('regular', 'post', 'off');--> statement-breakpoint
 CREATE TABLE "nfl_players" (
 	"player_id" text PRIMARY KEY NOT NULL,
 	"first_name" text NOT NULL,
@@ -12,6 +13,19 @@ CREATE TABLE "nfl_players" (
 	"injury_status" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "league_state" (
+	"week" integer NOT NULL,
+	"leg" integer NOT NULL,
+	"season" text NOT NULL,
+	"season_type" "season_type" NOT NULL,
+	"previous_season" text NOT NULL,
+	"display_week" integer NOT NULL,
+	"is_league_active" boolean NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "league_season" UNIQUE("season")
 );
 --> statement-breakpoint
 CREATE TABLE "league_users" (

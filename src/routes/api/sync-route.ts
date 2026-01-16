@@ -3,7 +3,7 @@ import { asyncHandler } from "../../lib/helpers.js";
 import {
     handlerSyncLeague, handlerSyncUsers,
     handlerSyncNFLPlayers, handlerSyncRosters,
-    handlerSyncMatchups
+    handlerSyncMatchups, handlerSyncLeagueState
 } from '../../api/sync.js';
 
 
@@ -21,3 +21,5 @@ syncRoute.put('/players', asyncHandler(handlerSyncNFLPlayers)); // 1 time per 24
 syncRoute.put('/rosters', asyncHandler(handlerSyncRosters)); // 4 times per 60 mins
 
 syncRoute.put('/matchups', asyncHandler(handlerSyncMatchups)); // 1 time per 24hrs ?
+
+syncRoute.put('/league-state', asyncHandler(handlerSyncLeagueState));
