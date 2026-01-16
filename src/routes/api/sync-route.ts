@@ -7,19 +7,16 @@ import {
 } from '../../api/sync.js';
 
 
-export const syncRoute = express.Router();
+export const apiSyncRoute = express.Router();
 
-// working
-syncRoute.put("/leagues", asyncHandler(handlerSyncLeague)); // 1 time per 60 mins
+apiSyncRoute.put("/leagues", asyncHandler(handlerSyncLeague)); // 1 time per 60 mins
 
-// working
-syncRoute.put("/users", asyncHandler(handlerSyncUsers)); // 4 times per 60mins
+apiSyncRoute.put("/users", asyncHandler(handlerSyncUsers)); // 4 times per 60mins
 
-// working
-syncRoute.put('/players', asyncHandler(handlerSyncNFLPlayers)); // 1 time per 24hrs
+apiSyncRoute.put('/players', asyncHandler(handlerSyncNFLPlayers)); // 1 time per 24hrs
 
-syncRoute.put('/rosters', asyncHandler(handlerSyncRosters)); // 4 times per 60 mins
+apiSyncRoute.put('/rosters', asyncHandler(handlerSyncRosters)); // 4 times per 60 mins
 
-syncRoute.put('/matchups', asyncHandler(handlerSyncMatchups)); // 1 time per 24hrs ?
+apiSyncRoute.put('/matchups', asyncHandler(handlerSyncMatchups)); // 1 time per 24hrs ?
 
-syncRoute.put('/league-state', asyncHandler(handlerSyncLeagueState));
+apiSyncRoute.put('/league-state', asyncHandler(handlerSyncLeagueState)); // 1 time per 24 hrs

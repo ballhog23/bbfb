@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { BadRequestError } from "../lib/errors.js";
+import { selectLeagueState } from "../db/queries/league-state.js";
 
 export type LeagueParams = {
     leagueId: string;
@@ -8,7 +8,7 @@ export type LeagueParams = {
 
 
 export async function handlerGetLeagueState(_: Request, res: Response) {
-    const leagueState = null;
+    const leagueState = await selectLeagueState();
 
     const data = {
         leagueState,

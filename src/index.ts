@@ -12,8 +12,11 @@ import { leaguesRoute } from "./routes/web/leagues-route.js";
 import { apiLeaguesRoute } from "./routes/api/leagues-route.js";
 import { apiMatchupsRoute } from "./routes/api/matchups-route.js";
 import { apiMatchupOutcomesRoute } from "./routes/api/matchup-outcomes.js";
-import { bootstrapRoute } from "./routes/api/bootstrap.js";
-import { syncRoute } from "./routes/api/sync-route.js";
+import { apiBootstrapRoute } from "./routes/api/bootstrap-route.js";
+import { apiSyncRoute } from "./routes/api/sync-route.js";
+import { apiLeagueStateRoute } from "./routes/api/league-state-route.js";
+
+
 import { playersRoute } from "./routes/api/players-route.js";
 import { sleeperUsersRoute } from "./routes/api/sleeper-users-route.js";
 import { leagueUsersRoute } from "./routes/api/league-users-route.js";
@@ -38,8 +41,9 @@ app.use("/leagues", leaguesRoute);
 app.use("/api/leagues", apiLeaguesRoute);
 app.use("/api/matchup-outcomes", apiMatchupOutcomesRoute);
 app.use("/api/matchups", apiMatchupsRoute);
-app.use("/api/bootstrap-history", bootstrapRoute);
-app.use("/api/sync", syncRoute);
+app.use("/api/bootstrap-history", apiBootstrapRoute);
+app.use("/api/sync", apiSyncRoute);
+app.use("/api/league-state", apiLeagueStateRoute);
 
 app.use("/players", playersRoute);
 app.use("/sleeper-users", sleeperUsersRoute);
