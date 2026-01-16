@@ -4,10 +4,10 @@ import {
     handlerGetSleeperUser, handlerGetSleeperUsers,
 } from "../../api/sleeper-users.js";
 
-export const sleeperUsersRoute = express.Router();
+export const apiSleeperUsersRoute = express.Router();
 
 // working
-sleeperUsersRoute.get('/', asyncHandler(handlerGetSleeperUsers));
+apiSleeperUsersRoute.get('/', asyncHandler(handlerGetSleeperUsers));
 
 // working
-sleeperUsersRoute.get('/:userId', asyncHandler(handlerGetSleeperUser));
+apiSleeperUsersRoute.get('/:userId', asyncHandler(handlerGetSleeperUser));

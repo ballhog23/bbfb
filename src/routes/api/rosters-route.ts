@@ -5,14 +5,14 @@ import {
 } from '../../api/rosters.js';
 import { asyncHandler } from "../../lib/helpers.js";
 
-export const rostersRoute = express.Router();
+export const apiRostersRoute = express.Router();
 
-rostersRoute.get('/', asyncHandler(handlerGetAllRosters));
+apiRostersRoute.get('/', asyncHandler(handlerGetAllRosters));
 
-rostersRoute.get('/users/:userId', asyncHandler(handlerGetLeagueUserRosters));
+apiRostersRoute.get('/users/:userId', asyncHandler(handlerGetLeagueUserRosters));
 
-rostersRoute.get('/leagues/:leagueId', asyncHandler(handlerGetLeagueRosters));
+apiRostersRoute.get('/leagues/:leagueId', asyncHandler(handlerGetLeagueRosters));
 
-rostersRoute.get('/leagues/:leagueId/users/:userId', asyncHandler(handlerGetLeagueUserRoster));
+apiRostersRoute.get('/leagues/:leagueId/users/:userId', asyncHandler(handlerGetLeagueUserRoster));
 
 
