@@ -16,14 +16,28 @@ html(lang="en-US")
                 h2 BBFB SEASON #{currentLeague.season}
                 div.select-wrapper
                     div.league-select
-                        select(name="leagues-select")
+                        select(
+                            name="league"
+                            hx-get="/leagues/htmx/matchups"
+                            hx-trigger="change"
+                            hx-target=".matchups-wrapper"
+                            hx-include="[name='week']"
+                            hx-push-url="true"
+                            )
                             each league in allLeagues
                                 option(
                                     value=league.leagueId
                                     selected=league.leagueId === currentLeague.leagueId ? true : false
                                 )= league.leagueName
                     div.week-select
-                        select(name="weeks-select")
+                        select(
+                                name="week"
+                                hx-get="/leagues/htmx/matchups"
+                                hx-trigger="change"
+                                hx-target=".matchups-wrapper"
+                                hx-include="[name='league']"
+                                hx-push-url="true"
+                            )
                             each w in weeks
                                 option(
                                     value=w

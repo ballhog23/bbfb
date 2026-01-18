@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import { selectLeague } from "../db/queries/leagues.js";
 import { config } from "../config.js";
 import { selectAllLeagues } from "../db/queries/leagues.js";
 import { selectLeagueMatchupsByWeek } from "../db/queries/matchups.js";
@@ -10,12 +9,7 @@ export type LeagueParams = {
 	leagueId: string;
 	week: string;
 };
-// maybe for can
-// 
-// const canonical = leagueId === config.league.id;
-// const origin = `${req.protocol}://${req.get('host')}`;
 
-// handles select-a-season/week filtering
 export async function handlerGetLeague(req: Request<LeagueParams>, res: Response) {
 	const leagueState = await selectLeagueState();
 	const leagueId = req.params.leagueId ?? config.league.id;
@@ -31,21 +25,6 @@ export async function handlerGetLeague(req: Request<LeagueParams>, res: Response
 	const matchups = await selectLeagueMatchupsByWeek(leagueId, week);
 	const filteredMatchups = matchups.filter(matchup => matchup.matchupId !== null);
 	const groupedMatches = Object.groupBy(filteredMatchups, ({ matchupId }) => matchupId ? matchupId : 'bye');
-
-	const isHTMX = req.get("hx-request");
-	if (isHTMX) {
-		console.log(req.params);
-		return res.render(
-			'partials/matchup-section',
-			{
-				currentLeague,
-				allLeagues,
-				groupedMatches,
-				weeks,
-				leagueState
-			}
-		);
-	}
 
 	return res.render('pages/leagues', { currentLeague, allLeagues, groupedMatches, weeks, week, leagueState, req });
 }
