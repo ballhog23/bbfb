@@ -16,19 +16,14 @@ html(lang="en-US")
                 h2 BBFB SEASON #{currentLeague.season}
                 div.select-wrapper
                     div.league-select
-                        select(
-                            name="leagues-select",
-                            onchange=`location.href= '/leagues/' + this.value + '/weeks/' + ${week}`
-                            )
+                        select(name="leagues-select")
                             each league in allLeagues
                                 option(
                                     value=league.leagueId
                                     selected=league.leagueId === currentLeague.leagueId ? true : false
                                 )= league.leagueName
                     div.week-select
-                        select(
-                            name="weeks-select",
-                            onchange=`location.href='/leagues/' + window.location.pathname.split('/')[2] + '/weeks/' + this.value`)
+                        select(name="weeks-select")
                             each w in weeks
                                 option(
                                     value=w
