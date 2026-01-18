@@ -60,3 +60,5 @@ type AvatarURLs = [ThumbURL, FullURL];
 export async function buildLeagueHistoryIds(): Promise<string[]> {
     return (await selectAllLeagues()).map(({ leagueId }) => leagueId);
 }
+
+export const weeks = Array.from({ length: 17 }, (v, i) => i + 1);

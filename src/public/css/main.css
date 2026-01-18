@@ -47,7 +47,7 @@ html, body {
     background-color:  var(--ff-bg-page);
 }
 
-h1 {
+h1,h2 {
     color: var( --ff-text-primary);
 }
 
@@ -60,4 +60,45 @@ img {
     width: 10rem;
     display: block;
     object-fit: cover;
+}
+
+.leagues {
+    header{
+        margin-bottom: 2rem;
+    }
+}
+
+.select-wrapper {
+    display: flex;
+    justify-content: space-around;
+}
+
+.matchups-wrapper{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.matchup-card {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    background-color: var(--ff-bg-card);
+    color: var(--ff-text-primary);
+
+    .home-team, .away-team {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .away-team {
+        align-items: flex-end;
+    }
+
+    span {
+        display: flex;
+        align-items: center;
+        font-size: 2rem;
+    }
 }

@@ -5,4 +5,4 @@ import { handlerGetLeague, handlerGetCurrentLeague } from "../../web/leagues.js"
 export const leaguesRoute = express.Router();
 
 leaguesRoute.get('/', asyncHandler(handlerGetCurrentLeague));
-leaguesRoute.get('/:leagueId', asyncHandler(handlerGetLeague));
+leaguesRoute.get('/:leagueId/weeks/:week', asyncHandler(handlerGetLeague));

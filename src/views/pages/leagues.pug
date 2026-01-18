@@ -4,19 +4,36 @@ html(lang="en-US")
         meta(charset="UTF-8")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         link(rel="stylesheet", href="/css/main.css")
-        if canonical
-            link(rel="canonical", href= origin + "/leagues")
         script(src=`/js/index.js` defer)
+        script(src=`/js/htmx.min.js` defer)
         title BBFB
     body 
     main
-    header
-        h1 Bleed Blue Fantasy Football League History
-    section.leagues
-        h2 BBFB SEASON #{currentLeague.season}
-        select(name="leagues select", onchange="location.href='/leagues/' + this.value")
-            each league in allLeagues
-                option(
-                    value=league.leagueId
-                    selected=league.leagueId === currentLeague.leagueId ? true : false
-                )= league.leagueName
+        header
+            h1 Bleed Blue Fantasy Football League History
+        section.leagues
+            header
+                h2 BBFB SEASON #{currentLeague.season}
+                div.select-wrapper
+                    div.league-select
+                        select(
+                            name="leagues-select",
+                            onchange=`location.href= '/leagues/' + this.value + '/weeks/' + ${leagueState.displayWeek}`
+                            )
+
+                            each league in allLeagues
+                                option(
+                                    value=league.leagueId
+                                    selected=league.leagueId === currentLeague.leagueId ? true : false
+                                )= league.leagueName
+                    div.week-select
+                        select(
+                            name="weeks-select",
+                            onchange=`location.href='/leagues/' + window.location.pathname.split('/')[2] + '/weeks/' + this.value`)
+                            each week in weeks
+                                option(
+                                    value=week
+                                    selected= leagueState.displayWeek === week ? true : false
+                                )= week
+            section.league-matchups
+                include ../partials/matchup-section.pug

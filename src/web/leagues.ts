@@ -3,6 +3,8 @@ import { selectLeague } from "../db/queries/leagues.js";
 import { config } from "../config.js";
 import { selectAllLeagues } from "../db/queries/leagues.js";
 import { selectLeagueMatchupsByWeek } from "../db/queries/matchups.js";
+import { selectLeagueState } from "../db/queries/league-state.js";
+import { weeks } from "../lib/helpers.js";
 
 export type LeagueParams = {
 	leagueId: string;
@@ -11,7 +13,9 @@ export type LeagueParams = {
 
 // handles select-a-season/week filtering
 export async function handlerGetLeague(req: Request<LeagueParams>, res: Response) {
+	const leagueState = await selectLeagueState();
 	const leagueId = req.params.leagueId ?? config.league.id;
+	const week = parseInt(req.params.week) ?? leagueState.displayWeek;
 
 	const allLeagues = await selectAllLeagues();
 	const allLeagueIds = allLeagues.map(({ leagueId }) => leagueId);
@@ -22,17 +26,18 @@ export async function handlerGetLeague(req: Request<LeagueParams>, res: Response
 	const [currentLeague] = allLeagues.filter(league => league.leagueId === leagueId);
 	const canonical = leagueId === config.league.id;
 	const origin = `${req.protocol}://${req.get('host')}`;
-	res.render('leagues', { currentLeague, allLeagues, canonical, origin });
+	const matchups = await selectLeagueMatchupsByWeek(leagueId, week);
+	const filteredMatchups = matchups.filter(matchup => matchup.matchupId !== null);
+	const groupedMatches = Object.groupBy(filteredMatchups, ({ matchupId }) => matchupId ? matchupId : 'bye');
+
+	res.render('pages/leagues', { currentLeague, allLeagues, canonical, origin, groupedMatches, weeks, leagueState });
 }
 
-// handles initial page load at /leagues
+// handles initial page load at /leagues, sends it to the current state of the league
 export async function handlerGetCurrentLeague(req: Request, res: Response) {
-	const currentLeague = await selectLeague(config.league.id);
-	if (!currentLeague)
+	if (!config.league.id)
 		return res.status(404).render('error', { req });
 
-	const allLeagues = await selectAllLeagues();
-	const matchupsWeekOne = await selectLeagueMatchupsByWeek(config.league.id, 1);
-	const groupedMatches = Object.groupBy(matchupsWeekOne, ({ matchupId }) => matchupId ? matchupId : 'bye');
-	res.render('leagues', { currentLeague, allLeagues, matchupsWeekOne, groupedMatches });
+	const leagueState = await selectLeagueState();
+	res.redirect(302, `/leagues/${config.league.id}/weeks/${leagueState.displayWeek}`);
 }

@@ -40,6 +40,7 @@
     "compression": "^1.8.1",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
+    "htmx.org": "^2.0.8",
     "postgres": "^3.4.7",
     "pug": "^3.0.3",
     "zod": "^4.3.5"
