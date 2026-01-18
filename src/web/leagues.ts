@@ -10,6 +10,10 @@ export type LeagueParams = {
 	leagueId: string;
 	week: string;
 };
+// maybe for can
+// 
+// const canonical = leagueId === config.league.id;
+// const origin = `${req.protocol}://${req.get('host')}`;
 
 // handles select-a-season/week filtering
 export async function handlerGetLeague(req: Request<LeagueParams>, res: Response) {
@@ -24,13 +28,26 @@ export async function handlerGetLeague(req: Request<LeagueParams>, res: Response
 		return res.status(404).render('error', { req });
 
 	const [currentLeague] = allLeagues.filter(league => league.leagueId === leagueId);
-	const canonical = leagueId === config.league.id;
-	const origin = `${req.protocol}://${req.get('host')}`;
 	const matchups = await selectLeagueMatchupsByWeek(leagueId, week);
 	const filteredMatchups = matchups.filter(matchup => matchup.matchupId !== null);
 	const groupedMatches = Object.groupBy(filteredMatchups, ({ matchupId }) => matchupId ? matchupId : 'bye');
 
-	res.render('pages/leagues', { currentLeague, allLeagues, canonical, origin, groupedMatches, weeks, leagueState });
+	const isHTMX = req.get("hx-request");
+	if (isHTMX) {
+		console.log(req.params);
+		return res.render(
+			'partials/matchup-section',
+			{
+				currentLeague,
+				allLeagues,
+				groupedMatches,
+				weeks,
+				leagueState
+			}
+		);
+	}
+
+	return res.render('pages/leagues', { currentLeague, allLeagues, groupedMatches, weeks, week, leagueState, req });
 }
 
 // handles initial page load at /leagues, sends it to the current state of the league

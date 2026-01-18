@@ -18,9 +18,8 @@ html(lang="en-US")
                     div.league-select
                         select(
                             name="leagues-select",
-                            onchange=`location.href= '/leagues/' + this.value + '/weeks/' + ${leagueState.displayWeek}`
+                            onchange=`location.href= '/leagues/' + this.value + '/weeks/' + ${week}`
                             )
-
                             each league in allLeagues
                                 option(
                                     value=league.leagueId
@@ -30,10 +29,10 @@ html(lang="en-US")
                         select(
                             name="weeks-select",
                             onchange=`location.href='/leagues/' + window.location.pathname.split('/')[2] + '/weeks/' + this.value`)
-                            each week in weeks
+                            each w in weeks
                                 option(
-                                    value=week
-                                    selected= leagueState.displayWeek === week ? true : false
-                                )= week
+                                    value=w
+                                    selected= w === week
+                                )= w
             section.league-matchups
                 include ../partials/matchup-section.pug
