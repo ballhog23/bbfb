@@ -24,17 +24,9 @@ import { apiPlayoffsRoute } from "./routes/api/playoffs.js";
 const app = express();
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
-app.set('view engine', 'pug');
-// you have to make sure that .pug files are copied to /dist, tsc does not take care of that
-// look at package.json for builds
-app.set('views', join(__dirname, '/views'));
 app.use(compression());
 app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
-
-//web
-app.use("/", indexRoute);
-app.use("/leagues", leaguesRoute);
 
 //api
 app.use("/api/leagues", apiLeaguesRoute);

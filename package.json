@@ -5,18 +5,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "build:backend": "tsc -p tsconfig.json",
-    "build:frontend": "tsc -p tsconfig.public.json",
-    "copy:views": "mkdir -p dist/views && cp -r src/views/* dist/views/",
-    "copy:assets": "mkdir -p dist/public && rsync -av --exclude='*.ts' src/public/ dist/public/",
-    "build": "npm run build:backend && npm run build:frontend && npm run copy:views && npm run copy:assets",
-    "watch:backend": "tsc -w -p tsconfig.json",
-    "watch:frontend": "tsc -w -p tsconfig.public.json",
-    "watch:views": "chokidar 'src/views/**/*' -c 'mkdir -p dist/views && cp -r src/views/* dist/views/'",
-    "watch:assets": "chokidar 'src/public/**/*' -c 'mkdir -p dist/public && rsync -av --exclude=\"*.ts\" src/public/ dist/public/'",
-    "watch:all": "npm run watch:backend & npm run watch:frontend & npm run watch:views & npm run watch:assets",
-    "dev": "npm run watch:all & node --watch dist/server.js",
+    "build": "npx tsc",
     "start": "node dist/server.js",
+    "dev": "tsc --watch & node --watch dist/server.js",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
@@ -30,7 +21,6 @@
     "@types/compression": "^1.8.1",
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
-    "chokidar-cli": "^3.0.0",
     "drizzle-kit": "^0.31.7",
     "msw": "^2.12.4",
     "typescript": "^5.9.3",
@@ -40,9 +30,7 @@
     "compression": "^1.8.1",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
-    "htmx.org": "^2.0.8",
     "postgres": "^3.4.7",
-    "pug": "^3.0.3",
     "zod": "^4.3.5"
   }
 }
