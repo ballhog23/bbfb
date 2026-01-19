@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 console.log("Just in case we need some js on the front end, here we go");
 
 const weeksSelect = document.querySelector<HTMLSelectElement>('[name="weeks-select"]');
@@ -15,3 +16,6 @@ const leaguesSelect = document.querySelector<HTMLSelectElement>('[name="leagues-
 //     const weekValue = weeksSelect?.value;
 //     location.href = `/leagues/${leagueId}/weeks/${weekValue}`;
 // });
+=======
+console.log("Just in case we need some js on the front end, here we go");
+>>>>>>> parent of 2ba1e7e (took the js out of the pug template)

@@ -17,12 +17,17 @@ html(lang="en-US")
                 div.select-wrapper
                     div.league-select
                         select(
+<<<<<<< HEAD
                             name="league"
                             hx-get="/leagues/htmx/matchups"
                             hx-trigger="change"
                             hx-target=".matchups-wrapper"
                             hx-include="[name='week']"
                             hx-push-url="true"
+=======
+                            name="leagues-select",
+                            onchange=`location.href= '/leagues/' + this.value + '/weeks/' + ${week}`
+>>>>>>> parent of 2ba1e7e (took the js out of the pug template)
                             )
                             each league in allLeagues
                                 option(
@@ -31,6 +36,7 @@ html(lang="en-US")
                                 )= league.leagueName
                     div.week-select
                         select(
+<<<<<<< HEAD
                                 name="week"
                                 hx-get="/leagues/htmx/matchups"
                                 hx-trigger="change"
@@ -38,6 +44,10 @@ html(lang="en-US")
                                 hx-include="[name='league']"
                                 hx-push-url="true"
                             )
+=======
+                            name="weeks-select",
+                            onchange=`location.href='/leagues/' + window.location.pathname.split('/')[2] + '/weeks/' + this.value`)
+>>>>>>> parent of 2ba1e7e (took the js out of the pug template)
                             each w in weeks
                                 option(
                                     value=w
