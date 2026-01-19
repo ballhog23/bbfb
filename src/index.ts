@@ -4,10 +4,6 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { errorHandler } from './middleware/error-handler.js';
 
-// web
-import { indexRoute } from "./routes/web/index-route.js";
-import { leaguesRoute } from "./routes/web/leagues-route.js";
-
 // json api
 import { apiLeaguesRoute } from "./routes/api/leagues-route.js";
 import { apiMatchupsRoute } from "./routes/api/matchups-route.js";
