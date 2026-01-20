@@ -47,13 +47,10 @@ html, body {
     background-color:  var(--ff-bg-page);
 }
 
-h1,h2 {
+h1,h2, p, label {
     color: var( --ff-text-primary);
 }
 
-p {
-    color: var(--ff-text-secondary)
-}
 
 img {
     height: 10rem;

@@ -19,6 +19,8 @@ import { apiPlayoffsRoute } from "./routes/api/playoffs.js";
 
 // web routes
 import { webIndexRoute } from "./routes/web/index.js";
+import { webMatchupsRoute } from "./routes/web/matchups.js";
+
 
 const app = express();
 export const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +34,7 @@ app.set("views", join(__dirname, "../views"));
 
 // web
 app.use("/", webIndexRoute);
+app.use("/matchups", webMatchupsRoute);
 
 
 //api

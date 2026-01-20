@@ -1,10 +1,10 @@
 extends ../layouts/base
 
 block head
-    title League #{currentLeague} - Week #{currentWeek}
+    title Season #{leagueState.season} - Week #{leagueState.displayWeek}
 
 block content
-    h1 League #{currentLeague} - Week #{currentWeek}
+    h1 Season #{leagueState.season} - Week #{leagueState.displayWeek}
 
     // League select dropdown
     include ../partials/league-select.pug
@@ -14,4 +14,4 @@ block content
 
     // Matchups table
     #matchups
-        //- include ../partials/matchups.pug
+        //- include ../partials/matchups-section.pug
