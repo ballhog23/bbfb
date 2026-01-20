@@ -1,0 +1,6 @@
+//- Make sure to include the mixin
+include ../mixins/matchup-card.pug
+
+//- Loop through matches array
+each match in matches
+    +matchupCard(match)

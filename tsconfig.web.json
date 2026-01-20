@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        /* Language + output */
+        "target": "ES2020",
+        "module": "ESNext",
+        "outDir": "./public/js",
+        "rootDir": "./public-ts",
+        /* Browser-safe */
+        "lib": [
+            "DOM",
+            "ES2020"
+        ],
+        "moduleResolution": "Bundler",
+        "strict": true,
+        /* Emission */
+        "sourceMap": true,
+        "removeComments": true,
+        /* Sanity */
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "./public-ts/**/*.ts"
+    ]
+}

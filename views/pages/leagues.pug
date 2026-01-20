@@ -1,0 +1,17 @@
+extends ../layouts/base
+
+block head
+    title League #{currentLeague} - Week #{currentWeek}
+
+block content
+    h1 League #{currentLeague} - Week #{currentWeek}
+
+    // League select dropdown
+    include ../partials/league-select.pug
+
+    // Week select dropdown
+    include ../partials/week-select.pug
+
+    // Matchups table
+    #matchups
+        //- include ../partials/matchups.pug

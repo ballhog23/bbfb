@@ -1,0 +1,13 @@
+extends ../layouts/base
+block head
+block content
+    main
+        header
+            h1 Bleed Blue Fantasy Football
+        if leagueState.leg > 17
+            section.winner
+                h2 #{leagueState.season} Season Champ
+                p #{winner.teamName}
+            section.loser
+                h2 #{leagueState.season} Season BK Randy
+                p #{loser.teamName}

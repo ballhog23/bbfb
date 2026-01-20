@@ -17,12 +17,22 @@ import { apiLeagueUsersRoute } from "./routes/api/league-users-route.js";
 import { apiRostersRoute } from "./routes/api/rosters-route.js";
 import { apiPlayoffsRoute } from "./routes/api/playoffs.js";
 
+// web routes
+import { webIndexRoute } from "./routes/web/index.js";
+
 const app = express();
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
 app.use(compression());
 app.use(express.json());
-app.use(express.static(join(__dirname, 'public')));
+app.use(express.static(join(__dirname, '../public')));
+
+app.set("view engine", "pug");
+app.set("views", join(__dirname, "../views"));
+
+// web
+app.use("/", webIndexRoute);
+
 
 //api
 app.use("/api/leagues", apiLeaguesRoute);

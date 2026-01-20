@@ -75,7 +75,10 @@ export async function selectLeagueWinner(leagueId: string) {
             )
         )
         .innerJoin(leagueUsersTable,
-            eq(playoffsTable.leagueId, leagueUsersTable.leagueId),
+            and(
+                eq(playoffsTable.leagueId, leagueUsersTable.leagueId),
+                eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)
+            )
         )
         .where(
             and(
@@ -83,6 +86,37 @@ export async function selectLeagueWinner(leagueId: string) {
                 eq(playoffsTable.week, 17),
                 eq(playoffsTable.bracketType, 'winners_bracket'),
                 eq(playoffsTable.place, 1)
+            )
+        );
+
+    return result;
+}
+
+export async function selectLeagueLoser(leagueId: string) {
+    const [result] = await db
+        .select({
+            teamName: leagueUsersTable.teamName,
+            avatar: leagueUsersTable.avatarId,
+        })
+        .from(playoffsTable)
+        .innerJoin(rostersTable,
+            and(
+                eq(playoffsTable.leagueId, rostersTable.leagueId),
+                eq(playoffsTable.loserId, rostersTable.rosterId)
+            )
+        )
+        .innerJoin(leagueUsersTable,
+            and(
+                eq(playoffsTable.leagueId, leagueUsersTable.leagueId),
+                eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)
+            )
+        )
+        .where(
+            and(
+                eq(playoffsTable.leagueId, leagueId),
+                eq(playoffsTable.week, 16),
+                eq(playoffsTable.bracketType, 'losers_bracket'),
+                eq(playoffsTable.place, 5)
             )
         );
 
