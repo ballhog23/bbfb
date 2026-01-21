@@ -1,18 +1,34 @@
 
 console.log("Just in case we need some js on the front end, here we go");
 
-const weeksSelect = document.querySelector<HTMLSelectElement>('[name="weeks-select"]');
-const leaguesSelect = document.querySelector<HTMLSelectElement>('[name="leagues-select"]');
+const leaguesSelect = document.querySelector<HTMLSelectElement>('#league-select');
+const weeksSelect = document.querySelector<HTMLSelectElement>('#week-select');
 
-// weeksSelect?.addEventListener("change", function () {
-//     const weekValue: string = this.value;
-//     const leagueId = window.location.pathname.split('/')[2];
-//     location.href = `/leagues/${leagueId}/weeks/${weekValue}`;
-// });
+leaguesSelect?.addEventListener("change", function () {
+    const leagueId = this.value;
+    const weekValue = weeksSelect?.value;
+    location.href = location.origin + `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
+});
+
+weeksSelect?.addEventListener("change", function () {
+    const leagueId = leaguesSelect?.value;
+    const weekValue = this.value;
+    location.href = location.origin + `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
+});
 
 
-// leaguesSelect?.addEventListener("change", function () {
-//     const leagueId: string = this.value;
-//     const weekValue = weeksSelect?.value;
-//     location.href = `/leagues/${leagueId}/weeks/${weekValue}`;
-// });
+function renderMatchupCard() {
+    return `
+        <div class="matchup-card">
+            <div class="home-team">
+                <h3></h3>
+                <p></p>
+            </div>
+            <span>vs</span>
+            <div class="away-team">
+                <h3></h3>
+                <p></p>
+            </div>
+        </div>
+    `;
+}

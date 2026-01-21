@@ -8,7 +8,7 @@
     "build:server": "tsc -p tsconfig.json",
     "build:client": "tsc -p tsconfig.web.json",
     "build": "npm run build:server && npm run build:client",
-    "dev": "npm run build && tsc --watch & node --watch dist/server.js",
+    "dev": "npm run build && tsc -p tsconfig.json --watch & tsc -p tsconfig.web.json --watch & node --watch dist/server.js",
     "start": "node dist/server.js",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",

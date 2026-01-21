@@ -4,9 +4,9 @@ mixin matchupCard(match)
     - const hasTeamName = (t) => t.team ? t.team : t.owner; 
     .matchup-card
         .home-team
-            h3= hasTeamName(homeTeam)
+            h2= hasTeamName(homeTeam)
             p= homeTeam.points
         span vs
         .away-team
-            h3= hasTeamName(awayTeam)
+            h2= hasTeamName(awayTeam)
             p= awayTeam.points
