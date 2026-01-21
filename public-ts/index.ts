@@ -1,5 +1,4 @@
-
-console.log("Just in case we need some js on the front end, here we go");
+console.log("I'm just here so I don't get fined.");
 
 const leaguesSelect = document.querySelector<HTMLSelectElement>('#league-select');
 const weeksSelect = document.querySelector<HTMLSelectElement>('#week-select');

@@ -1,5 +1,5 @@
 "use strict";
-console.log("Just in case we need some js on the front end, here we go");
+console.log("I'm just here so I don't get fined.");
 const leaguesSelect = document.querySelector('#league-select');
 const weeksSelect = document.querySelector('#week-select');
 leaguesSelect?.addEventListener("change", function () {
