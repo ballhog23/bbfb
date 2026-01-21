@@ -1,15 +1,15 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { buildAndInsertLeagueHistory } from "../services/league-service.js";
-import { buildLeagueUsersHistory } from "../services/league-users-service.js";
-import { buildAndInsertSleeperUsersHistory } from "../services/sleeper-users-service.js";
-import { buildAndInsertLeagueUserHistory } from "../services/league-users-service.js";
-import { buildAndInsertLeagueRostersHistory } from "../services/roster-service.js";
-import { buildAndInsertLeagueMatchupHistory } from "../services/matchups-service.js";
-import { buildAndInsertLeagueMatchupOutcomes } from "../services/matchups-outcomes-service.js";
-import { buildAndInsertPlayoffBracketHistory } from "../services/playoffs-service.js";
-import { syncNFLPlayers } from "../services/players-service.js";
-import { syncLeagueState } from "../services/nfl-state-service.js";
+import { buildAndInsertLeagueHistory } from "../services/api/league-service.js";
+import { buildLeagueUsersHistory } from "../services/api/league-users-service.js";
+import { buildAndInsertSleeperUsersHistory } from "../services/api/sleeper-users-service.js";
+import { buildAndInsertLeagueUserHistory } from "../services/api/league-users-service.js";
+import { buildAndInsertLeagueRostersHistory } from "../services/api/roster-service.js";
+import { buildAndInsertLeagueMatchupHistory } from "../services/api/matchups-service.js";
+import { buildAndInsertLeagueMatchupOutcomes } from "../services/api/matchups-outcomes-service.js";
+import { buildAndInsertPlayoffBracketHistory } from "../services/api/playoffs-service.js";
+import { syncNFLPlayers } from "../services/api/players-service.js";
+import { syncLeagueState } from "../services/api/nfl-state-service.js";
 
 export async function handlerHistoryBootstrap(_: Request, res: Response) {
     console.log('POPULATING LEAGUES TABLE...');

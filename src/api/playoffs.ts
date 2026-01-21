@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { selectAllPlayoffMatchups, selectPlayoffMatchupsPerSeason } from "../db/queries/playoffs.js";
 import { respondWithJSON } from "../lib/json.js";
 import { selectPlayoffMatchups } from "../db/queries/matchups.js";
-import { getAllPlayoffBracketsHistory } from "../services/playoffs-service.js";
+import { getAllPlayoffBracketsHistory } from "../services/api/playoffs-service.js";
 import { BadRequestError } from "../lib/errors.js";
 
 type PlayoffBracketParams = {

@@ -9,4 +9,3 @@ export const db = drizzle(conn, {
     casing: 'snake_case'
 });
 export type DB = typeof db;
-export type TX = Parameters<Parameters<typeof db.transaction>[0]>[0];

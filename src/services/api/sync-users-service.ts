@@ -1,4 +1,4 @@
-import { selectAllLeagueUsers } from "../db/queries/league-users.js";
+import { selectAllLeagueUsers } from "../../db/queries/league-users.js";
 import { syncSleeperUsers } from "./sleeper-users-service.js";
 import { buildCurrentLeagueUsers, syncLeagueUsers } from "./league-users-service.js";
 

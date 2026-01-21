@@ -1,11 +1,11 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { syncLeague } from "../services/league-service.js";
-import { syncUsers } from "../services/sync-users-service.js";
-import { syncNFLPlayers } from "../services/players-service.js";
-import { syncLeagueRosters } from "../services/roster-service.js";
-import { syncMatchups } from "../services/matchups-service.js";
-import { syncLeagueState } from "../services/nfl-state-service.js";
+import { syncLeague } from "../services/api/league-service.js";
+import { syncUsers } from "../services/api/sync-users-service.js";
+import { syncNFLPlayers } from "../services/api/players-service.js";
+import { syncLeagueRosters } from "../services/api/roster-service.js";
+import { syncMatchups } from "../services/api/matchups-service.js";
+import { syncLeagueState } from "../services/api/nfl-state-service.js";
 
 // working
 export async function handlerSyncLeague(_: Request, res: Response) {
