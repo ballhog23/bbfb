@@ -1,4 +1,10 @@
-label(for="league-select") Select League:
-select#league-select(name="league")
-    each league in [1,2,3,4,5]
-        option(value=league)= league
+.league-select-wrapper
+    label(for="league-select") Select League:
+    select#league-select(name="league")
+        each league in allLeagues
+            - const leagueId = league.leagueId
+            - const season = league.season
+            option(
+                value=leagueId
+                selected=leagueId===currentLeagueId
+                )= season

@@ -1,56 +1,62 @@
 :root {
-  /* Team / Brand */
-  --ff-blue-primary: #0033a0;
-  --ff-blue-hover: #00257a;
-  --ff-blue-highlight: #3b82f6;
+    /* Team / Brand */
+    --ff-blue-primary: #0033a0;
+    --ff-blue-hover: #00257a;
+    --ff-blue-highlight: #3b82f6;
 
-  /* Core Backgrounds */
-  --ff-bg-page: #050b1e;
-  --ff-bg-surface: #0a1a3f;
-  --ff-bg-card: #111827;
-  --ff-bg-row-hover: #0f172a;
+    /* Core Backgrounds */
+    --ff-bg-page: #050b1e;
+    --ff-bg-surface: #0a1a3f;
+    --ff-bg-card: #111827;
+    --ff-bg-row-hover: #0f172a;
 
-  /* Text */
-  --ff-text-primary: #ffffff;
-  --ff-text-secondary: #d1d5db;
-  --ff-text-muted: #9ca3af;
-  --ff-text-disabled: #6b7280;
+    /* Text */
+    --ff-text-primary: #ffffff;
+    --ff-text-secondary: #d1d5db;
+    --ff-text-muted: #9ca3af;
+    --ff-text-disabled: #6b7280;
 
-  /* Dividers / Borders */
-  --ff-border-default: #1f2937;
-  --ff-border-strong: #2a3348;
+    /* Dividers / Borders */
+    --ff-border-default: #1f2937;
+    --ff-border-strong: #2a3348;
 
-  /* Game States */
-  --ff-win: #16a34a;
-  --ff-loss: #d62828;
-  --ff-tie: #f59e0b;
+    /* Game States */
+    --ff-win: #16a34a;
+    --ff-loss: #d62828;
+    --ff-tie: #f59e0b;
 
-  /* Status / Highlights */
-  --ff-accent-gold: #f5b700;   /* playoff spot, leader */
-  --ff-accent-cyan: #00c2ff;   /* active / selected */
-  --ff-accent-purple: #7c3aed;/* special weeks, finals */
+    /* Status / Highlights */
+    --ff-accent-gold: #f5b700;
+    /* playoff spot, leader */
+    --ff-accent-cyan: #00c2ff;
+    /* active / selected */
+    --ff-accent-purple: #7c3aed;
+    /* special weeks, finals */
 
-  /* Buttons */
-  --ff-btn-primary-bg: var(--ff-blue-primary);
-  --ff-btn-primary-hover: var(--ff-blue-hover);
-  --ff-btn-secondary-bg: #1f2937;
+    /* Buttons */
+    --ff-btn-primary-bg: var(--ff-blue-primary);
+    --ff-btn-primary-hover: var(--ff-blue-hover);
+    --ff-btn-secondary-bg: #1f2937;
 
-  /* Tables / Matchups */
-  --ff-table-header-bg: #020617;
-  --ff-table-row-alt: #0a1a3f;
+    /* Tables / Matchups */
+    --ff-table-header-bg: #020617;
+    --ff-table-row-alt: #0a1a3f;
 
-  /* Shadows */
-  --ff-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.4);
+    /* Shadows */
+    --ff-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
-html, body {
-    background-color:  var(--ff-bg-page);
+html,
+body {
+    background-color: var(--ff-bg-page);
 }
 
-h1,h2, p, label {
-    color: var( --ff-text-primary);
+h1,
+h2,
+p,
+label {
+    color: var(--ff-text-primary);
 }
-
 
 img {
     height: 10rem;
@@ -59,10 +65,8 @@ img {
     object-fit: cover;
 }
 
-.leagues {
-    header{
-        margin-bottom: 2rem;
-    }
+header {
+    margin-bottom: 2rem;
 }
 
 .select-wrapper {
@@ -70,7 +74,7 @@ img {
     justify-content: space-around;
 }
 
-.matchups-wrapper{
+#matchups-wrapper {
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -83,7 +87,8 @@ img {
     background-color: var(--ff-bg-card);
     color: var(--ff-text-primary);
 
-    .home-team, .away-team {
+    .home-team,
+    .away-team {
         display: flex;
         flex-direction: column;
         flex-grow: 1;

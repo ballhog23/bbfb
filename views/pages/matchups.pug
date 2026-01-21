@@ -1,14 +1,11 @@
 extends ../layouts/base
 
 block content
-    h1 Season #{leagueState.season} - Week #{leagueState.displayWeek}
-
-    // League select dropdown
-    include ../partials/league-select.pug
-
-    // Week select dropdown
-    include ../partials/week-select.pug
-
-    // Matchups table
-    #matchups
-        //- include ../partials/matchups-section.pug
+    main
+        header
+            h1 Season #{leagueState.season} - Week #{leagueState.displayWeek}
+            .select-wrapper
+                include ../partials/league-select.pug
+                include ../partials/week-select.pug
+        section#matchups-wrapper
+            include ../partials/matchups-section.pug

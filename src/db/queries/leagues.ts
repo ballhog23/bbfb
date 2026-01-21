@@ -33,6 +33,18 @@ export async function selectAllLeagues() {
     return rows;
 }
 
+export async function selectAllLeaguesIdsAndSeasons() {
+    const rows = await db
+        .select({
+            leagueId: leaguesTable.leagueId,
+            season: leaguesTable.season
+        })
+        .from(leaguesTable)
+        .orderBy(desc(leaguesTable.season));
+
+    return rows;
+}
+
 export async function selectLeague(leagueId: string) {
     const [rows] = await db
         .select()

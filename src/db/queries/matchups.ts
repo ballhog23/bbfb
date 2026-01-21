@@ -95,6 +95,7 @@ export async function selectLeagueMatchups(leagueId: string) {
     return result;
 }
 
+// includes null matchupIds aka bye weeks
 export async function selectLeagueMatchupsByWeek(leagueId: string, week: number) {
     const result = await db
         .select({
@@ -149,6 +150,76 @@ export async function selectLeagueMatchupsByWeek(leagueId: string, week: number)
             and(
                 eq(matchupsTable.leagueId, leagueId),
                 eq(matchupsTable.week, week)
+            )
+        )
+        .groupBy(
+            matchupsTable.season,
+            matchupsTable.week,
+            matchupsTable.matchupId,
+            leagueUsersTable.teamName,
+            sleeperUsersTable.displayName,
+            matchupsTable.points,
+        )
+        .orderBy(matchupsTable.matchupId);
+
+    return result;
+}
+
+export async function selectLeagueMatchupsByWeekWithoutByes(leagueId: string, week: number) {
+    const result = await db
+        .select({
+            season: matchupsTable.season,
+            week: matchupsTable.week,
+            matchupId: matchupsTable.matchupId,
+            team: leagueUsersTable.teamName,
+            owner: sleeperUsersTable.displayName,
+            points: matchupsTable.points,
+            rosterPlayers: sql
+                `
+                    jsonb_agg(
+                        CASE 
+                            WHEN player_scoring.player_id = ANY(${matchupsTable.starters}) 
+                            THEN jsonb_build_object(
+                                    'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
+                                    'position', ${NFLPlayersTable.position},
+                                    'points', player_scoring.points,
+                                    'starter', TRUE
+                            )
+                            ELSE jsonb_build_object(
+                                    'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
+                                    'position', ${NFLPlayersTable.position},
+                                    'points', player_scoring.points,
+                                    'starter', FALSE
+                            )
+                        END
+                    )   
+                `,
+
+        })
+        .from(matchupsTable)
+        .innerJoin(rostersTable,
+            and(
+                eq(rostersTable.leagueId, leagueId),
+                eq(matchupsTable.rosterId, rostersTable.rosterId)
+            )
+        )
+        .innerJoin(leagueUsersTable,
+            and(
+                eq(leagueUsersTable.leagueId, leagueId),
+                eq(leagueUsersTable.userId, rostersTable.rosterOwnerId,)
+            )
+        )
+        .leftJoinLateral(
+            sql`jsonb_each_text(${matchupsTable.playersPoints}) as player_scoring(player_id, points)`,
+            sql`TRUE`
+        )
+        .innerJoin(NFLPlayersTable, eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`))
+        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId))
+        .where(
+            and(
+                eq(matchupsTable.leagueId, leagueId),
+                eq(matchupsTable.week, week),
+                isNotNull(matchupsTable.matchupId)
             )
         )
         .groupBy(
