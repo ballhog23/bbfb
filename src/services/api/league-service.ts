@@ -1,11 +1,11 @@
-import type { SelectLeague, StrictInsertLeague } from "../db/schema.js";
-import { Sleeper } from "../lib/sleeper.js";
+import type { SelectLeague, StrictInsertLeague } from "../../db/schema.js";
+import { Sleeper } from "../../lib/sleeper.js";
 import {
     rawLeagueSchema, strictLeagueSchema,
     type RawLeague, NullableRawLeague
-} from "../lib/zod.js";
-import { insertLeague } from "../db/queries/leagues.js";
-import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
+} from "../../lib/zod.js";
+import { insertLeague } from "../../db/queries/leagues.js";
+import { undefinedToNullDeep, normalizeString } from "../../lib/helpers.js";
 
 export async function syncLeague() {
     const sleeper = new Sleeper();

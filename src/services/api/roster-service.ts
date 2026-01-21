@@ -1,13 +1,13 @@
-import { Sleeper } from "../lib/sleeper.js";
+import { Sleeper } from "../../lib/sleeper.js";
 import {
     strictRosterSchema,
     type RawRoster, NullableRawRoster, StrictRoster
-} from "../lib/zod.js";
-import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
-import { selectAllLeagues } from "../db/queries/leagues.js";
-import { SelectRoster, StrictInsertRoster } from "src/db/schema.js";
-import { insertLeagueRoster } from "../db/queries/rosters.js";
-import { config } from "../config.js";
+} from "../../lib/zod.js";
+import { undefinedToNullDeep, normalizeString } from "../../lib/helpers.js";
+import { selectAllLeagues } from "../../db/queries/leagues.js";
+import { SelectRoster, StrictInsertRoster } from "../../db/schema.js";
+import { insertLeagueRoster } from "../../db/queries/rosters.js";
+import { config } from "../../config.js";
 
 export type LeaguesMap = {
     leagueId: string,

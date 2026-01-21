@@ -1,11 +1,11 @@
 import {
     strictSleeperUserSchema,
     type RawSleeperUser, StrictSleeperUser
-} from '../lib/zod.js';
-import { Sleeper } from "../lib/sleeper.js";
-import { normalizeString } from "../lib/helpers.js";
-import { insertSleeperUser } from "../db/queries/sleeper-users.js";
-import { SelectSleeperUser } from "src/db/schema.js";
+} from '../../lib/zod.js';
+import { Sleeper } from "../../lib/sleeper.js";
+import { normalizeString } from "../../lib/helpers.js";
+import { insertSleeperUser } from "../../db/queries/sleeper-users.js";
+import type { SelectSleeperUser } from "../../db/schema.js";
 
 export async function syncSleeperUsers(sleeperUserIds: string[]) {
     const normalizedUsers = await buildSleeperUsers(sleeperUserIds);

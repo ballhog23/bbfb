@@ -13,7 +13,7 @@
         "moduleResolution": "Bundler",
         "strict": true,
         /* Emission */
-        "sourceMap": true,
+        "sourceMap": false,
         "removeComments": true,
         /* Sanity */
         "forceConsistentCasingInFileNames": true,

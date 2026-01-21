@@ -1,13 +1,13 @@
-import { Sleeper } from "../lib/sleeper.js";
+import { Sleeper } from "../../lib/sleeper.js";
 import {
     strictMatchupSchema,
     type RawMatchup, NullableRawMatchup, StrictMatchup
-} from "../lib/zod.js";
-import { undefinedToNullDeep, normalizeString } from "../lib/helpers.js";
-import { buildLeagueHistoryMap, LeaguesMap } from "./roster-service.js";
-import { insertMatchup } from "../db/queries/matchups.js";
-import { SelectMatchup, StrictInsertMatchup } from "../db/schema.js";
-import { config } from "../config.js";
+} from "../../lib/zod.js";
+import { undefinedToNullDeep, normalizeString } from "../../lib/helpers.js";
+import { buildLeagueHistoryMap, type LeaguesMap } from "./roster-service.js";
+import { insertMatchup } from "../../db/queries/matchups.js";
+import { SelectMatchup, StrictInsertMatchup } from "../../db/schema.js";
+import { config } from "../../config.js";
 
 // ! GOAL: WORK ON HISTORICAL PRESENTATION OF DATA BECAUSE ITS THE OFFSEASON, DATA SYNC WE WILL WORK ON NEXT
 // ! DATA SYNC WILL LOOK SOMETHING LIKE, KEEP TRACK OF NFL STATE (SLEEPER LEAGUE SEASON, WEEK) IN DB AND HYDRATE CONFIG FROM THERE
