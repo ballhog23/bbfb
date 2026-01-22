@@ -14,7 +14,7 @@ export async function handlerServeMatchups(req: Request<MatchupParams>, res: Res
     const leagueState = await selectLeagueState();
     if (!leagueState)
         return res.render('pages/404');
-
+    console.log(req.params);
     const currentLeagueId = req.params.leagueId;
     const currentWeek = parseInt(req.params.week);
     const [allLeagues, orderedMatchups] = await Promise.all([

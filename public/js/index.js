@@ -3,18 +3,28 @@ console.log("I'm just here so I don't get fined.");
 const matchupsWrapper = document.getElementById('matchups-wrapper');
 const leaguesSelect = document.querySelector('#league-select');
 const weeksSelect = document.querySelector('#week-select');
-leaguesSelect?.addEventListener("change", async function () {
-    const leagueId = this.value;
-    const weekValue = weeksSelect?.value;
-    const resourceURL = `/api/matchups/leagues/${leagueId}/weeaks/${weekValue}`;
-    const { matchups } = await fetchJSON(resourceURL);
-    renderMatchupsSection(matchups);
+window.addEventListener("popstate", (event) => {
+    console.log(event);
 });
+leaguesSelect?.addEventListener("change", onLeagueChange);
 weeksSelect?.addEventListener("change", function () {
     const leagueId = leaguesSelect?.value;
     const weekValue = this.value;
     location.href = location.origin + `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
 });
+async function onLeagueChange() {
+    const leagueId = leaguesSelect?.value;
+    const weekValue = weeksSelect?.value;
+    const resourceURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
+    const { matchups } = await fetchJSON(resourceURL);
+    renderMatchupsSection(matchups);
+    const updatedURL = resourceURL.slice(4);
+    pushUpdatedURL(updatedURL);
+    const previouslySelected = leaguesSelect?.querySelector("[selected]");
+    const updatedSelected = leaguesSelect?.querySelector(`[value='${leagueId}']`);
+    previouslySelected?.removeAttribute('selected');
+    updatedSelected?.setAttribute('selected', '');
+}
 function renderMatchupsSection(matchups) {
     let html = "";
     matchups.forEach(matchup => html += renderMatchupCard(matchup));
@@ -54,4 +64,7 @@ function escapeHTML(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+function pushUpdatedURL(url) {
+    return history.pushState({}, "", url);
 }
