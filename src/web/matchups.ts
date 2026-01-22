@@ -3,14 +3,12 @@ import { selectLeagueState } from "../db/queries/league-state.js";
 import { config } from "../config.js";
 import { selectAllLeaguesIdsAndSeasons } from "../db/queries/leagues.js";
 import { selectLeagueMatchupsByWeekWithoutByes } from "../db/queries/matchups.js";
+import { groupAdjacentMatchups } from "../lib/helpers.js";
 
 type MatchupParams = {
     leagueId: string;
     week: string;
 };
-
-type MatchupRow = Awaited<ReturnType<typeof selectLeagueMatchupsByWeekWithoutByes>>[number];
-type MatchupTuple = [MatchupRow, MatchupRow];
 
 export async function handlerServeMatchups(req: Request<MatchupParams>, res: Response) {
     const leagueState = await selectLeagueState();
@@ -23,11 +21,9 @@ export async function handlerServeMatchups(req: Request<MatchupParams>, res: Res
         selectAllLeaguesIdsAndSeasons(),
         selectLeagueMatchupsByWeekWithoutByes(currentLeagueId, currentWeek)
     ]);
-    const matchups: MatchupTuple[] = [];
-    for (let i = 0; i < orderedMatchups.length; i += 2) {
-        matchups.push([orderedMatchups[i], orderedMatchups[i + 1]]);
-    }
-    console.log(matchups);
+
+    const matchups = groupAdjacentMatchups(orderedMatchups);
+
     return res.render('pages/matchups',
         {
             leagueState,
@@ -48,3 +44,4 @@ export async function handlerRedirectToMatchups(req: Request, res: Response) {
     const redirectURL = `/matchups/leagues/${config.league.id}/weeks/${leagueState.displayWeek}`;
     return res.redirect(302, redirectURL);
 }
+

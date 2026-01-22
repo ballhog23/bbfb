@@ -106,7 +106,7 @@ export class Sleeper {
         const response = await fetch(url);
 
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status} at ${url}`); // just a raw error
+            throw new Error(`HTTP ${response.status} at ${url}`);
         }
 
         const contentType = response.headers.get('content-type') || '';

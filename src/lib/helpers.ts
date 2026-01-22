@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction, RequestHandler } from "express";
 import { selectAllLeagues } from "../db/queries/leagues.js";
+import { selectLeagueMatchupsByWeekWithoutByes } from "../db/queries/matchups.js";
 
 export type AsyncRequestHandler<P = Record<string, any>> = (
     req: Request<P>,
@@ -62,3 +63,21 @@ export async function buildLeagueHistoryIds(): Promise<string[]> {
 }
 
 export const weeks = Array.from({ length: 17 }, (v, i) => i + 1);
+
+export type MatchupsWithoutByes = Awaited<ReturnType<typeof selectLeagueMatchupsByWeekWithoutByes>>;
+export type MatchupRow = MatchupsWithoutByes[number];
+export type MatchupTuple = [MatchupRow, MatchupRow];
+
+export function groupAdjacentMatchups(matchupsArray: MatchupsWithoutByes): MatchupTuple[] {
+
+    if (matchupsArray.length % 2 !== 0)
+        throw new Error('Matchups array passed is odd numbered in length');
+
+    const matchups: MatchupTuple[] = [];
+
+    for (let i = 0; i < matchupsArray.length; i += 2) {
+        matchups.push([matchupsArray[i], matchupsArray[i + 1]]);
+    }
+
+    return matchups;
+}

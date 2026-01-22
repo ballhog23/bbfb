@@ -174,7 +174,12 @@ export async function selectLeagueMatchupsByWeekWithoutByes(leagueId: string, we
             team: leagueUsersTable.teamName,
             owner: sleeperUsersTable.displayName,
             points: matchupsTable.points,
-            rosterPlayers: sql
+            rosterPlayers: sql<{
+                playerName: string;
+                position: string;
+                points: string;
+                starter: boolean;
+            }[]>
                 `
                     jsonb_agg(
                         CASE 

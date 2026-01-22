@@ -1,11 +1,12 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
 import {
-    selectLeagueMatchups,
+    selectLeagueMatchups, selectLeagueMatchupsByWeekWithoutByes,
     selectLeagueMatchupsByWeek, selectSpecificLeagueMatchup
 
 } from "../db/queries/matchups.js";
 import { BadRequestError } from "../lib/errors.js";
+import { groupAdjacentMatchups } from "../lib/helpers.js";
 
 type MatchupParams = {
     leagueId: string;
@@ -41,10 +42,11 @@ export async function handlerGetLeagueMatchupsByWeek(req: Request<MatchupParams>
     if (isNaN(week) || !Number.isInteger(week) || week <= 0 || week > 17)
         throw new BadRequestError('You must provide a valid week, ranging 1-17');
 
-    const matchups = await selectLeagueMatchupsByWeek(leagueId, week);
-    if (matchups.length === 0)
+    const ungroupedMatchups = await selectLeagueMatchupsByWeekWithoutByes(leagueId, week);
+    if (ungroupedMatchups.length === 0)
         throw new BadRequestError(`No matchups found for League ID: ${leagueId} during Week: ${week}`);
 
+    const matchups = groupAdjacentMatchups(ungroupedMatchups);
     const data = {
         matchups
     };

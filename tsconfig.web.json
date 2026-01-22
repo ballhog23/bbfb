@@ -21,5 +21,10 @@
     },
     "include": [
         "./public-ts/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "src",
+        "views"
     ]
 }
