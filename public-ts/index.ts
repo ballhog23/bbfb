@@ -4,8 +4,7 @@ const matchupsWrapper = document.getElementById("matchups-wrapper")!;
 const leaguesSelect = document.querySelector<HTMLSelectElement>("#league-select")!;
 const weeksSelect = document.querySelector<HTMLSelectElement>("#week-select")!;
 const pageTitle = document.querySelector('h1')!;
-const matchupCards = document.querySelectorAll('.matchup-card');
-const closeButtons = document.querySelectorAll("dialog button")!;
+
 
 type MatchupRow = {
     season: string;
@@ -44,6 +43,7 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     history.replaceState(initialState, "", location.href);
+    bindModals();
 });
 
 window.addEventListener("popstate", (event) => {
@@ -51,26 +51,34 @@ window.addEventListener("popstate", (event) => {
     if (!state) return;
     console.log('popstate', state.pageTitle);
     applyState(state);
+    bindModals();
 });
 
-matchupCards.forEach(
-    element =>
-        element.addEventListener("click", (event) => {
-            const parent = element.closest('.matchup-card')!;
-            const dialog = parent.querySelector('dialog')!;
-            if (dialog.contains(event.target as Node)) return;
-            dialog.showModal();
-        }, true)
-);
 
-closeButtons.forEach(
-    element =>
-        element.addEventListener("click", (event) => {
-            const parent = element.closest('.matchup-card')!;
-            const dialog = parent.querySelector('dialog')!;
-            dialog.close();
-        })
-);
+function bindModals() {
+    console.log('binding click events to modals');
+    const matchupCards = document.querySelectorAll('.matchup-card');
+    const closeButtons = document.querySelectorAll("dialog button");
+    console.log(matchupCards, closeButtons);
+    matchupCards.forEach(
+        element =>
+            element.addEventListener("click", (event) => {
+                const parent = element.closest('.matchup-card')!;
+                const dialog = parent.querySelector('dialog')!;
+                if (dialog.contains(event.target as Node)) return;
+                dialog.showModal();
+            }, true)
+    );
+
+    closeButtons.forEach(
+        element =>
+            element.addEventListener("click", (event) => {
+                const parent = element.closest('.matchup-card')!;
+                const dialog = parent.querySelector('dialog')!;
+                dialog.close();
+            })
+    );
+}
 
 leaguesSelect.addEventListener("change", onSelectChange);
 weeksSelect.addEventListener("change", onSelectChange);
@@ -89,7 +97,7 @@ async function onSelectChange() {
 
     const matchupsHTML = matchups.map(renderMatchupCard).join("");
     const pageTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
-    console.log('onselect', pageTitle);
+
     const state: PageState = {
         pageTitle,
         leagueId,
@@ -99,6 +107,7 @@ async function onSelectChange() {
 
     history.pushState(state, "", pageURL);
     applyState(state);
+    bindModals();
 }
 
 function applyState(state: PageState) {
@@ -120,8 +129,31 @@ function renderMatchupCard([away, home]: MatchupTuple) {
                 <h2>${escapeHTML(away.team ?? away.owner)}</h2>
                 <p>${escapeHTML(away.points)}</p>
             </div>
+            <dialog class="matchup-modal">
+                <button autofocus>Close</button>
+                <div class="players-wrapper">
+                    <div class="home-team-players">
+                        ${renderPlayersHTML(home.rosterPlayers)}
+                    </div>
+                    <div class="away-team-players">
+                        ${renderPlayersHTML(away.rosterPlayers)}
+                    </div>
+                </div>
         </div>
     `;
+}
+
+function renderPlayersHTML(players: MatchupRow['rosterPlayers']) {
+    const html = players.map(
+        player =>
+            `<p>${escapeHTML(player.position)}</p>` +
+            `<p>${escapeHTML(player.playerName)}</p>` +
+            `<p>${escapeHTML(player.points)}</p>` +
+            `<p>${escapeHTML(player.starter ? "true" : "false")}</p>`
+
+    ).join('');
+
+    return html;
 }
 
 async function fetchJSON<T>(url: string): Promise<T> {
