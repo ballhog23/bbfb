@@ -1,6 +1,8 @@
 mixin matchupCard(match)
     - const homeTeam = match[1];
+    - const homeTeamPlayers = homeTeam.rosterPlayers;
     - const awayTeam = match[0];
+    - const awayTeamPlayers = awayTeam.rosterPlayers;
     - const hasTeamName = (t) => t.team ? t.team : t.owner; 
     .matchup-card
         .home-team
@@ -10,3 +12,19 @@ mixin matchupCard(match)
         .away-team
             h2= hasTeamName(awayTeam)
             p= awayTeam.points
+    
+        dialog.matchup-modal
+            button(autofocus) Close
+            .players-wrapper
+                .home-team-players
+                    each player in homeTeamPlayers
+                        p= player.position
+                        p= player.playerName
+                        p= player.points
+                        p= player.starter
+                .away-team-players
+                    each player in awayTeamPlayers
+                        p= player.position
+                        p= player.playerName
+                        p= player.points
+                        p= player.starter

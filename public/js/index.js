@@ -4,6 +4,8 @@ const matchupsWrapper = document.getElementById("matchups-wrapper");
 const leaguesSelect = document.querySelector("#league-select");
 const weeksSelect = document.querySelector("#week-select");
 const pageTitle = document.querySelector('h1');
+const matchupCards = document.querySelectorAll('.matchup-card');
+const closeButtons = document.querySelectorAll("dialog button");
 window.addEventListener("DOMContentLoaded", () => {
     const initialState = {
         pageTitle: pageTitle.innerHTML,
@@ -20,6 +22,18 @@ window.addEventListener("popstate", (event) => {
     console.log('popstate', state.pageTitle);
     applyState(state);
 });
+matchupCards.forEach(element => element.addEventListener("click", (event) => {
+    const parent = element.closest('.matchup-card');
+    const dialog = parent.querySelector('dialog');
+    if (dialog.contains(event.target))
+        return;
+    dialog.showModal();
+}, true));
+closeButtons.forEach(element => element.addEventListener("click", (event) => {
+    const parent = element.closest('.matchup-card');
+    const dialog = parent.querySelector('dialog');
+    dialog.close();
+}));
 leaguesSelect.addEventListener("change", onSelectChange);
 weeksSelect.addEventListener("change", onSelectChange);
 async function onSelectChange() {

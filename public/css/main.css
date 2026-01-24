@@ -104,3 +104,22 @@ header {
         font-size: 2rem;
     }
 }
+
+dialog {
+    width: 75%;
+    height: 75%;
+    background-color: rgba(5, 11, 30, 0.4);
+
+    .players-wrapper {
+        display: flex;
+    }
+
+    button {
+        display: block;
+        margin-left: auto;
+    }
+
+    &::backdrop {
+        backdrop-filter: blur(0.1rem);
+    }
+}

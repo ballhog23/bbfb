@@ -4,6 +4,8 @@ const matchupsWrapper = document.getElementById("matchups-wrapper")!;
 const leaguesSelect = document.querySelector<HTMLSelectElement>("#league-select")!;
 const weeksSelect = document.querySelector<HTMLSelectElement>("#week-select")!;
 const pageTitle = document.querySelector('h1')!;
+const matchupCards = document.querySelectorAll('.matchup-card');
+const closeButtons = document.querySelectorAll("dialog button")!;
 
 type MatchupRow = {
     season: string;
@@ -51,6 +53,24 @@ window.addEventListener("popstate", (event) => {
     applyState(state);
 });
 
+matchupCards.forEach(
+    element =>
+        element.addEventListener("click", (event) => {
+            const parent = element.closest('.matchup-card')!;
+            const dialog = parent.querySelector('dialog')!;
+            if (dialog.contains(event.target as Node)) return;
+            dialog.showModal();
+        }, true)
+);
+
+closeButtons.forEach(
+    element =>
+        element.addEventListener("click", (event) => {
+            const parent = element.closest('.matchup-card')!;
+            const dialog = parent.querySelector('dialog')!;
+            dialog.close();
+        })
+);
 
 leaguesSelect.addEventListener("change", onSelectChange);
 weeksSelect.addEventListener("change", onSelectChange);
