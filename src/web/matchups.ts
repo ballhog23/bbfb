@@ -15,13 +15,14 @@ export async function handlerServeMatchups(req: Request<MatchupParams>, res: Res
     if (!leagueState)
         return res.render('pages/404');
     console.log(req.params);
-    const currentLeagueId = req.params.leagueId;
-    const currentWeek = parseInt(req.params.week);
+    const currentLeagueId = req.params.leagueId ?? config.league.id;
+    const currentWeek = parseInt(req.params.week) ?? leagueState.displayWeek;
     const [allLeagues, orderedMatchups] = await Promise.all([
         selectAllLeaguesIdsAndSeasons(),
         selectLeagueMatchupsByWeekWithoutByes(currentLeagueId, currentWeek)
     ]);
-
+    const [currentLeague] = allLeagues.filter(league => league.leagueId === currentLeagueId);
+    const currentLeagueSeason = currentLeague.season;
     const matchups = groupAdjacentMatchups(orderedMatchups);
 
     return res.render('pages/matchups',
@@ -29,6 +30,7 @@ export async function handlerServeMatchups(req: Request<MatchupParams>, res: Res
             leagueState,
             allLeagues,
             currentLeagueId,
+            currentLeagueSeason,
             currentWeek,
             matchups
         }

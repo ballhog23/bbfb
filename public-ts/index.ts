@@ -3,6 +3,7 @@ console.log("I'm just here so I don't get fined.");
 const matchupsWrapper = document.getElementById("matchups-wrapper")!;
 const leaguesSelect = document.querySelector<HTMLSelectElement>("#league-select")!;
 const weeksSelect = document.querySelector<HTMLSelectElement>("#week-select")!;
+const pageTitle = document.querySelector('h1')!;
 
 type MatchupRow = {
     season: string;
@@ -26,6 +27,7 @@ type MatchupsResponse = {
 };
 
 type PageState = {
+    pageTitle: string;
     leagueId: string;
     weekValue: string;
     matchupsHTML: string;
@@ -33,6 +35,7 @@ type PageState = {
 
 window.addEventListener("DOMContentLoaded", () => {
     const initialState: PageState = {
+        pageTitle: pageTitle.innerHTML,
         leagueId: leaguesSelect.value,
         weekValue: weeksSelect.value,
         matchupsHTML: matchupsWrapper.innerHTML
@@ -44,7 +47,7 @@ window.addEventListener("DOMContentLoaded", () => {
 window.addEventListener("popstate", (event) => {
     const state = event.state as PageState | null;
     if (!state) return;
-
+    console.log('popstate', state.pageTitle);
     applyState(state);
 });
 
@@ -52,21 +55,26 @@ window.addEventListener("popstate", (event) => {
 leaguesSelect.addEventListener("change", onSelectChange);
 weeksSelect.addEventListener("change", onSelectChange);
 
+// we could use memoization and store response in memory to eliminate re-fetching of data
 async function onSelectChange() {
     const leagueId = leaguesSelect.value;
+    const leagueSeasonOption = leaguesSelect.querySelector<HTMLOptionElement>(`[value='${leagueId}']`)!;
     const weekValue = weeksSelect.value;
+    const weekOption = weeksSelect.querySelector<HTMLOptionElement>(`[value='${weekValue}']`)!;
 
     const apiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
 
     const { matchups } = await fetchJSON<MatchupsResponse>(apiURL);
 
-    const html = matchups.map(renderMatchupCard).join("");
-
+    const matchupsHTML = matchups.map(renderMatchupCard).join("");
+    const pageTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
+    console.log('onselect', pageTitle);
     const state: PageState = {
+        pageTitle,
         leagueId,
         weekValue,
-        matchupsHTML: html
+        matchupsHTML,
     };
 
     history.pushState(state, "", pageURL);
@@ -74,6 +82,7 @@ async function onSelectChange() {
 }
 
 function applyState(state: PageState) {
+    pageTitle.innerHTML = state.pageTitle;
     matchupsWrapper.innerHTML = state.matchupsHTML;
     leaguesSelect.value = state.leagueId;
     weeksSelect.value = state.weekValue;
@@ -96,9 +105,18 @@ function renderMatchupCard([away, home]: MatchupTuple) {
 }
 
 async function fetchJSON<T>(url: string): Promise<T> {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status} at ${url}`);
-    return await res.json();
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status} at ${url}`);
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+        throw new Error(`Expected JSON, received ${contentType}`);
+    }
+
+    return await response.json();
 }
 
 function escapeHTML(str: string) {

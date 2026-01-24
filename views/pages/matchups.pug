@@ -3,7 +3,7 @@ extends ../layouts/base
 block content
     main
         header
-            h1 Season #{leagueState.season} - Week #{leagueState.displayWeek}
+            h1 Season #{currentLeagueSeason} - Week #{currentWeek}
             .select-wrapper
                 include ../partials/league-select.pug
                 include ../partials/week-select.pug
