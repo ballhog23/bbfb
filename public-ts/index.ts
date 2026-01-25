@@ -3,7 +3,7 @@ console.log("I'm just here so I don't get fined.");
 const matchupsWrapper = document.getElementById("matchups-wrapper")!;
 const leaguesSelect = document.querySelector<HTMLSelectElement>("#league-select")!;
 const weeksSelect = document.querySelector<HTMLSelectElement>("#week-select")!;
-const pageTitle = document.querySelector('h1')!;
+const matchupsTitle = document.querySelector('.matchups-container header h2')!;
 
 type MatchupRow = {
     season: string;
@@ -27,7 +27,7 @@ type MatchupsResponse = {
 };
 
 type PageState = {
-    pageTitle: string;
+    matchupsTitle: string;
     leagueId: string;
     weekValue: string;
     matchupsHTML: string;
@@ -39,7 +39,7 @@ type PlayersWrapper = HTMLDivElement;
 
 window.addEventListener("DOMContentLoaded", (event) => {
     const initialState: PageState = {
-        pageTitle: pageTitle.innerHTML,
+        matchupsTitle: matchupsTitle.innerHTML,
         leagueId: leaguesSelect.value,
         weekValue: weeksSelect.value,
         matchupsHTML: matchupsWrapper.innerHTML
@@ -51,7 +51,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
 window.addEventListener("popstate", (event) => {
     const state = event.state as PageState | null;
     if (!state) return;
-    console.log('popstate', state.pageTitle);
+    console.log('popstate', state.matchupsTitle);
     applyState(state);
 });
 
@@ -102,10 +102,10 @@ async function onSelectChange() {
     const { matchups } = await fetchJSON<MatchupsResponse>(apiURL);
 
     const matchupsHTML = matchups.map(renderMatchupCard).join("");
-    const pageTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
+    const matchupsTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
 
     const state: PageState = {
-        pageTitle,
+        matchupsTitle,
         leagueId,
         weekValue,
         matchupsHTML,
@@ -116,7 +116,7 @@ async function onSelectChange() {
 }
 
 function applyState(state: PageState) {
-    pageTitle.innerHTML = state.pageTitle;
+    matchupsTitle.innerHTML = state.matchupsTitle;
     matchupsWrapper.innerHTML = state.matchupsHTML;
     leaguesSelect.value = state.leagueId;
     weeksSelect.value = state.weekValue;
@@ -126,12 +126,12 @@ function renderMatchupCard([away, home]: MatchupTuple) {
     return `
         <div class="matchup-card">
             <div class="home-team">
-                <h2>${escapeHTML(home.team ?? home.owner)}</h2>
+                <h3>${escapeHTML(home.team ?? home.owner)}</h3>
                 <p>${escapeHTML(home.points)}</p>
             </div>
             <span>vs</span>
             <div class="away-team">
-                <h2>${escapeHTML(away.team ?? away.owner)}</h2>
+                <h3>${escapeHTML(away.team ?? away.owner)}</h3>
                 <p>${escapeHTML(away.points)}</p>
             </div>
             <dialog class="matchup-modal">

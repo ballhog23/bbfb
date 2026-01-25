@@ -6,11 +6,11 @@ mixin matchupCard(match)
     - const hasTeamName = (t) => t.team ? t.team : t.owner; 
     article.matchup-card
         .home-team
-            h2= hasTeamName(homeTeam)
+            h3= hasTeamName(homeTeam)
             p= homeTeam.points
         span vs
         .away-team
-            h2= hasTeamName(awayTeam)
+            h3= hasTeamName(awayTeam)
             p= awayTeam.points
     
         dialog.matchup-modal

@@ -3,10 +3,10 @@ console.log("I'm just here so I don't get fined.");
 const matchupsWrapper = document.getElementById("matchups-wrapper");
 const leaguesSelect = document.querySelector("#league-select");
 const weeksSelect = document.querySelector("#week-select");
-const pageTitle = document.querySelector('h1');
+const matchupsTitle = document.querySelector('.matchups-container header h2');
 window.addEventListener("DOMContentLoaded", (event) => {
     const initialState = {
-        pageTitle: pageTitle.innerHTML,
+        matchupsTitle: matchupsTitle.innerHTML,
         leagueId: leaguesSelect.value,
         weekValue: weeksSelect.value,
         matchupsHTML: matchupsWrapper.innerHTML
@@ -17,7 +17,7 @@ window.addEventListener("popstate", (event) => {
     const state = event.state;
     if (!state)
         return;
-    console.log('popstate', state.pageTitle);
+    console.log('popstate', state.matchupsTitle);
     applyState(state);
 });
 window.addEventListener("click", (event) => {
@@ -53,9 +53,9 @@ async function onSelectChange() {
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
     const { matchups } = await fetchJSON(apiURL);
     const matchupsHTML = matchups.map(renderMatchupCard).join("");
-    const pageTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
+    const matchupsTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
     const state = {
-        pageTitle,
+        matchupsTitle,
         leagueId,
         weekValue,
         matchupsHTML,
@@ -64,7 +64,7 @@ async function onSelectChange() {
     applyState(state);
 }
 function applyState(state) {
-    pageTitle.innerHTML = state.pageTitle;
+    matchupsTitle.innerHTML = state.matchupsTitle;
     matchupsWrapper.innerHTML = state.matchupsHTML;
     leaguesSelect.value = state.leagueId;
     weeksSelect.value = state.weekValue;
@@ -73,12 +73,12 @@ function renderMatchupCard([away, home]) {
     return `
         <div class="matchup-card">
             <div class="home-team">
-                <h2>${escapeHTML(home.team ?? home.owner)}</h2>
+                <h3>${escapeHTML(home.team ?? home.owner)}</h3>
                 <p>${escapeHTML(home.points)}</p>
             </div>
             <span>vs</span>
             <div class="away-team">
-                <h2>${escapeHTML(away.team ?? away.owner)}</h2>
+                <h3>${escapeHTML(away.team ?? away.owner)}</h3>
                 <p>${escapeHTML(away.points)}</p>
             </div>
             <dialog class="matchup-modal">
