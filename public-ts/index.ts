@@ -5,7 +5,6 @@ const leaguesSelect = document.querySelector<HTMLSelectElement>("#league-select"
 const weeksSelect = document.querySelector<HTMLSelectElement>("#week-select")!;
 const pageTitle = document.querySelector('h1')!;
 
-
 type MatchupRow = {
     season: string;
     week: number;
@@ -34,7 +33,11 @@ type PageState = {
     matchupsHTML: string;
 };
 
-window.addEventListener("DOMContentLoaded", () => {
+type MatchupCard = HTMLDivElement;
+type MatchupModal = HTMLDialogElement;
+type PlayersWrapper = HTMLDivElement;
+
+window.addEventListener("DOMContentLoaded", (event) => {
     const initialState: PageState = {
         pageTitle: pageTitle.innerHTML,
         leagueId: leaguesSelect.value,
@@ -43,7 +46,6 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     history.replaceState(initialState, "", location.href);
-    bindModals();
 });
 
 window.addEventListener("popstate", (event) => {
@@ -51,33 +53,37 @@ window.addEventListener("popstate", (event) => {
     if (!state) return;
     console.log('popstate', state.pageTitle);
     applyState(state);
-    bindModals();
 });
 
+window.addEventListener("click", (event) => {
+    const clickedCard = findNearestElement<HTMLDivElement>(event, '.matchup-card');
+    const clickedDialog = findNearestElement<HTMLDialogElement>(event, '.matchup-modal');
 
-function bindModals() {
-    console.log('binding click events to modals');
-    const matchupCards = document.querySelectorAll('.matchup-card');
-    const closeButtons = document.querySelectorAll("dialog button");
-    console.log(matchupCards, closeButtons);
-    matchupCards.forEach(
-        element =>
-            element.addEventListener("click", (event) => {
-                const parent = element.closest('.matchup-card')!;
-                const dialog = parent.querySelector('dialog')!;
-                if (dialog.contains(event.target as Node)) return;
-                dialog.showModal();
-            }, true)
-    );
+    if (!clickedCard && !clickedDialog) return;
 
-    closeButtons.forEach(
-        element =>
-            element.addEventListener("click", (event) => {
-                const parent = element.closest('.matchup-card')!;
-                const dialog = parent.querySelector('dialog')!;
-                dialog.close();
-            })
-    );
+    // Card 
+    if (clickedCard && !clickedDialog) {
+        const dialog = clickedCard.querySelector<HTMLDialogElement>('dialog')!;
+        dialog.showModal();
+    }
+
+    // Dialog
+    if (clickedDialog) {
+        const clickedPlayersWrapper = findNearestElement<HTMLDivElement>(event, '.players-wrapper');
+
+        if (!clickedPlayersWrapper) {
+            clickedDialog.close();
+        }
+    }
+});
+
+function findNearestElement<T extends HTMLElement = HTMLElement>(
+    event: PointerEvent,
+    selector: string
+): T | null {
+    const target = event.target as Element | null;
+    if (!target) return null;
+    return target.closest(selector) as T | null;
 }
 
 leaguesSelect.addEventListener("change", onSelectChange);
@@ -107,7 +113,6 @@ async function onSelectChange() {
 
     history.pushState(state, "", pageURL);
     applyState(state);
-    bindModals();
 }
 
 function applyState(state: PageState) {

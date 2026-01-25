@@ -4,7 +4,7 @@ const matchupsWrapper = document.getElementById("matchups-wrapper");
 const leaguesSelect = document.querySelector("#league-select");
 const weeksSelect = document.querySelector("#week-select");
 const pageTitle = document.querySelector('h1');
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", (event) => {
     const initialState = {
         pageTitle: pageTitle.innerHTML,
         leagueId: leaguesSelect.value,
@@ -12,7 +12,6 @@ window.addEventListener("DOMContentLoaded", () => {
         matchupsHTML: matchupsWrapper.innerHTML
     };
     history.replaceState(initialState, "", location.href);
-    bindModals();
 });
 window.addEventListener("popstate", (event) => {
     const state = event.state;
@@ -20,25 +19,28 @@ window.addEventListener("popstate", (event) => {
         return;
     console.log('popstate', state.pageTitle);
     applyState(state);
-    bindModals();
 });
-function bindModals() {
-    console.log('binding click events to modals');
-    const matchupCards = document.querySelectorAll('.matchup-card');
-    const closeButtons = document.querySelectorAll("dialog button");
-    console.log(matchupCards, closeButtons);
-    matchupCards.forEach(element => element.addEventListener("click", (event) => {
-        const parent = element.closest('.matchup-card');
-        const dialog = parent.querySelector('dialog');
-        if (dialog.contains(event.target))
-            return;
+window.addEventListener("click", (event) => {
+    const clickedCard = findNearestElement(event, '.matchup-card');
+    const clickedDialog = findNearestElement(event, '.matchup-modal');
+    if (!clickedCard && !clickedDialog)
+        return;
+    if (clickedCard && !clickedDialog) {
+        const dialog = clickedCard.querySelector('dialog');
         dialog.showModal();
-    }, true));
-    closeButtons.forEach(element => element.addEventListener("click", (event) => {
-        const parent = element.closest('.matchup-card');
-        const dialog = parent.querySelector('dialog');
-        dialog.close();
-    }));
+    }
+    if (clickedDialog) {
+        const clickedPlayersWrapper = findNearestElement(event, '.players-wrapper');
+        if (!clickedPlayersWrapper) {
+            clickedDialog.close();
+        }
+    }
+});
+function findNearestElement(event, selector) {
+    const target = event.target;
+    if (!target)
+        return null;
+    return target.closest(selector);
 }
 leaguesSelect.addEventListener("change", onSelectChange);
 weeksSelect.addEventListener("change", onSelectChange);
@@ -60,7 +62,6 @@ async function onSelectChange() {
     };
     history.pushState(state, "", pageURL);
     applyState(state);
-    bindModals();
 }
 function applyState(state) {
     pageTitle.innerHTML = state.pageTitle;
