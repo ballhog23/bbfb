@@ -82,7 +82,7 @@ function renderMatchupCard([away, home]) {
                 <p>${escapeHTML(away.points)}</p>
             </div>
             <dialog class="matchup-modal">
-                <button autofocus>Close</button>
+                <button>Close</button>
                 <div class="players-wrapper">
                     <div class="home-team-players">
                         ${renderPlayersHTML(home.rosterPlayers)}

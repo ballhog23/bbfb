@@ -4,7 +4,7 @@ mixin matchupCard(match)
     - const awayTeam = match[0];
     - const awayTeamPlayers = awayTeam.rosterPlayers;
     - const hasTeamName = (t) => t.team ? t.team : t.owner; 
-    .matchup-card
+    article.matchup-card
         .home-team
             h2= hasTeamName(homeTeam)
             p= homeTeam.points
@@ -14,7 +14,7 @@ mixin matchupCard(match)
             p= awayTeam.points
     
         dialog.matchup-modal
-            button(autofocus) Close
+            button Close
             .players-wrapper
                 .home-team-players
                     each player in homeTeamPlayers

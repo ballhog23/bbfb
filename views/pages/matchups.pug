@@ -2,10 +2,11 @@ extends ../layouts/base
 
 block content
     main
-        header
-            h1 Season #{currentLeagueSeason} - Week #{currentWeek}
-            .select-wrapper
-                include ../partials/league-select.pug
-                include ../partials/week-select.pug
-        section#matchups-wrapper
-            include ../partials/matchups-section.pug
+        section.matchups-container
+            header
+                h1 Season #{currentLeagueSeason} - Week #{currentWeek}
+                .select-wrapper
+                    include ../partials/league-select.pug
+                    include ../partials/week-select.pug
+            section#matchups-wrapper
+                include ../partials/matchups-section.pug
