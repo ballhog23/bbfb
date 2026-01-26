@@ -1,4 +1,8 @@
-console.log("I'm just here so I don't get fined.");
+import {
+    fetchJSON, escapeHTML,
+    toggleClassToBodyElement, findNearestElement
+} from "./lib.js";
+console.log("I'm just here so I don't get fined");
 
 const matchupsWrapper = document.getElementById("matchups-wrapper")!;
 const leaguesSelect = document.querySelector<HTMLSelectElement>("#league-select")!;
@@ -6,6 +10,7 @@ const weeksSelect = document.querySelector<HTMLSelectElement>("#week-select")!;
 const matchupsTitle = document.querySelector(".matchups-container header h2")!;
 const standingsTableBody = document.querySelector(".standings-container table tbody")!;
 const standingsTitle = document.querySelector(".standings-container header h2")!;
+
 type MatchupRow = {
     season: string;
     week: number;
@@ -75,35 +80,26 @@ window.addEventListener("popstate", (event) => {
 });
 
 window.addEventListener("click", (event) => {
-    const clickedCard = findNearestElement<HTMLDivElement>(event, '.matchup-card');
-    const clickedDialog = findNearestElement<HTMLDialogElement>(event, '.matchup-modal');
+    const clickedCard = findNearestElement<MatchupCard>(event, '.matchup-card');
+    const clickedDialog = findNearestElement<MatchupModal>(event, '.matchup-modal');
 
     if (!clickedCard && !clickedDialog) return;
 
     // Card 
     if (clickedCard && !clickedDialog) {
-        const dialog = clickedCard.querySelector<HTMLDialogElement>('dialog')!;
+        const dialog = clickedCard.querySelector<MatchupModal>('dialog')!;
         dialog.showModal();
     }
 
     // Dialog
     if (clickedDialog) {
-        const clickedPlayersWrapper = findNearestElement<HTMLDivElement>(event, '.players-wrapper');
+        const clickedPlayersWrapper = findNearestElement<PlayersWrapper>(event, '.players-wrapper');
 
         if (!clickedPlayersWrapper) {
             clickedDialog.close();
         }
     }
 });
-
-function findNearestElement<T extends HTMLElement = HTMLElement>(
-    event: PointerEvent,
-    selector: string
-): T | null {
-    const target = event.target as Element | null;
-    if (!target) return null;
-    return target.closest(selector) as T | null;
-}
 
 leaguesSelect.addEventListener("change", onSelectChange);
 weeksSelect.addEventListener("change", onSelectChange);
@@ -202,25 +198,3 @@ function renderStandingsTableRowHTML(team: RegularSeasonStandingsRow) {
         </tr>
     `;
 }
-
-async function fetchJSON<T>(url: string): Promise<T> {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-        throw new Error(`HTTP ${response.status} at ${url}`);
-    }
-
-    const contentType = response.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-        throw new Error(`Expected JSON, received ${contentType}`);
-    }
-
-    return await response.json();
-}
-
-function escapeHTML(str: string) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-}
-

@@ -111,26 +111,30 @@ export async function selectAllTimePointsScoredPerUser() {
 }
 
 export async function selectRegularSeasonWLRPerUser(leagueId: string) {
+    const pointsForExpr = sum(matchupOutcomesTable.pointsFor);
+    const pointsAgainstExpr = sum(matchupOutcomesTable.pointsAgainst);
+    const winsExpr = sum(sql<number>`
+                CASE
+                    WHEN matchup_outcomes.outcome = 'W' THEN 1
+                    ELSE 0
+                END
+            `);
+    const lossesExpr = sum(sql<number>`
+                CASE
+                    WHEN matchup_outcomes.outcome = 'L' THEN 1
+                    ELSE 0
+                END
+            `);
     const result = await db
         .select({
             userId: sleeperUsersTable.userId,
             name: sleeperUsersTable.displayName,
             teamName: leagueUsersTable.teamName,
-            // should add coalesce here
-            pointsFor: sum(matchupOutcomesTable.pointsFor),
-            pointsAgainst: sum(matchupOutcomesTable.pointsAgainst),
-            wins: sum(sql<number>`
-                CASE
-                    WHEN matchup_outcomes.outcome = 'W' THEN 1
-                    ELSE 0
-                END
-            `).as('wins'),
-            losses: sum(sql<number>`
-                CASE
-                    WHEN matchup_outcomes.outcome = 'L' THEN 1
-                    ELSE 0
-                END
-            `).as('loses'),
+            // could add coalesce here but this column will always be 0 at the minimum
+            pointsFor: pointsForExpr,
+            pointsAgainst: pointsAgainstExpr,
+            wins: winsExpr,
+            losses: lossesExpr,
         })
         .from(matchupOutcomesTable)
         .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId))
@@ -143,7 +147,7 @@ export async function selectRegularSeasonWLRPerUser(leagueId: string) {
             )
         )
         .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName, leagueUsersTable.teamName)
-        .orderBy(sql<number>`wins DESC`, desc(sum(matchupOutcomesTable.pointsFor)),);
+        .orderBy(desc(winsExpr), pointsForExpr);
 
     return result;
 }
@@ -186,6 +190,8 @@ export async function selectLeagueMatchupOutcomes(leagueId: string) {
             team: leagueUsersTable.teamName,
             owner: sleeperUsersTable.displayName,
             pointsFor: matchupsTable.points,
+            // matchups are stored per user per matchup, meaning two rows are inserted for every weekly matchup
+            // so we can calculate the points against with a subquery that is not the rosterId we calculated for points for
             pointsAgainst: sql<string>`
                 (
                     SELECT SUM(mo2.points)

@@ -52,6 +52,10 @@ body {
     color: var(--ff-text-primary);
 }
 
+body:has(dialog[open]) {
+    overflow: hidden;
+}
+
 h1,
 h2,
 p,
@@ -129,14 +133,26 @@ table {
     width: 100%;
 }
 
-caption,
 th,
 tr {
     text-align: left;
 }
 
+caption {
+    caption-side: bottom;
+    text-align: right;
+}
+
+thead {
+    background-color: var(--ff-table-header-bg);
+}
+
 tbody {
     * {
         font-weight: normal;
+    }
+
+    tr:nth-of-type(even) {
+        background-color: var(--ff-table-row-alt);
     }
 }

@@ -1,5 +1,5 @@
-"use strict";
-console.log("I'm just here so I don't get fined.");
+import { fetchJSON, escapeHTML, findNearestElement } from "./lib.js";
+console.log("I'm just here so I don't get fined");
 const matchupsWrapper = document.getElementById("matchups-wrapper");
 const leaguesSelect = document.querySelector("#league-select");
 const weeksSelect = document.querySelector("#week-select");
@@ -39,12 +39,6 @@ window.addEventListener("click", (event) => {
         }
     }
 });
-function findNearestElement(event, selector) {
-    const target = event.target;
-    if (!target)
-        return null;
-    return target.closest(selector);
-}
 leaguesSelect.addEventListener("change", onSelectChange);
 weeksSelect.addEventListener("change", onSelectChange);
 async function onSelectChange() {
@@ -126,20 +120,4 @@ function renderStandingsTableRowHTML(team) {
             <td>${escapeHTML(team.wins)}/${escapeHTML(team.losses)}</td>
         </tr>
     `;
-}
-async function fetchJSON(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP ${response.status} at ${url}`);
-    }
-    const contentType = response.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-        throw new Error(`Expected JSON, received ${contentType}`);
-    }
-    return await response.json();
-}
-function escapeHTML(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
 }
