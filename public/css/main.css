@@ -49,6 +49,7 @@
 html,
 body {
     background-color: var(--ff-bg-page);
+    color: var(--ff-text-primary);
 }
 
 h1,
@@ -121,5 +122,21 @@ dialog {
 
     &::backdrop {
         backdrop-filter: blur(0.1rem);
+    }
+}
+
+table {
+    width: 100%;
+}
+
+caption,
+th,
+tr {
+    text-align: left;
+}
+
+tbody {
+    * {
+        font-weight: normal;
     }
 }

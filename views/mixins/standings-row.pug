@@ -1,0 +1,7 @@
+mixin standingsRow(team)
+    - const hasTeamName = (t) => t.teamName ? t.teamName : t.name; 
+    tr
+        th(scope="row")= hasTeamName(team)
+        td= team.pointsFor
+        td= team.pointsAgainst
+        td #{team.wins} / #{team.losses}

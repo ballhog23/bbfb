@@ -3,13 +3,17 @@ console.log("I'm just here so I don't get fined.");
 const matchupsWrapper = document.getElementById("matchups-wrapper");
 const leaguesSelect = document.querySelector("#league-select");
 const weeksSelect = document.querySelector("#week-select");
-const matchupsTitle = document.querySelector('.matchups-container header h2');
+const matchupsTitle = document.querySelector(".matchups-container header h2");
+const standingsTableBody = document.querySelector(".standings-container table tbody");
+const standingsTitle = document.querySelector(".standings-container header h2");
 window.addEventListener("DOMContentLoaded", (event) => {
     const initialState = {
         matchupsTitle: matchupsTitle.innerHTML,
         leagueId: leaguesSelect.value,
         weekValue: weeksSelect.value,
-        matchupsHTML: matchupsWrapper.innerHTML
+        matchupsHTML: matchupsWrapper.innerHTML,
+        standingsTitle: standingsTitle.innerHTML,
+        standingsHTML: standingsTableBody.innerHTML
     };
     history.replaceState(initialState, "", location.href);
 });
@@ -17,7 +21,6 @@ window.addEventListener("popstate", (event) => {
     const state = event.state;
     if (!state)
         return;
-    console.log('popstate', state.matchupsTitle);
     applyState(state);
 });
 window.addEventListener("click", (event) => {
@@ -49,16 +52,27 @@ async function onSelectChange() {
     const leagueSeasonOption = leaguesSelect.querySelector(`[value='${leagueId}']`);
     const weekValue = weeksSelect.value;
     const weekOption = weeksSelect.querySelector(`[value='${weekValue}']`);
-    const apiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
+    const matchupsApiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
+    const standingsApiURL = `/api/matchup-outcomes/leagues/${leagueId}`;
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
-    const { matchups } = await fetchJSON(apiURL);
+    const queries = await Promise.all([
+        fetchJSON(matchupsApiURL),
+        fetchJSON(standingsApiURL)
+    ]);
+    const [matchupsResponse, regularSeasonStandingsRepsonse] = queries;
+    const { matchups } = matchupsResponse;
+    const { regularSeasonStandings } = regularSeasonStandingsRepsonse;
     const matchupsHTML = matchups.map(renderMatchupCard).join("");
     const matchupsTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
+    const standingsHTML = regularSeasonStandings.map(renderStandingsTableRowHTML).join("");
+    const standingsTitle = `${leagueSeasonOption.innerText} Standings`;
     const state = {
         matchupsTitle,
         leagueId,
         weekValue,
         matchupsHTML,
+        standingsTitle,
+        standingsHTML
     };
     history.pushState(state, "", pageURL);
     applyState(state);
@@ -68,6 +82,8 @@ function applyState(state) {
     matchupsWrapper.innerHTML = state.matchupsHTML;
     leaguesSelect.value = state.leagueId;
     weeksSelect.value = state.weekValue;
+    standingsTitle.innerHTML = state.standingsTitle;
+    standingsTableBody.innerHTML = state.standingsHTML;
 }
 function renderMatchupCard([away, home]) {
     return `
@@ -100,6 +116,16 @@ function renderPlayersHTML(players) {
         `<p>${escapeHTML(player.points)}</p>` +
         `<p>${escapeHTML(player.starter ? "true" : "false")}</p>`).join('');
     return html;
+}
+function renderStandingsTableRowHTML(team) {
+    return `
+        <tr>
+            <th scope="col">${escapeHTML(team.teamName ?? team.name)}</th>
+            <td>${escapeHTML(team.pointsFor)}</td>
+            <td>${escapeHTML(team.pointsAgainst)}</td>
+            <td>${escapeHTML(team.wins)}/${escapeHTML(team.losses)}</td>
+        </tr>
+    `;
 }
 async function fetchJSON(url) {
     const response = await fetch(url);

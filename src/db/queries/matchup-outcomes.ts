@@ -116,6 +116,9 @@ export async function selectRegularSeasonWLRPerUser(leagueId: string) {
             userId: sleeperUsersTable.userId,
             name: sleeperUsersTable.displayName,
             teamName: leagueUsersTable.teamName,
+            // should add coalesce here
+            pointsFor: sum(matchupOutcomesTable.pointsFor),
+            pointsAgainst: sum(matchupOutcomesTable.pointsAgainst),
             wins: sum(sql<number>`
                 CASE
                     WHEN matchup_outcomes.outcome = 'W' THEN 1

@@ -4,6 +4,7 @@ import { config } from "../config.js";
 import { selectAllLeaguesIdsAndSeasons } from "../db/queries/leagues.js";
 import { selectLeagueMatchupsByWeekWithoutByes } from "../db/queries/matchups.js";
 import { groupAdjacentMatchups } from "../lib/helpers.js";
+import { selectRegularSeasonWLRPerUser } from "../db/queries/matchup-outcomes.js";
 
 type MatchupParams = {
     leagueId: string;
@@ -17,9 +18,10 @@ export async function handlerServeMatchups(req: Request<MatchupParams>, res: Res
 
     const currentLeagueId = req.params.leagueId ?? config.league.id;
     const currentWeek = parseInt(req.params.week) ?? leagueState.displayWeek;
-    const [allLeagues, orderedMatchups] = await Promise.all([
+    const [allLeagues, orderedMatchups, regularSeasonStandings] = await Promise.all([
         selectAllLeaguesIdsAndSeasons(),
-        selectLeagueMatchupsByWeekWithoutByes(currentLeagueId, currentWeek)
+        selectLeagueMatchupsByWeekWithoutByes(currentLeagueId, currentWeek),
+        selectRegularSeasonWLRPerUser(currentLeagueId)
     ]);
     const [currentLeague] = allLeagues.filter(league => league.leagueId === currentLeagueId);
     const currentLeagueSeason = currentLeague.season;
@@ -31,7 +33,8 @@ export async function handlerServeMatchups(req: Request<MatchupParams>, res: Res
             currentLeagueId,
             currentLeagueSeason,
             currentWeek,
-            matchups
+            matchups,
+            regularSeasonStandings
         }
     );
 }

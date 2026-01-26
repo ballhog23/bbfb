@@ -3,8 +3,9 @@ console.log("I'm just here so I don't get fined.");
 const matchupsWrapper = document.getElementById("matchups-wrapper")!;
 const leaguesSelect = document.querySelector<HTMLSelectElement>("#league-select")!;
 const weeksSelect = document.querySelector<HTMLSelectElement>("#week-select")!;
-const matchupsTitle = document.querySelector('.matchups-container header h2')!;
-
+const matchupsTitle = document.querySelector(".matchups-container header h2")!;
+const standingsTableBody = document.querySelector(".standings-container table tbody")!;
+const standingsTitle = document.querySelector(".standings-container header h2")!;
 type MatchupRow = {
     season: string;
     week: number;
@@ -26,23 +27,42 @@ type MatchupsResponse = {
     matchups: MatchupTuple[];
 };
 
+type MatchupCard = HTMLDivElement;
+type MatchupModal = HTMLDialogElement;
+type PlayersWrapper = HTMLDivElement;
+
+type RegularSeasonStandingsRow = {
+    userId: string;
+    name: string;
+    teamName: string | null;
+    pointsFor: string;
+    pointsAgainst: string;
+    wins: string;
+    losses: string;
+};
+
+type RegularSeasonStandingsRepsonse = {
+    regularSeasonStandings: RegularSeasonStandingsRow[];
+};
+
 type PageState = {
     matchupsTitle: string;
     leagueId: string;
     weekValue: string;
     matchupsHTML: string;
+    standingsTitle: string;
+    standingsHTML: string;
 };
 
-type MatchupCard = HTMLDivElement;
-type MatchupModal = HTMLDialogElement;
-type PlayersWrapper = HTMLDivElement;
 
 window.addEventListener("DOMContentLoaded", (event) => {
     const initialState: PageState = {
         matchupsTitle: matchupsTitle.innerHTML,
         leagueId: leaguesSelect.value,
         weekValue: weeksSelect.value,
-        matchupsHTML: matchupsWrapper.innerHTML
+        matchupsHTML: matchupsWrapper.innerHTML,
+        standingsTitle: standingsTitle.innerHTML,
+        standingsHTML: standingsTableBody.innerHTML
     };
 
     history.replaceState(initialState, "", location.href);
@@ -51,7 +71,6 @@ window.addEventListener("DOMContentLoaded", (event) => {
 window.addEventListener("popstate", (event) => {
     const state = event.state as PageState | null;
     if (!state) return;
-    console.log('popstate', state.matchupsTitle);
     applyState(state);
 });
 
@@ -96,19 +115,29 @@ async function onSelectChange() {
     const weekValue = weeksSelect.value;
     const weekOption = weeksSelect.querySelector<HTMLOptionElement>(`[value='${weekValue}']`)!;
 
-    const apiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
+    const matchupsApiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
+    const standingsApiURL = `/api/matchup-outcomes/leagues/${leagueId}`;
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
 
-    const { matchups } = await fetchJSON<MatchupsResponse>(apiURL);
+    const queries = await Promise.all([
+        fetchJSON<MatchupsResponse>(matchupsApiURL),
+        fetchJSON<RegularSeasonStandingsRepsonse>(standingsApiURL)
+    ]);
+    const [matchupsResponse, regularSeasonStandingsRepsonse] = queries;
+    const { matchups } = matchupsResponse;
+    const { regularSeasonStandings } = regularSeasonStandingsRepsonse;
 
     const matchupsHTML = matchups.map(renderMatchupCard).join("");
     const matchupsTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
-
+    const standingsHTML = regularSeasonStandings.map(renderStandingsTableRowHTML).join("");
+    const standingsTitle = `${leagueSeasonOption.innerText} Standings`;
     const state: PageState = {
         matchupsTitle,
         leagueId,
         weekValue,
         matchupsHTML,
+        standingsTitle,
+        standingsHTML
     };
 
     history.pushState(state, "", pageURL);
@@ -120,6 +149,8 @@ function applyState(state: PageState) {
     matchupsWrapper.innerHTML = state.matchupsHTML;
     leaguesSelect.value = state.leagueId;
     weeksSelect.value = state.weekValue;
+    standingsTitle.innerHTML = state.standingsTitle;
+    standingsTableBody.innerHTML = state.standingsHTML;
 }
 
 function renderMatchupCard([away, home]: MatchupTuple) {
@@ -161,6 +192,17 @@ function renderPlayersHTML(players: MatchupRow['rosterPlayers']) {
     return html;
 }
 
+function renderStandingsTableRowHTML(team: RegularSeasonStandingsRow) {
+    return `
+        <tr>
+            <th scope="col">${escapeHTML(team.teamName ?? team.name)}</th>
+            <td>${escapeHTML(team.pointsFor)}</td>
+            <td>${escapeHTML(team.pointsAgainst)}</td>
+            <td>${escapeHTML(team.wins)}/${escapeHTML(team.losses)}</td>
+        </tr>
+    `;
+}
+
 async function fetchJSON<T>(url: string): Promise<T> {
     const response = await fetch(url);
 
@@ -181,3 +223,4 @@ function escapeHTML(str: string) {
     div.textContent = str;
     return div.innerHTML;
 }
+
