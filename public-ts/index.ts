@@ -130,7 +130,7 @@ async function onSelectChange() {
     const matchupsHTML = matchups.map(renderMatchupCard).join("");
     const matchupsTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
     const standingsHTML = regularSeasonStandings.map(renderStandingsTableRowHTML).join("");
-    const standingsTitle = `${leagueSeasonOption.innerText} Standings`;
+    const standingsTitle = `${leagueSeasonOption.innerText} Regular Season Standings`;
     const state: PageState = {
         matchupsTitle,
         leagueId,

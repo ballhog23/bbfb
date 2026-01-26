@@ -124,13 +124,13 @@ export async function selectRegularSeasonWLRPerUser(leagueId: string) {
                     WHEN matchup_outcomes.outcome = 'W' THEN 1
                     ELSE 0
                 END
-            `),
+            `).as('wins'),
             losses: sum(sql<number>`
                 CASE
                     WHEN matchup_outcomes.outcome = 'L' THEN 1
                     ELSE 0
                 END
-            `),
+            `).as('loses'),
         })
         .from(matchupOutcomesTable)
         .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId))
@@ -143,7 +143,7 @@ export async function selectRegularSeasonWLRPerUser(leagueId: string) {
             )
         )
         .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName, leagueUsersTable.teamName)
-        .orderBy(sleeperUsersTable.userId, sleeperUsersTable.displayName);
+        .orderBy(sql<number>`wins DESC`, desc(sum(matchupOutcomesTable.pointsFor)),);
 
     return result;
 }
