@@ -1,6 +1,6 @@
 import { sql, and, eq, desc } from "drizzle-orm";
 import { db } from "../index.js";
-import { leagueUsersTable, rostersTable, NFLPlayersTable, type StrictInsertRoster } from '../schema.js';
+import { leagueUsersTable, rostersTable, NFLPlayersTable, type StrictInsertRoster, sleeperUsersTable } from '../schema.js';
 
 export async function insertLeagueRoster(leagueRosters: StrictInsertRoster) {
     const [result] = await db
@@ -112,18 +112,28 @@ export async function selectLeagueRosters(leagueId: string) {
     const result = await db
         .select({
             userId: leagueUsersTable.userId,
+            ownerName: sleeperUsersTable.displayName,
             teamName: leagueUsersTable.teamName,
             season: rostersTable.season,
             wins: rostersTable.wins,
             losses: rostersTable.losses,
-            players: sql
+            players: sql<{
+                playerName: string;
+                position: string;
+                starter: boolean;
+            }[]>
                 `
                     jsonb_agg(
                         jsonb_build_object(
                             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
-                            'position', ${NFLPlayersTable.position}
+                            'position', ${NFLPlayersTable.position},
+                            'starter', CASE
+                                        WHEN ${NFLPlayersTable.playerId} = ANY(${rostersTable.starters}) THEN TRUE
+                                        ELSE FALSE
+                                        END
+
                         )
-                    ) as player_metadata
+                    )
                 `,
         })
         .from(rostersTable)
@@ -133,10 +143,14 @@ export async function selectLeagueRosters(leagueId: string) {
                 eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
+        .innerJoin(sleeperUsersTable,
+            eq(rostersTable.rosterOwnerId, sleeperUsersTable.userId),
+        )
         .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
         .where(eq(rostersTable.leagueId, leagueId))
         .groupBy(
             leagueUsersTable.userId,
+            sleeperUsersTable.displayName,
             leagueUsersTable.teamName,
             rostersTable.season,
             rostersTable.wins,

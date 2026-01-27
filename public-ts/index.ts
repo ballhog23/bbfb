@@ -38,16 +38,35 @@ type PlayersWrapper = HTMLDivElement;
 
 type RegularSeasonStandingsRow = {
     userId: string;
-    name: string;
+    ownerName: string;
     teamName: string | null;
     pointsFor: string;
     pointsAgainst: string;
     wins: string;
     losses: string;
+    roster: RostersRow["players"];
 };
 
 type RegularSeasonStandingsRepsonse = {
     regularSeasonStandings: RegularSeasonStandingsRow[];
+};
+
+type RostersResponse = {
+    rosters: RostersRow[];
+};
+
+type RostersRow = {
+    userId: string;
+    ownerName: string;
+    teamName: string;
+    season: string;
+    wins: number;
+    losses: number;
+    players: {
+        starter: boolean;
+        position: string;
+        playerName: string;
+    }[];
 };
 
 type PageState = {
@@ -81,12 +100,13 @@ window.addEventListener("popstate", (event) => {
 
 window.addEventListener("click", (event) => {
     const clickedCard = findNearestElement<MatchupCard>(event, '.matchup-card');
-    const clickedDialog = findNearestElement<MatchupModal>(event, '.matchup-modal');
+    const clickedDialog = findNearestElement<MatchupModal>(event, 'dialog');
+    const clickedStandingsRow = findNearestElement(event, 'tbody tr');
 
-    if (!clickedCard && !clickedDialog) return;
+    if (!clickedCard && !clickedDialog && !clickedStandingsRow) return;
 
     // Card 
-    if (clickedCard && !clickedDialog) {
+    if (clickedCard && !clickedDialog && !clickedStandingsRow) {
         const dialog = clickedCard.querySelector<MatchupModal>('dialog')!;
         dialog.showModal();
     }
@@ -98,13 +118,20 @@ window.addEventListener("click", (event) => {
         if (!clickedPlayersWrapper) {
             clickedDialog.close();
         }
+        return;
+    }
+
+    // Standings Table Row
+    if (clickedStandingsRow) {
+        const dialog = clickedStandingsRow.querySelector('dialog')!;
+        dialog.showModal();
     }
 });
 
 leaguesSelect.addEventListener("change", onSelectChange);
 weeksSelect.addEventListener("change", onSelectChange);
 
-// we could use memoization and store response in memory to eliminate re-fetching of data
+// todo: implement memoization/cache and store response in memory/browser to eliminate re-fetching of data
 async function onSelectChange() {
     const leagueId = leaguesSelect.value;
     const leagueSeasonOption = leaguesSelect.querySelector<HTMLOptionElement>(`[value='${leagueId}']`)!;
@@ -113,19 +140,32 @@ async function onSelectChange() {
 
     const matchupsApiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
     const standingsApiURL = `/api/matchup-outcomes/leagues/${leagueId}`;
+    const rostersApiURL = `/api/rosters/leagues/${leagueId}`;
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
 
     const queries = await Promise.all([
         fetchJSON<MatchupsResponse>(matchupsApiURL),
-        fetchJSON<RegularSeasonStandingsRepsonse>(standingsApiURL)
+        fetchJSON<RegularSeasonStandingsRepsonse>(standingsApiURL),
+        fetchJSON<RostersResponse>(rostersApiURL),
     ]);
-    const [matchupsResponse, regularSeasonStandingsRepsonse] = queries;
+    const [matchupsResponse, regularSeasonStandingsRepsonse, rostersResponse] = queries;
     const { matchups } = matchupsResponse;
     const { regularSeasonStandings } = regularSeasonStandingsRepsonse;
+    const { rosters } = rostersResponse;
+    // rosters map for quick lookups, Map<rosterOwnerId, roster>
+    const rosterByUserId = new Map<RostersRow["userId"], RostersRow>(
+        rosters.map((row: RostersRow) => [row.userId, row])
+    );
+    const standingsRows = regularSeasonStandings.map(
+        row => ({
+            ...row,
+            roster: rosterByUserId.get(row.userId)?.players ?? []
+        })
+    );
 
     const matchupsHTML = matchups.map(renderMatchupCard).join("");
     const matchupsTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
-    const standingsHTML = regularSeasonStandings.map(renderStandingsTableRowHTML).join("");
+    const standingsHTML = standingsRows.map(renderStandingsTableRowHTML).join("");
     const standingsTitle = `${leagueSeasonOption.innerText} Regular Season Standings`;
     const state: PageState = {
         matchupsTitle,
@@ -191,10 +231,30 @@ function renderPlayersHTML(players: MatchupRow['rosterPlayers']) {
 function renderStandingsTableRowHTML(team: RegularSeasonStandingsRow) {
     return `
         <tr>
-            <th scope="col">${escapeHTML(team.teamName ?? team.name)}</th>
+            <th scope="row">${escapeHTML(team.teamName ?? team.ownerName)}</th>
             <td>${escapeHTML(team.pointsFor)}</td>
             <td>${escapeHTML(team.pointsAgainst)}</td>
             <td>${escapeHTML(team.wins)}/${escapeHTML(team.losses)}</td>
+            <td class="roster-modal-cell">
+                <dialog class="matchup-modal rosters-modal">
+                    <button>Close</button>
+                        <div class="players-wrapper">
+                            ${renderRosterPlayersHTML(team.roster)}
+                        </div>
+                </dialog>
+            </td>
         </tr>
     `;
+}
+
+function renderRosterPlayersHTML(players: RegularSeasonStandingsRow["roster"]) {
+    const html = players.map(player =>
+        `
+            <p>${escapeHTML(player.position)}</p>
+            <p>${escapeHTML(player.playerName)}</p>
+            <p>${escapeHTML(player.starter ? "true" : "false")}</p>
+        `
+    ).join('');
+
+    return html;
 }

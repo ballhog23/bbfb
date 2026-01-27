@@ -4,7 +4,7 @@ import { selectLeagueMatchups } from "../db/queries/matchups.js";
 import { BadRequestError, NotFoundError } from "../lib/errors.js";
 import {
     selectLeagueSeasonMatchupOutcomes, selectWeeklyLeagueMatchupOutcomes,
-    selectRegularSeasonWLRPerUser
+    selectLeagueRegularSeasonStats
 } from "../db/queries/matchup-outcomes.js";
 
 type MatchupOutcomesParams = {
@@ -18,7 +18,7 @@ export async function handlerGetLeagueMatchupOutcomes(req: Request<MatchupOutcom
     if (!leagueId)
         throw new NotFoundError(`You must provide a League ID.`);
 
-    const regularSeasonStandings = await selectRegularSeasonWLRPerUser(leagueId);
+    const regularSeasonStandings = await selectLeagueRegularSeasonStats(leagueId);
     const data = {
         regularSeasonStandings
     };

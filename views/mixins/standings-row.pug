@@ -1,7 +1,17 @@
 mixin standingsRow(team)
-    - const hasTeamName = (t) => t.teamName ? t.teamName : t.name; 
+    - const teamName = (t) => t.teamName ? t.teamName : t.ownerName; 
     tr
-        th(scope="row")= hasTeamName(team)
+        th(scope="row")= teamName(team)
         td= team.pointsFor
         td= team.pointsAgainst
         td #{team.wins} / #{team.losses}
+        if team.roster
+            td.roster-modal-cell
+                dialog.matchup-modal.rosters-modal
+                    button Close
+                    .players-wrapper
+                        h3= teamName(team)
+                        each player in team.roster
+                            p= player.playerName
+                            p= player.position
+                            p= player.starter

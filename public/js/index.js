@@ -25,10 +25,11 @@ window.addEventListener("popstate", (event) => {
 });
 window.addEventListener("click", (event) => {
     const clickedCard = findNearestElement(event, '.matchup-card');
-    const clickedDialog = findNearestElement(event, '.matchup-modal');
-    if (!clickedCard && !clickedDialog)
+    const clickedDialog = findNearestElement(event, 'dialog');
+    const clickedStandingsRow = findNearestElement(event, 'tbody tr');
+    if (!clickedCard && !clickedDialog && !clickedStandingsRow)
         return;
-    if (clickedCard && !clickedDialog) {
+    if (clickedCard && !clickedDialog && !clickedStandingsRow) {
         const dialog = clickedCard.querySelector('dialog');
         dialog.showModal();
     }
@@ -37,6 +38,11 @@ window.addEventListener("click", (event) => {
         if (!clickedPlayersWrapper) {
             clickedDialog.close();
         }
+        return;
+    }
+    if (clickedStandingsRow) {
+        const dialog = clickedStandingsRow.querySelector('dialog');
+        dialog.showModal();
     }
 });
 leaguesSelect.addEventListener("change", onSelectChange);
@@ -48,17 +54,25 @@ async function onSelectChange() {
     const weekOption = weeksSelect.querySelector(`[value='${weekValue}']`);
     const matchupsApiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
     const standingsApiURL = `/api/matchup-outcomes/leagues/${leagueId}`;
+    const rostersApiURL = `/api/rosters/leagues/${leagueId}`;
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
     const queries = await Promise.all([
         fetchJSON(matchupsApiURL),
-        fetchJSON(standingsApiURL)
+        fetchJSON(standingsApiURL),
+        fetchJSON(rostersApiURL),
     ]);
-    const [matchupsResponse, regularSeasonStandingsRepsonse] = queries;
+    const [matchupsResponse, regularSeasonStandingsRepsonse, rostersResponse] = queries;
     const { matchups } = matchupsResponse;
     const { regularSeasonStandings } = regularSeasonStandingsRepsonse;
+    const { rosters } = rostersResponse;
+    const rosterByUserId = new Map(rosters.map((row) => [row.userId, row]));
+    const standingsRows = regularSeasonStandings.map(row => ({
+        ...row,
+        roster: rosterByUserId.get(row.userId)?.players ?? []
+    }));
     const matchupsHTML = matchups.map(renderMatchupCard).join("");
     const matchupsTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
-    const standingsHTML = regularSeasonStandings.map(renderStandingsTableRowHTML).join("");
+    const standingsHTML = standingsRows.map(renderStandingsTableRowHTML).join("");
     const standingsTitle = `${leagueSeasonOption.innerText} Regular Season Standings`;
     const state = {
         matchupsTitle,
@@ -114,10 +128,26 @@ function renderPlayersHTML(players) {
 function renderStandingsTableRowHTML(team) {
     return `
         <tr>
-            <th scope="col">${escapeHTML(team.teamName ?? team.name)}</th>
+            <th scope="row">${escapeHTML(team.teamName ?? team.ownerName)}</th>
             <td>${escapeHTML(team.pointsFor)}</td>
             <td>${escapeHTML(team.pointsAgainst)}</td>
             <td>${escapeHTML(team.wins)}/${escapeHTML(team.losses)}</td>
+            <td class="roster-modal-cell">
+                <dialog class="matchup-modal rosters-modal">
+                    <button>Close</button>
+                        <div class="players-wrapper">
+                            ${renderRosterPlayersHTML(team.roster)}
+                        </div>
+                </dialog>
+            </td>
         </tr>
     `;
+}
+function renderRosterPlayersHTML(players) {
+    const html = players.map(player => `
+            <p>${escapeHTML(player.position)}</p>
+            <p>${escapeHTML(player.playerName)}</p>
+            <p>${escapeHTML(player.starter ? "true" : "false")}</p>
+        `).join('');
+    return html;
 }
