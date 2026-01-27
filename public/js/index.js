@@ -115,6 +115,7 @@ function renderMatchupCard([away, home]) {
                         ${renderPlayersHTML(away.rosterPlayers)}
                     </div>
                 </div>
+            </dialog>
         </div>
     `;
 }

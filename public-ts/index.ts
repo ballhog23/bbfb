@@ -211,6 +211,7 @@ function renderMatchupCard([away, home]: MatchupTuple) {
                         ${renderPlayersHTML(away.rosterPlayers)}
                     </div>
                 </div>
+            </dialog>
         </div>
     `;
 }
