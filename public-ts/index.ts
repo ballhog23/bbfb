@@ -113,7 +113,7 @@ window.addEventListener("click", (event) => {
 
     // Dialog
     if (clickedDialog) {
-        const clickedPlayersWrapper = findNearestElement<PlayersWrapper>(event, '.players-wrapper');
+        const clickedPlayersWrapper = findNearestElement<PlayersWrapper>(event, '.matchups-dialog-wrapper');
 
         if (!clickedPlayersWrapper) {
             clickedDialog.close();
@@ -131,7 +131,6 @@ window.addEventListener("click", (event) => {
 leaguesSelect.addEventListener("change", onSelectChange);
 weeksSelect.addEventListener("change", onSelectChange);
 
-// todo: implement memoization/cache and store response in memory/browser to eliminate re-fetching of data
 async function onSelectChange() {
     const leagueId = leaguesSelect.value;
     const leagueSeasonOption = leaguesSelect.querySelector<HTMLOptionElement>(`[value='${leagueId}']`)!;
@@ -203,7 +202,7 @@ function renderMatchupCard([away, home]: MatchupTuple) {
             </div>
             <dialog class="matchup-modal">
                 <button>Close</button>
-                <div class="players-wrapper">
+                <div class="matchups-dialog-wrapper">
                     <div class="home-team-players">
                         ${renderPlayersHTML(home.rosterPlayers)}
                     </div>
@@ -239,7 +238,7 @@ function renderStandingsTableRowHTML(team: RegularSeasonStandingsRow) {
             <td class="roster-modal-cell">
                 <dialog class="matchup-modal rosters-modal">
                     <button>Close</button>
-                        <div class="players-wrapper">
+                        <div class="matchups-dialog-wrapper">
                             ${renderRosterPlayersHTML(team.roster)}
                         </div>
                 </dialog>

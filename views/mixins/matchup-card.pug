@@ -1,30 +1,13 @@
+include ./matchup-card-body.pug
+include ./matchup-modal.pug
+
 mixin matchupCard(match)
     - const homeTeam = match[1];
     - const homeTeamPlayers = homeTeam.rosterPlayers;
     - const awayTeam = match[0];
     - const awayTeamPlayers = awayTeam.rosterPlayers;
-    - const hasTeamName = (t) => t.team ? t.team : t.owner; 
+    - const hasTeamName = (t) => t.team ? t.team : t.owner;
+
     article.matchup-card
-        .home-team
-            h3= hasTeamName(homeTeam)
-            p= homeTeam.points
-        span vs
-        .away-team
-            h3= hasTeamName(awayTeam)
-            p= awayTeam.points
-    
-        dialog.matchup-modal
-            button Close
-            .players-wrapper
-                .home-team-players
-                    each player in homeTeamPlayers
-                        p= player.position
-                        p= player.playerName
-                        p= player.points
-                        p= player.starter
-                .away-team-players
-                    each player in awayTeamPlayers
-                        p= player.position
-                        p= player.playerName
-                        p= player.points
-                        p= player.starter
+        +matchupCardBody(match)
+        +matchupModal(match)

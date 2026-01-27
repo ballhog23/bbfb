@@ -34,7 +34,7 @@ window.addEventListener("click", (event) => {
         dialog.showModal();
     }
     if (clickedDialog) {
-        const clickedPlayersWrapper = findNearestElement(event, '.players-wrapper');
+        const clickedPlayersWrapper = findNearestElement(event, '.matchups-dialog-wrapper');
         if (!clickedPlayersWrapper) {
             clickedDialog.close();
         }
@@ -107,7 +107,7 @@ function renderMatchupCard([away, home]) {
             </div>
             <dialog class="matchup-modal">
                 <button>Close</button>
-                <div class="players-wrapper">
+                <div class="matchups-dialog-wrapper">
                     <div class="home-team-players">
                         ${renderPlayersHTML(home.rosterPlayers)}
                     </div>
@@ -136,7 +136,7 @@ function renderStandingsTableRowHTML(team) {
             <td class="roster-modal-cell">
                 <dialog class="matchup-modal rosters-modal">
                     <button>Close</button>
-                        <div class="players-wrapper">
+                        <div class="matchups-dialog-wrapper">
                             ${renderRosterPlayersHTML(team.roster)}
                         </div>
                 </dialog>

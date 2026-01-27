@@ -1,0 +1,24 @@
+mixin matchupModal(match)
+    - const homeTeam = match[1];
+    - const homeTeamPlayers = homeTeam.rosterPlayers;
+    - const awayTeam = match[0];
+    - const awayTeamPlayers = awayTeam.rosterPlayers;
+    
+    dialog.matchup-modal
+        button Close
+        section.matchups-dialog-wrapper
+            header.matchup-card
+                +matchupCardBody(match)
+            div.rosters-wrapper
+                .roster.home-team-players
+                    each player in homeTeamPlayers
+                        p= player.position
+                        p= player.playerName
+                        p= player.points
+                        p= player.starter
+                .roster.away-team-players
+                    each player in awayTeamPlayers
+                        p= player.position
+                        p= player.playerName
+                        p= player.points
+                        p= player.starter

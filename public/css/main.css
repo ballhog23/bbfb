@@ -115,16 +115,6 @@ dialog {
     height: 75%;
     background-color: rgba(5, 11, 30, 0.4);
 
-    &.rosters-modal {
-        .players-wrapper {
-            flex-direction: column;
-        }
-    }
-
-    .players-wrapper {
-        display: flex;
-    }
-
     button {
         display: block;
         margin-left: auto;
@@ -135,8 +125,18 @@ dialog {
     }
 }
 
+.rosters-wrapper {
+    display: flex;
+    gap: 1rem;
+
+    div {
+        flex-grow: 1;
+    }
+}
+
 table {
     width: 100%;
+    border-spacing: 0;
 }
 
 th,
