@@ -182,8 +182,10 @@ function renderMatchupCard([away, home]: MatchupTuple) {
                 ${renderMatchupCardBase([away, home])}
                 <dialog class="matchup-modal">
                     <button>Close</button>
-                    <article class="matchups-dialog-wrapper">
-                        ${renderMatchupCardBase([away, home])}
+                    <section class="matchups-dialog-wrapper">
+                        <article class="matchup-card">
+                            ${renderMatchupCardBase([away, home])}
+                        </article>
                         <div class="rosters-wrapper">
                             <div class="roster home-team-players">
                                 ${renderPlayersHTML(home.rosterPlayers)}
@@ -192,7 +194,7 @@ function renderMatchupCard([away, home]: MatchupTuple) {
                                 ${renderPlayersHTML(away.rosterPlayers)}
                             </div>
                         </div>
-                    </article>
+                    </section>
                 </dialog>
             </article>
     `;
