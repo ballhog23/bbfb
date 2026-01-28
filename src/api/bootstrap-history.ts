@@ -43,7 +43,7 @@ export async function handlerHistoryBootstrap(_: Request, res: Response) {
     console.log('LEAGUE MATCHUPS TABLE POPULATED!');
 
     console.log('POPULATING NFL PLAYERS TABLE...');
-    await syncNFLPlayers();
+    // await syncNFLPlayers();
     console.log('NFL PLAYERS TABLE POPULATED!');
 
     console.log('POPULATING LEAGUE STATE TABLE...');

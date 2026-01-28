@@ -50,7 +50,7 @@ export function normalizeSleeperUser(rawUser: RawSleeperUser) {
         userName: normalizeString(rawUser.username),
         userId: normalizeString(rawUser.user_id),
         displayName: normalizeString(rawUser.display_name),
-        avatarId: normalizeString(rawUser.avatar),
+        avatarId: normalizeString(`https://sleepercdn.com/avatars/${rawUser.avatar}`),
     } satisfies StrictSleeperUser;
 }
 
