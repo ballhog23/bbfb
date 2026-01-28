@@ -131,7 +131,7 @@ async function onSelectChange() {
     const weekValue = weeksSelect.value;
     const weekOption = weeksSelect.querySelector<HTMLOptionElement>(`[value='${weekValue}']`)!;
 
-    const apiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
+    const apiURL = `/api/matchups-page/leagues/${leagueId}/weeks/${weekValue}`;
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
     const pageData = await fetchJSON<MatchupsPageResponse>(apiURL);
     const { matchups, standingsRows } = pageData;

@@ -52,7 +52,7 @@ async function onSelectChange() {
     const leagueSeasonOption = leaguesSelect.querySelector(`[value='${leagueId}']`);
     const weekValue = weeksSelect.value;
     const weekOption = weeksSelect.querySelector(`[value='${weekValue}']`);
-    const apiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
+    const apiURL = `/api/matchups-page/leagues/${leagueId}/weeks/${weekValue}`;
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
     const pageData = await fetchJSON(apiURL);
     const { matchups, standingsRows } = pageData;

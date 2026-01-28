@@ -6,10 +6,7 @@ import { config } from "../config.js";
 
 // need to implement error handling like 4XX, 5XX etc
 export async function handlerServeMatchupsPage(req: Request<MatchupsPageParams>, res: Response) {
-    const currentLeagueId = req.params.leagueId ?? config.league.id;
-    const currentWeek = req.params.week ?? "";
-
-    const matchupsPage = await assembleMatchupsData(currentLeagueId, currentWeek);
+    const matchupsPage = await assembleMatchupsData(req.params.leagueId, req.params.week);
 
     return res.render('pages/matchups', { ...matchupsPage });
 }

@@ -5,13 +5,15 @@ import { selectLeagueMatchupsByWeekWithoutByes } from "../../db/queries/matchups
 import { selectLeagueRegularSeasonStats } from "../../db/queries/matchup-outcomes.js";
 import { selectLeagueRosters } from "../../db/queries/rosters.js";
 import { selectLeagueState } from "../../db/queries/league-state.js";
+import { config } from "../../config.js";
 
-export async function assembleMatchupsData(currentLeagueId: MatchupsPageParams["leagueId"], week: MatchupsPageParams["week"]) {
+export async function assembleMatchupsData(leagueIdParam: MatchupsPageParams["leagueId"], weekParam: MatchupsPageParams["week"]) {
     const leagueState = await selectLeagueState();
     if (!leagueState)
         throw new Error("League state not found");
 
-    const parsedWeek = parseInt(week);
+    const currentLeagueId = leagueIdParam ?? config.league.id;
+    const parsedWeek = parseInt(weekParam);
     const currentWeek = isNaN(parsedWeek) ? leagueState.displayWeek : parsedWeek;
 
     const [allLeagues, orderedMatchups, regularSeasonStandings, rosters] = await Promise.all([

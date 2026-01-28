@@ -19,7 +19,6 @@ export function escapeForHTML(value: string | number) {
     return div.innerHTML;
 }
 
-
 export function toggleClassToBodyElement(className: string, enabled: boolean) {
     return document.body.classList.toggle(className, enabled);
 }

@@ -9,9 +9,7 @@ export type MatchupsPageParams = {
 };
 
 export async function handlerApiMatchupsPage(req: Request<MatchupsPageParams>, res: Response) {
-    const currentLeagueId = req.params.leagueId ?? config.league.id;
-    const currentWeek = req.params.week ?? "";
-    const matchupsPage = await assembleMatchupsData(currentLeagueId, currentWeek);
+    const matchupsPage = await assembleMatchupsData(req.params.leagueId, req.params.week);
 
     respondWithJSON(res, 200, matchupsPage);
 }
