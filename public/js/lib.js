@@ -9,9 +9,9 @@ export async function fetchJSON(url) {
     }
     return await response.json();
 }
-export function escapeHTML(str) {
+export function escapeForHTML(value) {
     const div = document.createElement("div");
-    div.textContent = str;
+    div.textContent = String(value);
     return div.innerHTML;
 }
 export function toggleClassToBodyElement(className, enabled) {

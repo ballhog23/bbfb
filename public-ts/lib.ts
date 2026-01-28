@@ -13,11 +13,12 @@ export async function fetchJSON<T>(url: string): Promise<T> {
     return await response.json();
 }
 
-export function escapeHTML(str: string) {
+export function escapeForHTML(value: string | number) {
     const div = document.createElement("div");
-    div.textContent = str;
+    div.textContent = String(value);
     return div.innerHTML;
 }
+
 
 export function toggleClassToBodyElement(className: string, enabled: boolean) {
     return document.body.classList.toggle(className, enabled);

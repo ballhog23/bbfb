@@ -7,6 +7,7 @@ import { errorHandler } from './middleware/error-handler.js';
 // json api
 import { apiLeaguesRoute } from "./routes/api/leagues-route.js";
 import { apiMatchupsRoute } from "./routes/api/matchups-route.js";
+import { apiMatchupsPageRoute } from "./routes/api/matchups-page-route.js";
 import { apiMatchupOutcomesRoute } from "./routes/api/matchup-outcomes.js";
 import { apiBootstrapRoute } from "./routes/api/bootstrap-route.js";
 import { apiSyncRoute } from "./routes/api/sync-route.js";
@@ -19,8 +20,7 @@ import { apiPlayoffsRoute } from "./routes/api/playoffs.js";
 
 // web routes
 import { webIndexRoute } from "./routes/web/index.js";
-import { webMatchupsRoute } from "./routes/web/matchups.js";
-
+import { webMatchupsPageRoute } from "./routes/web/matchups.js";
 
 const app = express();
 export const __filename = fileURLToPath(import.meta.url);
@@ -34,13 +34,14 @@ app.set("views", join(__dirname, "../views"));
 
 // web
 app.use("/", webIndexRoute);
-app.use("/matchups", webMatchupsRoute);
+app.use("/matchups", webMatchupsPageRoute);
 
 
 //api
 app.use("/api/leagues", apiLeaguesRoute);
 app.use("/api/matchup-outcomes", apiMatchupOutcomesRoute);
 app.use("/api/matchups", apiMatchupsRoute);
+app.use("/api/matchups-page", apiMatchupsPageRoute);
 app.use("/api/bootstrap-history", apiBootstrapRoute);
 app.use("/api/sync", apiSyncRoute);
 app.use("/api/league-state", apiLeagueStateRoute);

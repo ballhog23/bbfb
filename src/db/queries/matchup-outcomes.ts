@@ -111,26 +111,40 @@ export async function selectAllTimePointsScoredPerUser() {
 }
 
 export async function selectLeagueRegularSeasonStats(leagueId: string) {
-    const pointsForExpr = sum(matchupOutcomesTable.pointsFor);
-    const pointsAgainstExpr = sum(matchupOutcomesTable.pointsAgainst);
-    const winsExpr = sum(sql<number>`
+    const pointsForExpr = sql<string>`
+        COALESCE(${sum(matchupOutcomesTable.pointsFor)}, 0)
+    `;
+    const pointsAgainstExpr = sql<string>`
+    COALESCE(${sum(matchupOutcomesTable.pointsAgainst)}, 0)
+    `;
+    const winsExpr = sql<number>`
+        COALESCE(
+            ${sum(sql<number>`
                 CASE
                     WHEN matchup_outcomes.outcome = 'W' THEN 1
                     ELSE 0
                 END
-            `);
-    const lossesExpr = sum(sql<number>`
+            `)},
+            0
+        )
+    `;
+    const lossesExpr = sql<number>`
+        COALESCE(
+            ${sum(sql<number>`
                 CASE
                     WHEN matchup_outcomes.outcome = 'L' THEN 1
                     ELSE 0
                 END
-            `);
+            `)},
+            0
+        )
+    `;
+
     const result = await db
         .select({
             userId: sleeperUsersTable.userId,
             ownerName: sleeperUsersTable.displayName,
             teamName: leagueUsersTable.teamName,
-            // could add coalesce here but this column will always be 0 at the minimum
             pointsFor: pointsForExpr,
             pointsAgainst: pointsAgainstExpr,
             wins: winsExpr,

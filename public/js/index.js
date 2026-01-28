@@ -1,4 +1,4 @@
-import { fetchJSON, escapeHTML, findNearestElement } from "./lib.js";
+import { fetchJSON, escapeForHTML, findNearestElement } from "./lib.js";
 console.log("I'm just here so I don't get fined");
 const matchupsWrapper = document.getElementById("matchups-wrapper");
 const leaguesSelect = document.querySelector("#league-select");
@@ -52,24 +52,10 @@ async function onSelectChange() {
     const leagueSeasonOption = leaguesSelect.querySelector(`[value='${leagueId}']`);
     const weekValue = weeksSelect.value;
     const weekOption = weeksSelect.querySelector(`[value='${weekValue}']`);
-    const matchupsApiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
-    const standingsApiURL = `/api/matchup-outcomes/leagues/${leagueId}`;
-    const rostersApiURL = `/api/rosters/leagues/${leagueId}`;
+    const apiURL = `/api/matchups/leagues/${leagueId}/weeks/${weekValue}`;
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
-    const queries = await Promise.all([
-        fetchJSON(matchupsApiURL),
-        fetchJSON(standingsApiURL),
-        fetchJSON(rostersApiURL),
-    ]);
-    const [matchupsResponse, regularSeasonStandingsRepsonse, rostersResponse] = queries;
-    const { matchups } = matchupsResponse;
-    const { regularSeasonStandings } = regularSeasonStandingsRepsonse;
-    const { rosters } = rostersResponse;
-    const rosterByUserId = new Map(rosters.map((row) => [row.userId, row]));
-    const standingsRows = regularSeasonStandings.map(row => ({
-        ...row,
-        roster: rosterByUserId.get(row.userId)?.players ?? []
-    }));
+    const pageData = await fetchJSON(apiURL);
+    const { matchups, standingsRows } = pageData;
     const matchupsHTML = matchups.map(renderMatchupCard).join("");
     const matchupsTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
     const standingsHTML = standingsRows.map(renderStandingsTableRowHTML).join("");
@@ -97,13 +83,13 @@ function renderMatchupCard([away, home]) {
     return `
         <div class="matchup-card">
             <div class="home-team">
-                <h3>${escapeHTML(home.team ?? home.owner)}</h3>
-                <p>${escapeHTML(home.points)}</p>
+                <h3>${escapeForHTML(home.team ?? home.owner)}</h3>
+                <p>${escapeForHTML(home.points)}</p>
             </div>
             <span>vs</span>
             <div class="away-team">
-                <h3>${escapeHTML(away.team ?? away.owner)}</h3>
-                <p>${escapeHTML(away.points)}</p>
+                <h3>${escapeForHTML(away.team ?? away.owner)}</h3>
+                <p>${escapeForHTML(away.points)}</p>
             </div>
             <dialog class="matchup-modal">
                 <button>Close</button>
@@ -120,19 +106,19 @@ function renderMatchupCard([away, home]) {
     `;
 }
 function renderPlayersHTML(players) {
-    const html = players.map(player => `<p>${escapeHTML(player.position)}</p>` +
-        `<p>${escapeHTML(player.playerName)}</p>` +
-        `<p>${escapeHTML(player.points)}</p>` +
-        `<p>${escapeHTML(player.starter ? "true" : "false")}</p>`).join('');
+    const html = players.map(player => `<p>${escapeForHTML(player.position)}</p>` +
+        `<p>${escapeForHTML(player.playerName)}</p>` +
+        `<p>${escapeForHTML(player.points)}</p>` +
+        `<p>${escapeForHTML(player.starter ? "true" : "false")}</p>`).join('');
     return html;
 }
 function renderStandingsTableRowHTML(team) {
     return `
         <tr>
-            <th scope="row">${escapeHTML(team.teamName ?? team.ownerName)}</th>
-            <td>${escapeHTML(team.pointsFor)}</td>
-            <td>${escapeHTML(team.pointsAgainst)}</td>
-            <td>${escapeHTML(team.wins)}/${escapeHTML(team.losses)}</td>
+            <th scope="row">${escapeForHTML(team.teamName ?? team.ownerName)}</th>
+            <td>${escapeForHTML(team.pointsFor)}</td>
+            <td>${escapeForHTML(team.pointsAgainst)}</td>
+            <td>${escapeForHTML(team.wins)}/${escapeForHTML(team.losses)}</td>
             <td class="roster-modal-cell">
                 <dialog class="matchup-modal rosters-modal">
                     <button>Close</button>
@@ -146,9 +132,9 @@ function renderStandingsTableRowHTML(team) {
 }
 function renderRosterPlayersHTML(players) {
     const html = players.map(player => `
-            <p>${escapeHTML(player.position)}</p>
-            <p>${escapeHTML(player.playerName)}</p>
-            <p>${escapeHTML(player.starter ? "true" : "false")}</p>
+            <p>${escapeForHTML(player.position)}</p>
+            <p>${escapeForHTML(player.playerName)}</p>
+            <p>${escapeForHTML(player.starter ? "true" : "false")}</p>
         `).join('');
     return html;
 }

@@ -1,59 +1,17 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
+import type { MatchupsPageParams } from "../api/matchups-page.js";
+import { assembleMatchupsData } from "../services/api/matchup-standings-service.js";
 import { selectLeagueState } from "../db/queries/league-state.js";
 import { config } from "../config.js";
-import { selectAllLeaguesIdsAndSeasons } from "../db/queries/leagues.js";
-import { selectLeagueMatchupsByWeekWithoutByes } from "../db/queries/matchups.js";
-import { groupAdjacentMatchups } from "../lib/helpers.js";
-import { selectLeagueRegularSeasonStats } from "../db/queries/matchup-outcomes.js";
-import { selectLeagueRosters } from "../db/queries/rosters.js";
 
-type MatchupParams = {
-    leagueId: string;
-    week: string;
-};
-
-export async function handlerServeMatchups(req: Request<MatchupParams>, res: Response) {
-    const leagueState = await selectLeagueState();
-    if (!leagueState)
-        return res.render('pages/404');
-
+// need to implement error handling like 4XX, 5XX etc
+export async function handlerServeMatchupsPage(req: Request<MatchupsPageParams>, res: Response) {
     const currentLeagueId = req.params.leagueId ?? config.league.id;
-    const currentWeek = parseInt(req.params.week) ?? leagueState.displayWeek;
-    const [
-        allLeagues,
-        orderedMatchups,
-        regularSeasonStandings,
-        rosters
-    ] = await Promise.all([
-        selectAllLeaguesIdsAndSeasons(),
-        selectLeagueMatchupsByWeekWithoutByes(currentLeagueId, currentWeek),
-        selectLeagueRegularSeasonStats(currentLeagueId),
-        selectLeagueRosters(currentLeagueId)
-    ]);
-    const [currentLeague] = allLeagues.filter(league => league.leagueId === currentLeagueId);
-    const currentLeagueSeason = currentLeague.season;
-    const matchups = groupAdjacentMatchups(orderedMatchups);
-    // rosters map for quick lookups, Map<userId, roster>
-    const rosterByUserId = new Map(
-        rosters.map(r => [r.userId, r])
-    );
-    const standingsRows = regularSeasonStandings.map(
-        row => ({
-            ...row,
-            roster: rosterByUserId.get(row.userId)?.players ?? []
-        })
-    );
+    const currentWeek = req.params.week ?? "";
 
-    return res.render('pages/matchups',
-        {
-            allLeagues,
-            currentLeagueId,
-            currentLeagueSeason,
-            currentWeek,
-            matchups,
-            standingsRows
-        }
-    );
+    const matchupsPage = await assembleMatchupsData(currentLeagueId, currentWeek);
+
+    return res.render('pages/matchups', { ...matchupsPage });
 }
 
 export async function handlerRedirectToMatchups(req: Request, res: Response) {
