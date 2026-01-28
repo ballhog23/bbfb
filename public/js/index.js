@@ -79,9 +79,8 @@ function applyState(state) {
     standingsTitle.innerHTML = state.standingsTitle;
     standingsTableBody.innerHTML = state.standingsHTML;
 }
-function renderMatchupCard([away, home]) {
+function renderMatchupCardBase([away, home]) {
     return `
-        <div class="matchup-card">
             <div class="home-team">
                 <h3>${escapeForHTML(home.team ?? home.owner)}</h3>
                 <p>${escapeForHTML(home.points)}</p>
@@ -91,18 +90,27 @@ function renderMatchupCard([away, home]) {
                 <h3>${escapeForHTML(away.team ?? away.owner)}</h3>
                 <p>${escapeForHTML(away.points)}</p>
             </div>
-            <dialog class="matchup-modal">
-                <button>Close</button>
-                <div class="matchups-dialog-wrapper">
-                    <div class="home-team-players">
-                        ${renderPlayersHTML(home.rosterPlayers)}
-                    </div>
-                    <div class="away-team-players">
-                        ${renderPlayersHTML(away.rosterPlayers)}
-                    </div>
-                </div>
-            </dialog>
-        </div>
+            `;
+}
+function renderMatchupCard([away, home]) {
+    return `
+            <article class="matchup-card">
+                ${renderMatchupCardBase([away, home])}
+                <dialog class="matchup-modal">
+                    <button>Close</button>
+                    <article class="matchups-dialog-wrapper">
+                        ${renderMatchupCardBase([away, home])}
+                        <div class="rosters-wrapper">
+                            <div class="roster home-team-players">
+                                ${renderPlayersHTML(home.rosterPlayers)}
+                            </div>
+                            <div class="roster away-team-players">
+                                ${renderPlayersHTML(away.rosterPlayers)}
+                            </div>
+                        </div>
+                    </article>
+                </dialog>
+            </article>
     `;
 }
 function renderPlayersHTML(players) {
@@ -122,7 +130,8 @@ function renderStandingsTableRowHTML(team) {
             <td class="roster-modal-cell">
                 <dialog class="matchup-modal rosters-modal">
                     <button>Close</button>
-                        <div class="matchups-dialog-wrapper">
+                        <div class="players-wrapper">
+                            <h3>${escapeForHTML(team.teamName ?? team.ownerName)}</h3>
                             ${renderRosterPlayersHTML(team.roster)}
                         </div>
                 </dialog>
