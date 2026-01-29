@@ -274,3 +274,11 @@ tbody {
     flex-direction: column;
     gap: 1rem;
 }
+
+.bracket-container {
+    display: none;
+
+    &.active {
+        display: block;
+    }
+}

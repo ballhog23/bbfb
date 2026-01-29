@@ -1,0 +1,11 @@
+mixin bracket(matchups)
+    each roundData in matchups
+        .round-container
+            h3 Round #{roundData.round}
+            each matchup in roundData.matchups
+                .matchup
+                    .team.home(class=matchup.winnerId === matchup.t1 ? 'winner' : '')
+                        span.team-name= matchup.t1 != null ? 'Team ' + matchup.t1 : 'TBD'
+                    .vs vs
+                    .team.away(class=matchup.winnerId === matchup.t2 ? 'winner' : '')
+                        span.team-name= matchup.t2 != null ? 'Team ' + matchup.t2 : 'TBD'
