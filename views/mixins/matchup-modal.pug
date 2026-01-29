@@ -1,11 +1,11 @@
 include ./player-list.pug
 
 mixin matchupModal(match)
-    - const homeTeam = match[1];
+    - const homeTeam = match[0];
     - const homeTeamStarting = homeTeam.startingRoster;
     - const homeTeamBench = homeTeam.benchRoster;
     - const homeTeamIR = homeTeam.reserveRoster;
-    - const awayTeam = match[0];
+    - const awayTeam = match[1];
     - const awayTeamStarting = awayTeam.startingRoster;
     - const awayTeamBench = awayTeam.benchRoster;
     - const awayTeamIR = awayTeam.reserveRoster;

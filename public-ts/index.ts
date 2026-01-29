@@ -227,7 +227,7 @@ function renderPlayerList(
     `;
 }
 
-function renderMatchupCardBody([away, home]: MatchupTuple) {
+function renderMatchupCardBody([home, away]: MatchupTuple) {
     const teamName = (t: MatchupRow) => t.team ?? t.owner;
 
     return `
@@ -243,7 +243,7 @@ function renderMatchupCardBody([away, home]: MatchupTuple) {
     `;
 }
 
-function renderMatchupModal([away, home]: MatchupTuple) {
+function renderMatchupModal([home, away]: MatchupTuple) {
     return `
     <dialog class="matchup-modal">
         <button>Close</button>

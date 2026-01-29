@@ -1,6 +1,6 @@
 mixin matchupCardBody(match)
-    - const homeTeam = match[1];
-    - const awayTeam = match[0];
+    - const homeTeam = match[0];
+    - const awayTeam = match[1];
     - const hasTeamName = (t) => t.team ? t.team : t.owner;
 
     .home-team

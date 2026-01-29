@@ -112,7 +112,7 @@ function renderPlayerList(players, heading) {
     </div>
     `;
 }
-function renderMatchupCardBody([away, home]) {
+function renderMatchupCardBody([home, away]) {
     const teamName = (t) => t.team ?? t.owner;
     return `
     <div class="home-team">
@@ -126,7 +126,7 @@ function renderMatchupCardBody([away, home]) {
     </div>
     `;
 }
-function renderMatchupModal([away, home]) {
+function renderMatchupModal([home, away]) {
     return `
     <dialog class="matchup-modal">
         <button>Close</button>
