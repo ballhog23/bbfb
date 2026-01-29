@@ -6,7 +6,7 @@ const weeksSelect = document.querySelector("#week-select");
 const matchupsTitle = document.querySelector(".matchups-container header h2");
 const standingsTableBody = document.querySelector(".standings-container table tbody");
 const standingsTitle = document.querySelector(".standings-container header h2");
-window.addEventListener("DOMContentLoaded", (event) => {
+window.addEventListener("DOMContentLoaded", () => {
     const initialState = {
         matchupsTitle: matchupsTitle.innerHTML,
         leagueId: leaguesSelect.value,
@@ -24,25 +24,23 @@ window.addEventListener("popstate", (event) => {
     applyState(state);
 });
 window.addEventListener("click", (event) => {
-    const clickedCard = findNearestElement(event, '.matchup-card');
-    const clickedDialog = findNearestElement(event, 'dialog');
-    const clickedStandingsRow = findNearestElement(event, 'tbody tr');
+    const clickedCard = findNearestElement(event, ".matchup-card");
+    const clickedDialog = findNearestElement(event, "dialog");
+    const clickedStandingsRow = findNearestElement(event, "tbody tr");
     if (!clickedCard && !clickedDialog && !clickedStandingsRow)
         return;
     if (clickedCard && !clickedDialog && !clickedStandingsRow) {
-        const dialog = clickedCard.querySelector('dialog');
-        dialog.showModal();
+        clickedCard.querySelector("dialog").showModal();
+        return;
     }
     if (clickedDialog) {
-        const clickedPlayersWrapper = findNearestElement(event, '.matchups-dialog-wrapper');
-        if (!clickedPlayersWrapper) {
+        const inside = findNearestElement(event, ".matchups-dialog-wrapper");
+        if (!inside)
             clickedDialog.close();
-        }
         return;
     }
     if (clickedStandingsRow) {
-        const dialog = clickedStandingsRow.querySelector('dialog');
-        dialog.showModal();
+        clickedStandingsRow.querySelector("dialog").showModal();
     }
 });
 leaguesSelect.addEventListener("change", onSelectChange);
@@ -55,18 +53,16 @@ async function onSelectChange() {
     const apiURL = `/api/matchups-page/leagues/${leagueId}/weeks/${weekValue}`;
     const pageURL = `/matchups/leagues/${leagueId}/weeks/${weekValue}`;
     const pageData = await fetchJSON(apiURL);
-    const { matchups, standingsRows } = pageData;
-    const matchupsHTML = matchups.map(renderMatchupCard).join("");
-    const matchupsTitle = `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`;
-    const standingsHTML = standingsRows.map(renderStandingsTableRowHTML).join("");
-    const standingsTitle = `${leagueSeasonOption.innerText} Regular Season Standings`;
+    const { matchups, rosters } = pageData;
+    console.log('MATCHUPS', matchups);
+    console.log('ROSTERS', rosters);
     const state = {
-        matchupsTitle,
+        matchupsTitle: `Season ${leagueSeasonOption.innerText} - ${weekOption.innerText}`,
         leagueId,
         weekValue,
-        matchupsHTML,
-        standingsTitle,
-        standingsHTML
+        matchupsHTML: matchups.map(renderMatchupCard).join(""),
+        standingsTitle: `${leagueSeasonOption.innerText} Regular Season Standings`,
+        standingsHTML: rosters.map(renderStandingsRow).join("")
     };
     history.pushState(state, "", pageURL);
     applyState(state);
@@ -79,73 +75,110 @@ function applyState(state) {
     standingsTitle.innerHTML = state.standingsTitle;
     standingsTableBody.innerHTML = state.standingsHTML;
 }
-function renderMatchupCardBase([away, home]) {
+function renderPlayerRow(player) {
+    const hasPoints = "points" in player;
     return `
-            <div class="home-team">
-                <h3>${escapeForHTML(home.team ?? home.owner)}</h3>
-                <p>${escapeForHTML(home.points)}</p>
+    <div class="player-card">
+        <img
+            class="player-avatar"
+            src="https://placehold.co/50"
+            alt="${escapeForHTML(player.playerName)} headshot"
+            loading="lazy"
+        />
+        <div class="player-info">
+            <div class="player-name">${escapeForHTML(player.playerName)}</div>
+            <div class="player-meta">
+                <span class="player-position pos-${escapeForHTML(player.position.toLowerCase())}">
+                    ${escapeForHTML(player.position)}
+                </span>
+                <span class="player-team">${escapeForHTML(player.team)}</span>
             </div>
-            <span>vs</span>
-            <div class="away-team">
-                <h3>${escapeForHTML(away.team ?? away.owner)}</h3>
-                <p>${escapeForHTML(away.points)}</p>
-            </div>
-            `;
+        </div>
+        ${hasPoints
+        ? `<div class="player-stats">
+                       <span class="stat-value">${escapeForHTML(player.points)}</span>
+                   </div>`
+        : ""}
+    </div>
+    `;
 }
-function renderMatchupCard([away, home]) {
+function renderPlayerList(players, heading) {
+    if (!players || !players.length)
+        return "";
     return `
+    ${heading ? `<h4>${escapeForHTML(heading)}</h4>` : ""}
+    <div class="lineup-wrapper">
+        ${players.map(renderPlayerRow).join("")}
+    </div>
+    `;
+}
+function renderMatchupCardBody([away, home]) {
+    const teamName = (t) => t.team ?? t.owner;
+    return `
+    <div class="home-team">
+        <h3>${escapeForHTML(teamName(home))}</h3>
+        <p>${escapeForHTML(home.points)}</p>
+    </div>
+    <span class="vs">vs</span>
+    <div class="away-team">
+        <h3>${escapeForHTML(teamName(away))}</h3>
+        <p>${escapeForHTML(away.points)}</p>
+    </div>
+    `;
+}
+function renderMatchupModal([away, home]) {
+    return `
+    <dialog class="matchup-modal">
+        <button>Close</button>
+        <section class="matchups-dialog-wrapper">
             <article class="matchup-card">
-                ${renderMatchupCardBase([away, home])}
-                <dialog class="matchup-modal">
-                    <button>Close</button>
-                    <section class="matchups-dialog-wrapper">
-                        <article class="matchup-card">
-                            ${renderMatchupCardBase([away, home])}
-                        </article>
-                        <div class="rosters-wrapper">
-                            <div class="roster home-team-players">
-                                ${renderPlayersHTML(home.rosterPlayers)}
-                            </div>
-                            <div class="roster away-team-players">
-                                ${renderPlayersHTML(away.rosterPlayers)}
-                            </div>
-                        </div>
-                    </section>
-                </dialog>
+                ${renderMatchupCardBody([away, home])}
             </article>
+
+            <div class="rosters-wrapper">
+                <div class="roster home-team-players">
+                    ${renderPlayerList(home.startingRoster, "Starting")}
+                    ${renderPlayerList(home.benchRoster, "Bench")}
+                    ${renderPlayerList(home.reserveRoster, "Injured Reserve")}
+                </div>
+
+                <div class="roster away-team-players">
+                    ${renderPlayerList(away.startingRoster, "Starting")}
+                    ${renderPlayerList(away.benchRoster, "Bench")}
+                    ${renderPlayerList(away.reserveRoster, "Injured Reserve")}
+                </div>
+            </div>
+        </section>
+    </dialog>
     `;
 }
-function renderPlayersHTML(players) {
-    const html = players.map(player => `<p>${escapeForHTML(player.position)}</p>` +
-        `<p>${escapeForHTML(player.playerName)}</p>` +
-        `<p>${escapeForHTML(player.points)}</p>` +
-        `<p>${escapeForHTML(player.starter ? "true" : "false")}</p>`).join('');
-    return html;
-}
-function renderStandingsTableRowHTML(team) {
+function renderMatchupCard(match) {
     return `
-        <tr>
-            <th scope="row">${escapeForHTML(team.teamName ?? team.ownerName)}</th>
-            <td>${escapeForHTML(team.pointsFor)}</td>
-            <td>${escapeForHTML(team.pointsAgainst)}</td>
-            <td>${escapeForHTML(team.wins)}/${escapeForHTML(team.losses)}</td>
-            <td class="roster-modal-cell">
-                <dialog class="matchup-modal rosters-modal">
-                    <button>Close</button>
-                        <div class="players-wrapper">
-                            <h3>${escapeForHTML(team.teamName ?? team.ownerName)}</h3>
-                            ${renderRosterPlayersHTML(team.roster)}
-                        </div>
-                </dialog>
-            </td>
-        </tr>
+    <article class="matchup-card">
+        ${renderMatchupCardBody(match)}
+        ${renderMatchupModal(match)}
+    </article>
     `;
 }
-function renderRosterPlayersHTML(players) {
-    const html = players.map(player => `
-            <p>${escapeForHTML(player.position)}</p>
-            <p>${escapeForHTML(player.playerName)}</p>
-            <p>${escapeForHTML(player.starter ? "true" : "false")}</p>
-        `).join('');
-    return html;
+function renderStandingsRow(team) {
+    const displayName = team.teamName ?? team.ownerName;
+    return `
+    <tr>
+        <th scope="row">${escapeForHTML(displayName)}</th>
+        <td>${escapeForHTML(team.pointsFor)}</td>
+        <td>${escapeForHTML(team.pointsAgainst)}</td>
+        <td>${escapeForHTML(team.wins)} / ${escapeForHTML(team.losses)}</td>
+        <td class="roster-modal-cell">
+            <dialog class="matchup-modal rosters-modal">
+                <button>Close</button>
+                <div class="players-wrapper">
+                    <h3>${escapeForHTML(displayName)}</h3>
+                    ${renderPlayerList(team.startingRoster, "Starting")}
+                    ${renderPlayerList(team.benchRoster, "Bench")}
+                    ${renderPlayerList(team.reserveRoster, "Injured Reserve")}
+                </div>
+            </dialog>
+        </td>
+    </tr>
+    `;
 }

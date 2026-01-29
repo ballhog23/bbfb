@@ -174,7 +174,11 @@ export async function selectLeagueRosters(leagueId: string) {
             rostersTable.wins,
             rostersTable.losses,
         )
-        .orderBy(leagueUsersTable.teamName);
+        .orderBy(
+            desc(rostersTable.wins),
+            desc(rostersTable.fpts),
+            desc(rostersTable.fptsAgainst),
+        );
 
     return result;
 }
