@@ -189,6 +189,10 @@ tbody {
 
     .player-info {
         align-items: flex-end;
+
+        .player-name {
+            text-align: right;
+        }
     }
 
     .player-meta {
@@ -265,7 +269,7 @@ tbody {
     font-size: 0.8rem;
 }
 
-.player-wrapper {
+.lineup-wrapper {
     display: flex;
     flex-direction: column;
     gap: 1rem;

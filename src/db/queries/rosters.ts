@@ -112,27 +112,27 @@ export async function selectLeagueRosters(leagueId: string) {
     const playerJson = sql<{
         playerName: string;
         position: string;
+        team: string;
     }>`
         jsonb_build_object(
             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
-            'position', ${NFLPlayersTable.position}
+            'position', ${NFLPlayersTable.position},
+            'team', ${NFLPlayersTable.team}
         )
     `;
 
     const result = await db
         .select({
-            userId: leagueUsersTable.userId,
             ownerName: sleeperUsersTable.displayName,
             teamName: leagueUsersTable.teamName,
-            season: rostersTable.season,
-
-            // Map starters IDs to player objects
+            pointsFor: rostersTable.fpts,
+            pointsAgainst: rostersTable.fptsAgainst,
+            wins: rostersTable.wins,
+            losses: rostersTable.losses,
             startingRoster: sql<(typeof playerJson)[] | null>`
                 jsonb_agg(${playerJson})
                 FILTER (WHERE ${NFLPlayersTable.playerId} = ANY(${rostersTable.starters}))
             `,
-
-            // Map reserve/IR IDs to player objects
             reserveRoster: sql<(typeof playerJson)[] | null>`
                 jsonb_agg(${playerJson})
                 FILTER (
@@ -140,8 +140,6 @@ export async function selectLeagueRosters(leagueId: string) {
                     AND ${NFLPlayersTable.playerId} = ANY(${rostersTable.reserve})
                 )
             `,
-
-            // Bench = all players excluding starters and reserve
             benchRoster: sql<(typeof playerJson)[] | null>`
                 jsonb_agg(${playerJson})
                 FILTER (
@@ -169,10 +167,12 @@ export async function selectLeagueRosters(leagueId: string) {
         )
         .where(eq(rostersTable.leagueId, leagueId))
         .groupBy(
-            leagueUsersTable.userId,
             sleeperUsersTable.displayName,
             leagueUsersTable.teamName,
-            rostersTable.season
+            rostersTable.fpts,
+            rostersTable.fptsAgainst,
+            rostersTable.wins,
+            rostersTable.losses,
         )
         .orderBy(leagueUsersTable.teamName);
 

@@ -3,6 +3,7 @@ mixin playerRow(player)
         img.player-avatar(
             src=player.image || "https://placehold.co/50",
             alt=`${player.playerName} headshot`
+            loading='lazy'
         )
 
         .player-info

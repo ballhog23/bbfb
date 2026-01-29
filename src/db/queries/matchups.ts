@@ -173,6 +173,7 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
         playerName: string;
         position: string;
         points: string;
+        team: string;
     }>`
     jsonb_build_object(
         'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
@@ -191,27 +192,24 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
             owner: sleeperUsersTable.displayName,
             points: matchupsTable.points,
             startingRoster: sql<(typeof playerJson)[] | null>`
-            COALESCE(
-                jsonb_agg(${playerJson}) FILTER (
-                    WHERE player_scoring.player_id = ANY(${rostersTable.starters})
-                ), NULL
-            )
-        `,
+                jsonb_agg(${playerJson})
+                FILTER (WHERE ${NFLPlayersTable.playerId} = ANY(${rostersTable.starters}))
+            `,
             reserveRoster: sql<(typeof playerJson)[] | null>`
-            COALESCE(
-                jsonb_agg(${playerJson}) FILTER (
-                    WHERE ${NFLPlayersTable.playerId} = ANY(${rostersTable.reserve})
-                ), NULL
-            )
-        `,
+                jsonb_agg(${playerJson})
+                FILTER (
+                    WHERE ${rostersTable.reserve} IS NOT NULL
+                    AND ${NFLPlayersTable.playerId} = ANY(${rostersTable.reserve})
+                )
+            `,
             benchRoster: sql<(typeof playerJson)[] | null>`
-            COALESCE(
-                jsonb_agg(${playerJson}) FILTER (
-                    WHERE player_scoring.player_id <> ALL(${rostersTable.starters})
+                jsonb_agg(${playerJson})
+                FILTER (
+                    WHERE ${NFLPlayersTable.playerId} = ANY(${rostersTable.players})
+                    AND ${NFLPlayersTable.playerId} <> ALL(${rostersTable.starters})
                     AND (${rostersTable.reserve} IS NULL OR ${NFLPlayersTable.playerId} <> ALL(${rostersTable.reserve}))
-                ), NULL
-            )
-        `,
+                )
+            `,
         })
         .from(matchupsTable)
         .innerJoin(

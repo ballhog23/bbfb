@@ -11,7 +11,7 @@ export async function handlerServeMatchupsPage(req: Request<MatchupsPageParams>,
     return res.render('pages/matchups', { ...matchupsPage });
 }
 
-export async function handlerRedirectToMatchups(req: Request, res: Response) {
+export async function handlerRedirectToMatchups(_: Request, res: Response) {
     const leagueState = await selectLeagueState();
     if (!leagueState)
         return res.render('pages/404');
