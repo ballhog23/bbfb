@@ -7,10 +7,6 @@ block content
         section.matchups-container
             header
                 h2 Season #{currentLeagueSeason} - Week #{currentWeek}
-                .select-wrapper
-                    include ../partials/league-select.pug
-                    include ../partials/week-select.pug
-            section#matchups-wrapper
-                include ../partials/matchups-section.pug
-        section.standings-container
-            include ../partials/standings-section.pug
+            if currentWeek < 15
+                include ../partials/regular-season-matchups.pug
+
