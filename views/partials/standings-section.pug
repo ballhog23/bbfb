@@ -11,5 +11,5 @@ section#standings-wrapper
                 th(scope="col") Points Against
                 th(scope="col") W/L
         tbody
-            each team in standingsRows
-                +standingsRow(team)
+            each roster in rosters
+                +standingsRow(roster)

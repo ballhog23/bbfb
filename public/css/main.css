@@ -103,7 +103,7 @@ header {
         align-items: flex-end;
     }
 
-    span {
+    span.vs {
         display: flex;
         align-items: center;
         font-size: 2rem;
@@ -168,4 +168,105 @@ tbody {
     height: 0;
     padding: 0;
     border: 0;
+}
+
+.player-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--ff-bg-card);
+    border: 1px solid var(--ff-border-default);
+    border-radius: 0.5rem;
+    box-shadow: var(--ff-shadow-card);
+    color: var(--ff-text-primary);
+}
+
+.away-team-players {
+    .player-card {
+        flex-direction: row-reverse;
+    }
+
+    .player-info {
+        align-items: flex-end;
+    }
+
+    .player-meta {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .player-stats {
+        justify-content: flex-start;
+    }
+}
+
+.player-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 0.375rem;
+    object-fit: cover;
+    background: var(--ff-bg-surface);
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.player-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.player-meta {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--ff-text-muted);
+    align-items: center;
+}
+
+.player-position {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.pos-qb {
+    color: rgb(252, 43, 109);
+}
+
+.pos-rb {
+    color: rgb(32, 206, 184);
+}
+
+.pos-wr {
+    color: rgb(89, 167, 255);
+}
+
+.pos-te {
+    color: rgb(254, 174, 88);
+}
+
+.pos-def {
+    color: rgb(191, 95, 64);
+}
+
+.player-team {
+    opacity: 0.8;
+}
+
+.player-stats {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 0.8rem;
+}
+
+.player-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }

@@ -109,53 +109,72 @@ export async function selectUserRosters(userId: string) {
 
 // per season
 export async function selectLeagueRosters(leagueId: string) {
+    const playerJson = sql<{
+        playerName: string;
+        position: string;
+    }>`
+        jsonb_build_object(
+            'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
+            'position', ${NFLPlayersTable.position}
+        )
+    `;
+
     const result = await db
         .select({
             userId: leagueUsersTable.userId,
             ownerName: sleeperUsersTable.displayName,
             teamName: leagueUsersTable.teamName,
             season: rostersTable.season,
-            wins: rostersTable.wins,
-            losses: rostersTable.losses,
-            players: sql<{
-                playerName: string;
-                position: string;
-                starter: boolean;
-            }[]>
-                `
-                    jsonb_agg(
-                        jsonb_build_object(
-                            'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
-                            'position', ${NFLPlayersTable.position},
-                            'starter', CASE
-                                        WHEN ${NFLPlayersTable.playerId} = ANY(${rostersTable.starters}) THEN TRUE
-                                        ELSE FALSE
-                                        END
 
-                        )
-                    )
-                `,
+            // Map starters IDs to player objects
+            startingRoster: sql<(typeof playerJson)[] | null>`
+                jsonb_agg(${playerJson})
+                FILTER (WHERE ${NFLPlayersTable.playerId} = ANY(${rostersTable.starters}))
+            `,
+
+            // Map reserve/IR IDs to player objects
+            reserveRoster: sql<(typeof playerJson)[] | null>`
+                jsonb_agg(${playerJson})
+                FILTER (
+                    WHERE ${rostersTable.reserve} IS NOT NULL
+                    AND ${NFLPlayersTable.playerId} = ANY(${rostersTable.reserve})
+                )
+            `,
+
+            // Bench = all players excluding starters and reserve
+            benchRoster: sql<(typeof playerJson)[] | null>`
+                jsonb_agg(${playerJson})
+                FILTER (
+                    WHERE ${NFLPlayersTable.playerId} = ANY(${rostersTable.players})
+                    AND ${NFLPlayersTable.playerId} <> ALL(${rostersTable.starters})
+                    AND (${rostersTable.reserve} IS NULL OR ${NFLPlayersTable.playerId} <> ALL(${rostersTable.reserve}))
+                )
+            `,
         })
         .from(rostersTable)
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
                 eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
-        .innerJoin(sleeperUsersTable,
-            eq(rostersTable.rosterOwnerId, sleeperUsersTable.userId),
+        .innerJoin(
+            sleeperUsersTable,
+            eq(rostersTable.rosterOwnerId, sleeperUsersTable.userId)
         )
-        .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
+        .innerJoin(
+            NFLPlayersTable,
+            sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`
+        )
         .where(eq(rostersTable.leagueId, leagueId))
         .groupBy(
             leagueUsersTable.userId,
             sleeperUsersTable.displayName,
             leagueUsersTable.teamName,
-            rostersTable.season,
-            rostersTable.wins,
-            rostersTable.losses
-        );
+            rostersTable.season
+        )
+        .orderBy(leagueUsersTable.teamName);
 
     return result;
 }

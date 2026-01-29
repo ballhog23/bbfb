@@ -1,8 +1,12 @@
 mixin matchupModal(match)
     - const homeTeam = match[1];
-    - const homeTeamPlayers = homeTeam.rosterPlayers;
+    - const homeTeamStarting = homeTeam.startingRoster;
+    - const homeTeamBench = homeTeam.benchRoster;
+    - const homeTeamIR = homeTeam.reserveRoster;
     - const awayTeam = match[0];
-    - const awayTeamPlayers = awayTeam.rosterPlayers;
+    - const awayTeamStarting = awayTeam.startingRoster;
+    - const awayTeamBench = awayTeam.benchRoster;
+    - const awayTeamIR = awayTeam.reserveRoster;
     
     dialog.matchup-modal
         button Close
@@ -11,14 +15,36 @@ mixin matchupModal(match)
                 +matchupCardBody(match)
             div.rosters-wrapper
                 .roster.home-team-players
-                    each player in homeTeamPlayers
-                        p= player.position
-                        p= player.playerName
-                        p= player.points
-                        p= player.starter
+                    include ./player-row.pug
+                    if homeTeamStarting != null
+                        h4 Starting
+                        .player-wrapper
+                            each player in homeTeamStarting
+                                +playerRow(player)
+                    if homeTeamBench != null
+                        h4 Bench
+                        .player-wrapper
+                            each player in homeTeamBench
+                                +playerRow(player)
+                    if homeTeamIR != null
+                        h4 Injured Reserve
+                        .player-wrapper
+                            each player in homeTeamIR
+                                +playerRow(player)
+                        
                 .roster.away-team-players
-                    each player in awayTeamPlayers
-                        p= player.position
-                        p= player.playerName
-                        p= player.points
-                        p= player.starter
+                    if awayTeamStarting != null
+                        h4 Starting
+                        .player-wrapper
+                            each player in awayTeamStarting
+                                +playerRow(player)
+                    if awayTeamBench != null
+                        h4 Bench
+                        .player-wrapper                       
+                            each player in awayTeamBench
+                                +playerRow(player)
+                    if awayTeamIR != null
+                        h4 Injured Reserve
+                        .player-wrapper
+                            each player in awayTeamIR
+                                +playerRow(player)

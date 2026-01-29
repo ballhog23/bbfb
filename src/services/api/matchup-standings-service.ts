@@ -2,7 +2,6 @@ import type { MatchupsPageParams } from "../../api/matchups-page.js";
 import { groupAdjacentMatchups } from "../../lib/helpers.js";
 import { selectAllLeaguesIdsAndSeasons } from "../../db/queries/leagues.js";
 import { selectLeagueMatchupsByWeekWithoutByes } from "../../db/queries/matchups.js";
-import { selectLeagueRegularSeasonStats } from "../../db/queries/matchup-outcomes.js";
 import { selectLeagueRosters } from "../../db/queries/rosters.js";
 import { selectLeagueState } from "../../db/queries/league-state.js";
 import { config } from "../../config.js";
@@ -16,10 +15,9 @@ export async function assembleMatchupsData(leagueIdParam: MatchupsPageParams["le
     const parsedWeek = parseInt(weekParam);
     const currentWeek = isNaN(parsedWeek) ? leagueState.displayWeek : parsedWeek;
 
-    const [allLeagues, orderedMatchups, regularSeasonStandings, rosters] = await Promise.all([
+    const [allLeagues, orderedMatchups, rosters] = await Promise.all([
         selectAllLeaguesIdsAndSeasons(),
         selectLeagueMatchupsByWeekWithoutByes(currentLeagueId, currentWeek),
-        selectLeagueRegularSeasonStats(currentLeagueId),
         selectLeagueRosters(currentLeagueId)
     ]);
 
@@ -30,14 +28,8 @@ export async function assembleMatchupsData(leagueIdParam: MatchupsPageParams["le
     const currentLeagueSeason = currentLeague.season;
 
     const matchups = groupAdjacentMatchups(orderedMatchups);
-
-    const rosterByUserId = new Map(rosters.map(r => [r.userId, r]));
-    const standingsRows = regularSeasonStandings.map(row => ({
-        ...row,
-        roster: (rosterByUserId.get(row.userId)?.players ?? []).sort(
-            (a, b) => Number(b.starter) - Number(a.starter)
-        )
-    }));
+    console.dir(rosters, { depth: null });
+    console.dir(matchups, { depth: null });
 
     return {
         allLeagues,
@@ -45,7 +37,7 @@ export async function assembleMatchupsData(leagueIdParam: MatchupsPageParams["le
         currentLeagueSeason,
         currentWeek,
         matchups,
-        standingsRows
+        rosters
     };
 }
 
