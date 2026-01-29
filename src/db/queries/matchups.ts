@@ -191,14 +191,12 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
             team: leagueUsersTable.teamName,
             owner: sleeperUsersTable.displayName,
             points: matchupsTable.points,
-
             startingRoster: sql<(typeof playerJson)[] | null>`
                 jsonb_agg(${playerJson})
                 FILTER (
                     WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
                 )
             `,
-
             benchRoster: sql<(typeof playerJson)[] | null>`
                 jsonb_agg(${playerJson})
                 FILTER (
@@ -206,7 +204,7 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
                     AND ${NFLPlayersTable.playerId} <> ALL(${matchupsTable.starters})
                 )
             `,
-            reserveRoster: sql<null>`NULL`,
+            reserveRoster: sql<null>`NULL`, // we could support snapshotting IR at time of matchup but not now
         })
         .from(matchupsTable)
         .innerJoin(
