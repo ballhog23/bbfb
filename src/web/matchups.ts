@@ -16,15 +16,15 @@ export async function handlerServeMatchupsPage(req: Request<MatchupsPageParams>,
             req.params.week
         );
         return res.render('pages/matchups', { ...matchupsPage });
-    } else {
-        const matchupsPage = await assemblePostSeasonMatchupsData(
-            leagueState,
-            req.params.leagueId,
-            req.params.week
-        );
-        return res.render('pages/matchups', { ...matchupsPage });
     }
 
+    // render postseason 
+    const matchupsPage = await assemblePostSeasonMatchupsData(
+        leagueState,
+        req.params.leagueId,
+        req.params.week
+    );
+    return res.render('pages/matchups', { ...matchupsPage });
 }
 
 export async function handlerRedirectToMatchups(_: Request, res: Response) {

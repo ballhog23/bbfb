@@ -1,0 +1,18 @@
+//- Post-season bracket view
+.post-season-container
+  //- League/Season selector (reuse)
+  include ./league-select.pug
+
+  //- Bracket toggle
+  .bracket-toggle
+    label(for="bracket-select") Select Bracket:
+    select#bracket-select(name="select-bracket")
+      option(value="winnersBracket" selected) Winners
+      option(value="losersBracket") Losers
+
+  //- Container for playoff bracket
+  section.playoff-bracket
+    each bracketType in ['winnersBracket', 'losersBracket']
+      - const bracket = matchups[bracketType]
+      .bracket-container(data-bracket-type=bracketType)
+        h2= bracketType === 'winnersBracket' ? 'Winners Bracket' : 'Losers Bracket'

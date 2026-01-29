@@ -5,7 +5,7 @@ import { selectLeagueMatchupsByWeekWithoutByes } from "../../db/queries/matchups
 import { selectLeagueRosters } from "../../db/queries/rosters.js";
 import { selectLeagueState } from "../../db/queries/league-state.js";
 import { config } from "../../config.js";
-import { SelectLeagueState } from "../../db/schema.js";
+import { SelectLeagueState, SelectPlayoffMatchup } from "../../db/schema.js";
 import { selectPlayoffMatchupsPerSeason } from "../../db/queries/playoffs.js";
 
 export async function discernMatchupsView(weekParam: MatchupsPageParams["week"]) {
@@ -32,10 +32,9 @@ export async function assemblePostSeasonMatchupsData(
     const currentLeagueId = leagueIdParam ?? config.league.id;
     const requestedWeekParam = parseInt(weekParam);
     const defaultWeek = isNaN(requestedWeekParam) ? leagueState.displayWeek : requestedWeekParam;
-    // clamping week to be between 15-17
+
+    // clamp week to 15-17
     const clampedWeek = Math.min(17, Math.max(15, defaultWeek));
-    // never allow requested week to escape weeks 15-17, if its week 16 and someone requests 17, the min is taken
-    // and the query runs properly
     const currentWeek = Math.min(clampedWeek, leagueState.displayWeek);
 
     const [allLeagues, brackets, rosters] = await Promise.all([
@@ -45,12 +44,18 @@ export async function assemblePostSeasonMatchupsData(
     ]);
 
     const currentLeague = allLeagues.find(l => l.leagueId === currentLeagueId);
-    if (!currentLeague)
-        throw new Error(`League ${currentLeagueId} not found`);
+    if (!currentLeague) throw new Error(`League ${currentLeagueId} not found`);
 
     const currentLeagueSeason = currentLeague.season;
-    const winnersBracket = brackets.filter(matchup => matchup.bracketType === 'winners_bracket');
-    const losersBracket = brackets.filter(matchup => matchup.bracketType === 'losers_bracket');
+
+    // group brackets by type & rounds
+    const winnersBracket = groupPlayoffMatchupsByRound(
+        brackets.filter(m => m.bracketType === 'winners_bracket')
+    );
+    const losersBracket = groupPlayoffMatchupsByRound(
+        brackets.filter(m => m.bracketType === 'losers_bracket')
+    );
+
     const matchups = { winnersBracket, losersBracket };
 
     return {
@@ -61,6 +66,24 @@ export async function assemblePostSeasonMatchupsData(
         matchups,
         rosters
     };
+}
+
+function groupPlayoffMatchupsByRound(matchups: SelectPlayoffMatchup[]) {
+    const roundsMap: Record<number, SelectPlayoffMatchup[]> = {};
+
+    matchups.forEach(matchup => {
+        if (!roundsMap[matchup.round]) roundsMap[matchup.round] = [];
+        roundsMap[matchup.round].push(matchup);
+    });
+
+    const rounds = Object.keys(roundsMap)
+        .map(r => ({
+            round: parseInt(r),
+            matchups: roundsMap[parseInt(r)]
+        }))
+        .sort((a, b) => a.round - b.round);
+
+    return rounds;
 }
 
 export async function assembleRegularSeasonMatchupsData(
@@ -96,17 +119,4 @@ export async function assembleRegularSeasonMatchupsData(
     };
 }
 
-// export async function assembleMatchupsData(leagueIdParam: MatchupsPageParams["leagueId"], weekParam: MatchupsPageParams["week"]) {
-//     const viewState = discernMatchupsView();
-//     const { matchupsView, leagueState } = viewState;
 
-//     if (matchupsView === 'regular') {
-//         // render regular season view
-//     } else {
-//         // render postseason view
-//     }
-
-// }
-
-// export type AssembleMatchupsDataResponse =
-//     Awaited<ReturnType<typeof assembleMatchupsData>>;

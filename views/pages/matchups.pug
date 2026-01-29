@@ -9,4 +9,6 @@ block content
                 h2 Season #{currentLeagueSeason} - Week #{currentWeek}
             if currentWeek < 15
                 include ../partials/regular-season-matchups.pug
+            else
+                include ../partials/post-season-matchups.pug
 
