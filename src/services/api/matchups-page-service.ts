@@ -5,8 +5,8 @@ import { selectLeagueMatchupsByWeekWithoutByes } from "../../db/queries/matchups
 import { selectLeagueRosters } from "../../db/queries/rosters.js";
 import { selectLeagueState } from "../../db/queries/league-state.js";
 import { config } from "../../config.js";
-import { SelectLeagueState, SelectPlayoffMatchup } from "../../db/schema.js";
-import { selectPlayoffMatchupsPerSeason } from "../../db/queries/playoffs.js";
+import { SelectLeagueState } from "../../db/schema.js";
+import { selectPlayoffMatchupsWithDetails } from "../../db/queries/playoffs.js";
 
 export async function discernMatchupsView(weekParam: MatchupsPageParams["week"]) {
     const leagueState = await selectLeagueState();
@@ -37,9 +37,9 @@ export async function assemblePostSeasonMatchupsData(
     const clampedWeek = Math.min(17, Math.max(15, defaultWeek));
     const currentWeek = Math.min(clampedWeek, leagueState.displayWeek);
 
-    const [allLeagues, brackets, rosters] = await Promise.all([
+    const [allLeagues, playoffResults, rosters] = await Promise.all([
         selectAllLeaguesIdsAndSeasons(),
-        selectPlayoffMatchupsPerSeason(currentLeagueId),
+        selectPlayoffMatchupsWithDetails(currentLeagueId),
         selectLeagueRosters(currentLeagueId)
     ]);
 
@@ -48,15 +48,8 @@ export async function assemblePostSeasonMatchupsData(
 
     const currentLeagueSeason = currentLeague.season;
 
-    // group brackets by type & rounds
-    const winnersBracket = groupPlayoffMatchupsByRound(
-        brackets.filter(m => m.bracketType === 'winners_bracket')
-    );
-    const losersBracket = groupPlayoffMatchupsByRound(
-        brackets.filter(m => m.bracketType === 'losers_bracket')
-    );
-
-    const matchups = { winnersBracket, losersBracket };
+    // Transform the flat query results into structured bracket data
+    const matchups = transformPlayoffDataForView(playoffResults);
 
     return {
         allLeagues,
@@ -68,22 +61,72 @@ export async function assemblePostSeasonMatchupsData(
     };
 }
 
-function groupPlayoffMatchupsByRound(matchups: SelectPlayoffMatchup[]) {
-    const roundsMap: Record<number, SelectPlayoffMatchup[]> = {};
+function transformPlayoffDataForView(queryResults: Awaited<ReturnType<typeof selectPlayoffMatchupsWithDetails>>) {
+    const grouped: Record<string, any> = {};
 
-    matchups.forEach(matchup => {
-        if (!roundsMap[matchup.round]) roundsMap[matchup.round] = [];
-        roundsMap[matchup.round].push(matchup);
+    // Group by bracket type and round
+    queryResults.forEach(row => {
+        const key = `${row.bracketType}-${row.round}`;
+        if (!grouped[key]) {
+            grouped[key] = {
+                bracketType: row.bracketType,
+                round: row.round,
+                matchups: []
+            };
+        }
+
+        grouped[key].matchups.push({
+            bracketMatchupId: row.bracketMatchupId,
+            week: row.week,
+            matchupId: row.matchupId,
+            winnerId: row.winnerId,
+            loserId: row.loserId,
+            place: row.place,
+
+            // Team 1
+            t1: row.t1RosterId,
+            team1: row.t1Team,
+            owner1: row.t1Owner,
+            points1: row.t1Points,
+            startingRoster1: row.t1StartingRoster,
+            benchRoster1: row.t1BenchRoster,
+
+            // Team 2
+            t2: row.t2RosterId,
+            team2: row.t2Team,
+            owner2: row.t2Owner,
+            points2: row.t2Points,
+            startingRoster2: row.t2StartingRoster,
+            benchRoster2: row.t2BenchRoster,
+
+            // Navigation
+            t1FromWinner: row.t1FromWinner,
+            t1FromLoser: row.t1FromLoser,
+            t2FromWinner: row.t2FromWinner,
+            t2FromLoser: row.t2FromLoser,
+        });
     });
 
-    const rounds = Object.keys(roundsMap)
-        .map(r => ({
-            round: parseInt(r),
-            matchups: roundsMap[parseInt(r)]
-        }))
-        .sort((a, b) => a.round - b.round);
+    // Separate into winners and losers brackets
+    const winnersBracket: any[] = [];
+    const losersBracket: any[] = [];
 
-    return rounds;
+    Object.values(grouped).forEach((roundData: any) => {
+        if (roundData.bracketType === 'winners_bracket') {
+            winnersBracket.push(roundData);
+        } else if (roundData.bracketType === 'losers_bracket') {
+            losersBracket.push(roundData);
+        }
+    });
+
+    // Sort by round
+    winnersBracket.sort((a, b) => a.round - b.round);
+    losersBracket.sort((a, b) => a.round - b.round);
+
+    return {
+        winnersBracket,
+        losersBracket
+    };
 }
 
 export async function assembleRegularSeasonMatchupsData(
@@ -118,5 +161,3 @@ export async function assembleRegularSeasonMatchupsData(
         rosters
     };
 }
-
-
