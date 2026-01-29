@@ -1,36 +1,11 @@
-mixin bracket(matchups)
-    each roundData in matchups
-        .round-container
-            h3 Round #{roundData.round}
-            each matchup in roundData.matchups
-                .matchup
-                    //- Team 1
-                    .team.home(class=matchup.winnerId === matchup.t1 ? 'winner' : '')
-                        span.team-name= matchup.team1 || 'TBD'
-                        if matchup.owner1
-                            span.owner= `(${matchup.owner1})`
-                        if matchup.points1 != null
-                            span.score= matchup.points1
+include ./bracket-matchup-card.pug
 
-                        //- Optional: top 3 players with points
-                        if matchup.startingRoster1
-                            ul.roster
-                                each player, i in matchup.startingRoster1
-                                    if i < 3
-                                        li= `${player.playerName} (${player.points || 0})`
-
-                    .vs vs
-
-                    //- Team 2
-                    .team.away(class=matchup.winnerId === matchup.t2 ? 'winner' : '')
-                        span.team-name= matchup.team2 || 'TBD'
-                        if matchup.owner2
-                            span.owner= `(${matchup.owner2})`
-                        if matchup.points2 != null
-                            span.score= matchup.points2
-
-                        if matchup.startingRoster2
-                            ul.roster
-                                each player, i in matchup.startingRoster2
-                                    if i < 3
-                                        li= `${player.playerName} (${player.points || 0})`
+mixin bracket(roundsData)
+    .bracket-rounds
+        each roundData in roundsData
+            .round-container
+                .round-header
+                    h3 Round #{roundData.round}
+                .round-matchups
+                    each matchup in roundData.matchups
+                        +bracketMatchupCard(matchup)

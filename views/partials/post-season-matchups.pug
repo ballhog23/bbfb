@@ -1,15 +1,22 @@
 include ../mixins/bracket.pug
 
 .post-season-container
-    include ./league-select.pug
+    .select-wrapper
+        include ./league-select.pug
 
     .bracket-tabs
         button.tab-button.active(data-bracket="winnersBracket") Winners
         button.tab-button(data-bracket="losersBracket") Losers
 
     section.playoff-bracket
-        each bracketType in ['winnersBracket', 'losersBracket']
-            - const bracketData = matchups[bracketType]
-            .bracket-container(data-bracket-type=bracketType class=bracketType === 'winnersBracket' ? 'active' : '')
-                h2= bracketType === 'winnersBracket' ? 'Winners Bracket' : 'Losers Bracket'
-                +bracket(bracketData)
+        .bracket-container.active(data-bracket-type="winnersBracket")
+            if matchups.winnersBracket && matchups.winnersBracket.length > 0
+                +bracket(matchups.winnersBracket)
+            else
+                p.no-data No winners bracket data available
+        
+        .bracket-container(data-bracket-type="losersBracket")
+            if matchups.losersBracket && matchups.losersBracket.length > 0
+                +bracket(matchups.losersBracket)
+            else
+                p.no-data No losers bracket data available

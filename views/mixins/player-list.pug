@@ -1,9 +1,9 @@
 include ./player-row.pug
 
-mixin playerList(players, heading)
-    if players != null && players.length
-        if heading
-            h4= heading
-        .lineup-wrapper
-            each player in players
-                +playerRow(player)
+mixin playerList(players, label)
+    if players && players.length > 0
+        .player-list-section
+            h4.roster-section-label= label
+            .player-list
+                each player in players
+                    +playerRow(player)

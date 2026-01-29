@@ -1,0 +1,21 @@
+include ./player-list.pug
+
+mixin bracketMatchupModal(matchup)
+    - const team1Starting = matchup.startingRoster1 || [];
+    - const team1Bench = matchup.benchRoster1 || [];
+    - const team2Starting = matchup.startingRoster2 || [];
+    - const team2Bench = matchup.benchRoster2 || [];
+    
+    dialog.matchup-modal
+        button Close
+        section.matchups-dialog-wrapper
+            article.matchup-card
+                +bracketMatchupCardBody(matchup)
+            div.rosters-wrapper
+                .roster.home-team-players
+                    +playerList(team1Starting, 'Starting')
+                    +playerList(team1Bench, 'Bench')
+                        
+                .roster.away-team-players
+                    +playerList(team2Starting, 'Starting')
+                    +playerList(team2Bench, 'Bench')

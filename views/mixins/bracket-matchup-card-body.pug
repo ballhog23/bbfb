@@ -1,0 +1,19 @@
+mixin bracketMatchupCardBody(matchup)
+    - const hasTeamName = (team, owner) => team ? team : owner || 'TBD';
+    - const isWinner = (rosterId) => matchup.winnerId === rosterId;
+
+    .home-team(class=isWinner(matchup.t1) ? 'winner' : '')
+        h3= hasTeamName(matchup.team1, matchup.owner1)
+        if matchup.points1 !== null && matchup.points1 !== undefined
+            p= parseFloat(matchup.points1).toFixed(2)
+        else
+            p TBD
+    
+    span.vs vs
+    
+    .away-team(class=isWinner(matchup.t2) ? 'winner' : '')
+        h3= hasTeamName(matchup.team2, matchup.owner2)
+        if matchup.points2 !== null && matchup.points2 !== undefined
+            p= parseFloat(matchup.points2).toFixed(2)
+        else
+            p TBD
