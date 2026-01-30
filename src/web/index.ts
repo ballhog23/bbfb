@@ -18,5 +18,5 @@ export async function handlerServeIndex(req: Request, res: Response) {
 
     const results = await Promise.all(queries);
     const [winner, loser] = results;
-    return res.render('pages/index', { leagueState, winner, loser });
+    return res.render('pages/index', { leagueState, winner, loser, page: 'homepage' });
 }

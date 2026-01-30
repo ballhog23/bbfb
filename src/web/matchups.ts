@@ -16,7 +16,7 @@ export async function handlerServeMatchupsPage(req: Request<MatchupsPageParams>,
         req.params.week
     );
 
-    return res.render('pages/matchups', { ...matchupsPage });
+    return res.render('pages/matchups', { ...matchupsPage, page: 'matchups' });
 }
 
 export async function handlerRedirectToMatchups(_: Request, res: Response) {
