@@ -1,12 +1,13 @@
 include ../mixins/bracket.pug
 
 .post-season-container
-    .select-wrapper
-        include ./league-select.pug
+    .controls-wrapper
+        .select-wrapper
+            include ./league-select.pug
 
-    .bracket-tabs
-        button.tab-button.active(data-bracket="winnersBracket") Winners
-        button.tab-button(data-bracket="losersBracket") Losers
+        .bracket-tabs
+            button.tab-button.active(data-bracket="winnersBracket") Winners
+            button.tab-button(data-bracket="losersBracket") Losers
 
     section.playoff-bracket
         .bracket-container.active(data-bracket-type="winnersBracket")

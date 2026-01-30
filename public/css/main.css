@@ -77,37 +77,143 @@ header {
 .select-wrapper {
     display: flex;
     justify-content: space-around;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.league-select-wrapper,
+.week-select-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.league-select-wrapper label,
+.week-select-wrapper label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ff-text-secondary);
+}
+
+#league-select,
+#week-select {
+    padding: 0.625rem 1rem;
+    background: var(--ff-bg-surface);
+    color: var(--ff-text-primary);
+    border: 1px solid var(--ff-border-default);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 150px;
+}
+
+#league-select:hover,
+#week-select:hover {
+    border-color: var(--ff-border-strong);
+    background: var(--ff-bg-row-hover);
+}
+
+#league-select:focus,
+#week-select:focus {
+    outline: none;
+    border-color: var(--ff-blue-primary);
+    box-shadow: 0 0 0 3px rgba(0, 51, 160, 0.1);
 }
 
 #matchups-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .matchup-card {
     display: flex;
     flex-direction: row;
-    gap: 2rem;
-    background-color: var(--ff-bg-card);
+    align-items: center;
+    gap: 1rem;
+    background: rgba(17, 24, 39, 0.7);
+    backdrop-filter: blur(8px);
     color: var(--ff-text-primary);
+    border: 1px solid var(--ff-border-default);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    min-height: 60px;
+
+    &:hover {
+        background: rgba(17, 24, 39, 0.85);
+        border-color: var(--ff-blue-primary);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
 
     .home-team,
     .away-team {
         display: flex;
-        flex-direction: column;
-        flex-grow: 1;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex: 1;
+        gap: 0.75rem;
+        min-width: 0;
+    }
+
+    .home-team h3,
+    .away-team h3 {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--ff-text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+    }
+
+    .home-team p,
+    .away-team p {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--ff-blue-highlight);
+        min-width: 50px;
+        text-align: right;
     }
 
     .away-team {
-        align-items: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .away-team h3 {
+        text-align: right;
+    }
+
+    .away-team p {
+        text-align: left;
     }
 
     span.vs {
         display: flex;
         align-items: center;
-        font-size: 2rem;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--ff-text-muted);
+        min-width: 30px;
+        flex-shrink: 0;
     }
+}
+
+.matchup-card .winner h3 {
+    color: var(--ff-win);
+}
+
+.matchup-card .winner p {
+    color: var(--ff-win);
 }
 
 dialog {
@@ -275,10 +381,194 @@ tbody {
     gap: 1rem;
 }
 
+.matchups-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    width: 100%;
+}
+
+.post-season-container {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 1rem;
+}
+
 .bracket-container {
     display: none;
 
     &.active {
         display: block;
+    }
+}
+
+.bracket-rounds {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.round-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.round-header {
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.round-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ff-blue-highlight);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.round-matchups {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.matchups-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+}
+
+.season-navigation {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-link {
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--ff-border-default);
+    background: var(--ff-btn-secondary-bg);
+    color: var(--ff-text-secondary);
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    background: var(--ff-bg-row-hover);
+    border-color: var(--ff-border-strong);
+}
+
+.nav-link.active {
+    background: var(--ff-blue-primary);
+    color: var(--ff-text-primary);
+    border-color: var(--ff-blue-primary);
+}
+
+.controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.bracket-tabs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tab-button {
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--ff-border-default);
+    background: var(--ff-btn-secondary-bg);
+    color: var(--ff-text-secondary);
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-button:hover {
+    background: var(--ff-bg-row-hover);
+    border-color: var(--ff-border-strong);
+}
+
+.tab-button.active {
+    background: var(--ff-blue-primary);
+    color: var(--ff-text-primary);
+    border-color: var(--ff-blue-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .matchup-card {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        min-height: auto;
+    }
+
+    .matchup-card .home-team,
+    .matchup-card .away-team {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .matchup-card .away-team {
+        flex-direction: row;
+    }
+
+    .matchup-card .away-team h3 {
+        text-align: left;
+    }
+
+    .matchup-card span.vs {
+        font-size: 0.7rem;
+    }
+
+    .select-wrapper {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    #league-select,
+    #week-select {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .controls-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .bracket-tabs {
+        justify-content: center;
+    }
+
+    .matchups-header {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 0.75rem;
+    }
+
+    .season-navigation {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .round-header h3 {
+        font-size: 1rem;
     }
 }

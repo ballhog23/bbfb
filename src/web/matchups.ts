@@ -1,29 +1,21 @@
 import type { Request, Response } from "express";
-import type { MatchupsPageParams } from "../api/matchups-page.js";
-import { discernMatchupsView, assemblePostSeasonMatchupsData, assembleRegularSeasonMatchupsData } from "../services/api/matchups-page-service.js";
+import { assembleMatchupsPageData } from "../services/api/matchups-page-service.js";
 import { selectLeagueState } from "../db/queries/league-state.js";
 import { config } from "../config.js";
 
-// need to implement error handling like 4XX, 5XX etc
+
+
+export type MatchupsPageParams = {
+    leagueId: string;
+    week: string;
+};
+
 export async function handlerServeMatchupsPage(req: Request<MatchupsPageParams>, res: Response) {
-    const matchupsViewModel = await discernMatchupsView(req.params.week);
-    const { matchupsView, leagueState } = matchupsViewModel;
-
-    if (matchupsView === 'regular') {
-        const matchupsPage = await assembleRegularSeasonMatchupsData(
-            leagueState,
-            req.params.leagueId,
-            req.params.week
-        );
-        return res.render('pages/matchups', { ...matchupsPage });
-    }
-
-    // render postseason 
-    const matchupsPage = await assemblePostSeasonMatchupsData(
-        leagueState,
+    const matchupsPage = await assembleMatchupsPageData(
         req.params.leagueId,
         req.params.week
     );
+
     return res.render('pages/matchups', { ...matchupsPage });
 }
 

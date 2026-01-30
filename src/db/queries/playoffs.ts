@@ -1,4 +1,4 @@
-import { sql, eq, and, desc, or, type SQL } from "drizzle-orm";
+import { sql, eq, and, desc } from "drizzle-orm";
 import { db } from "../index.js";
 import {
     leagueUsersTable, matchupsTable, sleeperUsersTable,
@@ -134,6 +134,9 @@ export async function selectPlayoffMatchupsWithDetails(
                 sleeperUsersTable,
                 eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId)
             )
+            .where(
+                eq(matchupsTable.leagueId, leagueId)
+            )
             .groupBy(
                 matchupsTable.rosterId,
                 matchupsTable.leagueId,
@@ -199,6 +202,9 @@ export async function selectPlayoffMatchupsWithDetails(
             .innerJoin(
                 sleeperUsersTable,
                 eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId)
+            )
+            .where(
+                eq(matchupsTable.leagueId, leagueId)
             )
             .groupBy(
                 matchupsTable.rosterId,

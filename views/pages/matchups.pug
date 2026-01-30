@@ -2,13 +2,28 @@ extends ../layouts/base
 
 block content
     main
-        header
+        header.page-header
             h1 Bleed Blue Fantasy Football
+            
         section.matchups-container
-            header
-                h2 Season #{currentLeagueSeason} - Week #{currentWeek}
-            if currentWeek < 15
-                include ../partials/regular-season-matchups.pug
-            else
-                include ../partials/post-season-matchups.pug
+            header.matchups-header
+                h2#season-header Season #{currentLeagueSeason} - #{currentWeek >= 15 ? 'Post Season' : `Week ${currentWeek}`}
+                
+                nav.season-navigation
+                    button.nav-link(
+                        data-view="regular"
+                        class=currentWeek < 15 ? 'active' : ''
+                    ) Regular Season
+                    button.nav-link(
+                        data-view="playoffs"
+                        class=currentWeek >= 15 ? 'active' : ''
+                    ) Playoffs
+            
+            #matchups-content
+                if currentWeek < 15
+                    include ../partials/regular-season-matchups.pug
+                else
+                    include ../partials/post-season-matchups.pug
 
+            section.standings-container
+                include ../partials/standings-section.pug

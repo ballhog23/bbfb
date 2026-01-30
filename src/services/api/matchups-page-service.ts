@@ -24,7 +24,28 @@ export async function discernMatchupsView(weekParam: MatchupsPageParams["week"])
     };
 }
 
-export async function assemblePostSeasonMatchupsData(
+export async function assembleMatchupsPageData(
+    leagueIdParam: MatchupsPageParams["leagueId"],
+    weekParam: MatchupsPageParams["week"]
+) {
+    const { matchupsView, leagueState } = await discernMatchupsView(weekParam);
+
+    if (matchupsView === 'regular') {
+        return assembleRegularSeasonMatchupsData(
+            leagueState,
+            leagueIdParam,
+            weekParam
+        );
+    }
+
+    return assemblePostSeasonMatchupsData(
+        leagueState,
+        leagueIdParam,
+        weekParam
+    );
+}
+
+async function assemblePostSeasonMatchupsData(
     leagueState: SelectLeagueState,
     leagueIdParam: MatchupsPageParams["leagueId"],
     weekParam: MatchupsPageParams["week"]
@@ -119,9 +140,9 @@ function transformPlayoffDataForView(queryResults: Awaited<ReturnType<typeof sel
         }
     });
 
-    // Sort by round
-    winnersBracket.sort((a, b) => a.round - b.round);
-    losersBracket.sort((a, b) => a.round - b.round);
+    // Sort by round (descending - round 3, 2, 1)
+    winnersBracket.sort((a, b) => b.round - a.round);
+    losersBracket.sort((a, b) => b.round - a.round);
 
     return {
         winnersBracket,
@@ -129,7 +150,7 @@ function transformPlayoffDataForView(queryResults: Awaited<ReturnType<typeof sel
     };
 }
 
-export async function assembleRegularSeasonMatchupsData(
+async function assembleRegularSeasonMatchupsData(
     leagueState: SelectLeagueState,
     leagueIdParam: MatchupsPageParams["leagueId"],
     weekParam: MatchupsPageParams["week"]
