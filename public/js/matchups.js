@@ -1,157 +1,172 @@
-import { fetchJSON, escapeForHTML, findNearestElement } from "./lib.js";
+// public-ts/lib.ts
+async function fetchJSON(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} at ${url}`);
+  }
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    throw new Error(`Expected JSON, received ${contentType}`);
+  }
+  return await response.json();
+}
+function escapeForHTML(value) {
+  const div = document.createElement("div");
+  div.textContent = String(value);
+  return div.innerHTML;
+}
+function findNearestElement(event, selector) {
+  const target = event.target;
+  if (!target) return null;
+  return target.closest(selector);
+}
+
+// public-ts/matchups.ts
 console.log("I'm just here so I don't get fined");
-const matchupsContent = document.getElementById("matchups-content");
-const standingsContainer = document.querySelector(".standings-container");
-const leaguesSelect = document.querySelector("#league-select");
-const weeksSelect = document.querySelector("#week-select");
-const matchupsTitle = document.querySelector("#season-header");
-const seasonNavButtons = document.querySelectorAll(".season-navigation .nav-link");
+var matchupsContent = document.getElementById("matchups-content");
+var standingsContainer = document.querySelector(".standings-container");
+var leaguesSelect = document.querySelector("#league-select");
+var weeksSelect = document.querySelector("#week-select");
+var matchupsTitle = document.querySelector("#season-header");
+var seasonNavButtons = document.querySelectorAll(".season-navigation .nav-link");
 window.addEventListener("DOMContentLoaded", () => {
-    const initialWeek = weeksSelect ? parseInt(weeksSelect.value) : 1;
-    const initialState = {
-        matchupsTitle: matchupsTitle.innerHTML,
-        leagueId: leaguesSelect.value,
-        weekValue: initialWeek,
-        allLeagues: [],
-        contentHTML: matchupsContent.innerHTML,
-        standingsHTML: standingsContainer.innerHTML,
-        isPlayoffs: initialWeek >= 15
-    };
-    history.replaceState(initialState, "", location.href);
+  const initialWeek = weeksSelect ? parseInt(weeksSelect.value) : 1;
+  const initialState = {
+    matchupsTitle: matchupsTitle.innerHTML,
+    leagueId: leaguesSelect.value,
+    weekValue: initialWeek,
+    allLeagues: [],
+    contentHTML: matchupsContent.innerHTML,
+    standingsHTML: standingsContainer.innerHTML,
+    isPlayoffs: initialWeek >= 15
+  };
+  history.replaceState(initialState, "", location.href);
 });
 window.addEventListener("popstate", (event) => {
-    const state = event.state;
-    if (!state)
-        return;
-    applyState(state);
+  const state = event.state;
+  if (!state) return;
+  applyState(state);
 });
 window.addEventListener("click", (event) => {
-    const clickedCard = findNearestElement(event, ".matchup-card");
-    const clickedDialog = findNearestElement(event, "dialog");
-    const clickedStandingsRow = findNearestElement(event, "tbody tr");
-    const clickedBracketTab = findNearestElement(event, ".tab-button");
-    if (clickedBracketTab) {
-        const bracketType = clickedBracketTab.dataset.bracket;
-        if (bracketType) {
-            document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
-            clickedBracketTab.classList.add("active");
-            document.querySelectorAll(".bracket-container").forEach(container => {
-                container.classList.remove("active");
-            });
-            const targetBracket = document.querySelector(`[data-bracket-type="${bracketType}"]`);
-            if (targetBracket) {
-                targetBracket.classList.add("active");
-            }
-        }
-        return;
+  const clickedCard = findNearestElement(event, ".matchup-card");
+  const clickedDialog = findNearestElement(event, "dialog");
+  const clickedStandingsRow = findNearestElement(event, "tbody tr");
+  const clickedBracketTab = findNearestElement(event, ".tab-button");
+  if (clickedBracketTab) {
+    const bracketType = clickedBracketTab.dataset.bracket;
+    if (bracketType) {
+      document.querySelectorAll(".tab-button").forEach((btn) => btn.classList.remove("active"));
+      clickedBracketTab.classList.add("active");
+      document.querySelectorAll(".bracket-container").forEach((container) => {
+        container.classList.remove("active");
+      });
+      const targetBracket = document.querySelector(`[data-bracket-type="${bracketType}"]`);
+      if (targetBracket) {
+        targetBracket.classList.add("active");
+      }
     }
-    if (!clickedCard && !clickedDialog && !clickedStandingsRow)
-        return;
-    if (clickedCard && !clickedDialog && !clickedStandingsRow) {
-        clickedCard.querySelector("dialog")?.showModal();
-        return;
-    }
-    if (clickedDialog) {
-        const inside = findNearestElement(event, ".matchups-dialog-wrapper, .players-wrapper");
-        if (!inside)
-            clickedDialog.close();
-        return;
-    }
-    if (clickedStandingsRow) {
-        clickedStandingsRow.querySelector("dialog")?.showModal();
-    }
+    return;
+  }
+  if (!clickedCard && !clickedDialog && !clickedStandingsRow) return;
+  if (clickedCard && !clickedDialog && !clickedStandingsRow) {
+    clickedCard.querySelector("dialog")?.showModal();
+    return;
+  }
+  if (clickedDialog) {
+    const inside = findNearestElement(event, ".matchups-dialog-wrapper, .players-wrapper");
+    if (!inside) clickedDialog.close();
+    return;
+  }
+  if (clickedStandingsRow) {
+    clickedStandingsRow.querySelector("dialog")?.showModal();
+  }
 });
-seasonNavButtons.forEach(btn => {
-    btn.addEventListener("click", async (e) => {
-        const view = e.target.dataset.view;
-        const currentState = history.state;
-        const currentWeek = currentState?.weekValue || 1;
-        let week;
-        if (view === "regular") {
-            week = currentWeek >= 15 ? 14 : currentWeek;
-        }
-        else {
-            week = 17;
-        }
-        seasonNavButtons.forEach(b => b.classList.remove("active"));
-        e.target.classList.add("active");
-        await loadMatchupsData(leaguesSelect.value, week);
-    });
+seasonNavButtons.forEach((btn) => {
+  btn.addEventListener("click", async (e) => {
+    const view = e.target.dataset.view;
+    const currentState = history.state;
+    const currentWeek = currentState?.weekValue || 1;
+    let week;
+    if (view === "regular") {
+      week = currentWeek >= 15 ? 14 : currentWeek;
+    } else {
+      week = 17;
+    }
+    seasonNavButtons.forEach((b) => b.classList.remove("active"));
+    e.target.classList.add("active");
+    await loadMatchupsData(leaguesSelect.value, week);
+  });
 });
 leaguesSelect?.addEventListener("change", onSelectChange);
 weeksSelect?.addEventListener("change", onSelectChange);
 async function loadMatchupsData(leagueId, week) {
-    const apiURL = `/api/matchups-page/leagues/${leagueId}/weeks/${week}`;
-    const pageURL = `/matchups/leagues/${leagueId}/weeks/${week}`;
-    const pageData = await fetchJSON(apiURL);
-    const isPlayoffs = pageData.currentWeek >= 15;
-    const state = isPlayoffs
-        ? buildPlayoffsState(pageData)
-        : buildRegularSeasonState(pageData);
-    history.pushState(state, "", pageURL);
-    applyState(state);
+  const apiURL = `/api/matchups-page/leagues/${leagueId}/weeks/${week}`;
+  const pageURL = `/matchups/leagues/${leagueId}/weeks/${week}`;
+  const pageData = await fetchJSON(apiURL);
+  const isPlayoffs = pageData.currentWeek >= 15;
+  const state = isPlayoffs ? buildPlayoffsState(pageData) : buildRegularSeasonState(pageData);
+  history.pushState(state, "", pageURL);
+  applyState(state);
 }
 async function onSelectChange() {
-    const currentLeagueSelect = document.querySelector("#league-select");
-    const currentWeekSelect = document.querySelector("#week-select");
-    if (!currentLeagueSelect)
-        return;
-    const leagueId = currentLeagueSelect.value;
-    const weekValue = currentWeekSelect ? parseInt(currentWeekSelect.value) : 17;
-    await loadMatchupsData(leagueId, weekValue);
+  const currentLeagueSelect = document.querySelector("#league-select");
+  const currentWeekSelect = document.querySelector("#week-select");
+  if (!currentLeagueSelect) return;
+  const leagueId = currentLeagueSelect.value;
+  const weekValue = currentWeekSelect ? parseInt(currentWeekSelect.value) : 17;
+  await loadMatchupsData(leagueId, weekValue);
 }
 function buildRegularSeasonState(pageData) {
-    const { matchups, rosters, currentLeagueSeason, currentWeek, allLeagues, currentLeagueId } = pageData;
-    return {
-        matchupsTitle: `Season ${currentLeagueSeason} - Week ${currentWeek}`,
-        leagueId: currentLeagueId,
-        weekValue: currentWeek,
-        allLeagues,
-        contentHTML: renderRegularSeasonView(matchups, allLeagues, currentLeagueId, currentWeek),
-        standingsHTML: renderStandingsSection(rosters, currentLeagueSeason),
-        isPlayoffs: false
-    };
+  const { matchups, rosters, currentLeagueSeason, currentWeek, allLeagues, currentLeagueId } = pageData;
+  return {
+    matchupsTitle: `Season ${currentLeagueSeason} - Week ${currentWeek}`,
+    leagueId: currentLeagueId,
+    weekValue: currentWeek,
+    allLeagues,
+    contentHTML: renderRegularSeasonView(matchups, allLeagues, currentLeagueId, currentWeek),
+    standingsHTML: renderStandingsSection(rosters, currentLeagueSeason),
+    isPlayoffs: false
+  };
 }
 function buildPlayoffsState(pageData) {
-    const { matchups, rosters, currentLeagueSeason, currentWeek, allLeagues, currentLeagueId } = pageData;
-    return {
-        matchupsTitle: `Season ${currentLeagueSeason} - Post Season`,
-        leagueId: currentLeagueId,
-        weekValue: currentWeek,
-        allLeagues,
-        contentHTML: renderPlayoffsView(matchups, allLeagues, currentLeagueId),
-        standingsHTML: renderStandingsSection(rosters, currentLeagueSeason),
-        isPlayoffs: true
-    };
+  const { matchups, rosters, currentLeagueSeason, currentWeek, allLeagues, currentLeagueId } = pageData;
+  return {
+    matchupsTitle: `Season ${currentLeagueSeason} - Post Season`,
+    leagueId: currentLeagueId,
+    weekValue: currentWeek,
+    allLeagues,
+    contentHTML: renderPlayoffsView(matchups, allLeagues, currentLeagueId),
+    standingsHTML: renderStandingsSection(rosters, currentLeagueSeason),
+    isPlayoffs: true
+  };
 }
 function applyState(state) {
-    matchupsTitle.innerHTML = state.matchupsTitle;
-    matchupsContent.innerHTML = state.contentHTML;
-    standingsContainer.innerHTML = state.standingsHTML;
-    leaguesSelect.value = state.leagueId;
-    if (weeksSelect) {
-        weeksSelect.value = state.weekValue.toString();
+  matchupsTitle.innerHTML = state.matchupsTitle;
+  matchupsContent.innerHTML = state.contentHTML;
+  standingsContainer.innerHTML = state.standingsHTML;
+  leaguesSelect.value = state.leagueId;
+  if (weeksSelect) {
+    weeksSelect.value = state.weekValue.toString();
+  }
+  seasonNavButtons.forEach((btn) => {
+    const view = btn.dataset.view;
+    if (view === "playoffs" && state.isPlayoffs || view === "regular" && !state.isPlayoffs) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
     }
-    seasonNavButtons.forEach(btn => {
-        const view = btn.dataset.view;
-        if ((view === "playoffs" && state.isPlayoffs) || (view === "regular" && !state.isPlayoffs)) {
-            btn.classList.add("active");
-        }
-        else {
-            btn.classList.remove("active");
-        }
-    });
-    const newLeagueSelect = document.querySelector("#league-select");
-    const newWeekSelect = document.querySelector("#week-select");
-    if (newLeagueSelect) {
-        newLeagueSelect.addEventListener("change", onSelectChange);
-    }
-    if (newWeekSelect) {
-        newWeekSelect.addEventListener("change", onSelectChange);
-    }
+  });
+  const newLeagueSelect = document.querySelector("#league-select");
+  const newWeekSelect = document.querySelector("#week-select");
+  if (newLeagueSelect) {
+    newLeagueSelect.addEventListener("change", onSelectChange);
+  }
+  if (newWeekSelect) {
+    newWeekSelect.addEventListener("change", onSelectChange);
+  }
 }
 function renderRegularSeasonView(matchups, allLeagues, currentLeagueId, currentWeek) {
-    return `
+  return `
         <div class="select-wrapper">
             ${renderLeagueSelect(allLeagues, currentLeagueId)}
             ${renderWeekSelect(currentWeek)}
@@ -162,7 +177,7 @@ function renderRegularSeasonView(matchups, allLeagues, currentLeagueId, currentW
     `;
 }
 function renderPlayoffsView(brackets, allLeagues, currentLeagueId) {
-    return `
+  return `
         <div class="post-season-container">
             <div class="controls-wrapper">
                 <div class="select-wrapper">
@@ -185,12 +200,12 @@ function renderPlayoffsView(brackets, allLeagues, currentLeagueId) {
     `;
 }
 function renderLeagueSelect(allLeagues, currentLeagueId) {
-    return `
+  return `
         <div class="league-select-wrapper">
             <label for="league-select">Select League:</label>
             <select id="league-select" name="select-league">
-                ${allLeagues.map(league => `
-                    <option value="${escapeForHTML(league.leagueId)}" ${league.leagueId === currentLeagueId ? 'selected' : ''}>
+                ${allLeagues.map((league) => `
+                    <option value="${escapeForHTML(league.leagueId)}" ${league.leagueId === currentLeagueId ? "selected" : ""}>
                         ${escapeForHTML(league.season)}
                     </option>
                 `).join("")}
@@ -199,12 +214,12 @@ function renderLeagueSelect(allLeagues, currentLeagueId) {
     `;
 }
 function renderWeekSelect(currentWeek) {
-    return `
+  return `
         <div class="week-select-wrapper">
             <label for="week-select">Select Week:</label>
             <select id="week-select" name="select-week">
-                ${Array.from({ length: 14 }, (_, i) => i + 1).map(w => `
-                    <option value="${w}" ${w === currentWeek ? 'selected' : ''}>
+                ${Array.from({ length: 14 }, (_, i) => i + 1).map((w) => `
+                    <option value="${w}" ${w === currentWeek ? "selected" : ""}>
                         Week ${w}
                     </option>
                 `).join("")}
@@ -213,12 +228,12 @@ function renderWeekSelect(currentWeek) {
     `;
 }
 function renderBracket(rounds) {
-    if (!rounds || rounds.length === 0) {
-        return '<p class="no-data">No bracket data available</p>';
-    }
-    return `
+  if (!rounds || rounds.length === 0) {
+    return '<p class="no-data">No bracket data available</p>';
+  }
+  return `
         <div class="bracket-rounds">
-            ${rounds.map(roundData => `
+            ${rounds.map((roundData) => `
                 <div class="round-container">
                     <div class="round-header">
                         <h3>Round ${roundData.round}</h3>
@@ -232,7 +247,7 @@ function renderBracket(rounds) {
     `;
 }
 function renderPlayoffMatchupCard(matchup) {
-    return `
+  return `
         <article class="matchup-card" data-matchup-id="${matchup.bracketMatchupId}" data-week="${matchup.week}">
             ${renderPlayoffMatchupCardBody(matchup)}
             ${renderPlayoffMatchupModal(matchup)}
@@ -240,9 +255,9 @@ function renderPlayoffMatchupCard(matchup) {
     `;
 }
 function renderPlayoffMatchupCardBody(matchup) {
-    const hasTeamName = (team, owner) => team || owner || "TBD";
-    const isWinner = (rosterId) => matchup.winnerId === rosterId;
-    return `
+  const hasTeamName = (team, owner) => team || owner || "TBD";
+  const isWinner = (rosterId) => matchup.winnerId === rosterId;
+  return `
         <div class="home-team ${isWinner(matchup.t1) ? "winner" : ""}">
             <h3>${escapeForHTML(hasTeamName(matchup.team1, matchup.owner1))}</h3>
             <p>${matchup.points1 != null ? escapeForHTML(parseFloat(matchup.points1).toFixed(2)) : "TBD"}</p>
@@ -255,7 +270,7 @@ function renderPlayoffMatchupCardBody(matchup) {
     `;
 }
 function renderPlayoffMatchupModal(matchup) {
-    return `
+  return `
         <dialog class="matchup-modal">
             <button>Close</button>
             <section class="matchups-dialog-wrapper">
@@ -277,8 +292,8 @@ function renderPlayoffMatchupModal(matchup) {
     `;
 }
 function renderPlayerRow(player) {
-    const hasPoints = "points" in player;
-    return `
+  const hasPoints = "points" in player;
+  return `
     <div class="player-card">
         <img
             class="player-avatar"
@@ -295,18 +310,15 @@ function renderPlayerRow(player) {
                 <span class="player-team">${escapeForHTML(player.team || "")}</span>
             </div>
         </div>
-        ${hasPoints
-        ? `<div class="player-stats">
+        ${hasPoints ? `<div class="player-stats">
                        <span class="stat-value">${escapeForHTML(player.points)}</span>
-                   </div>`
-        : ""}
+                   </div>` : ""}
     </div>
     `;
 }
 function renderPlayerList(players, label) {
-    if (!players || !players.length)
-        return "";
-    return `
+  if (!players || !players.length) return "";
+  return `
     <div class="player-list-section">
         ${label ? `<h4 class="roster-section-label">${escapeForHTML(label)}</h4>` : ""}
         <div class="player-list">
@@ -316,8 +328,8 @@ function renderPlayerList(players, label) {
     `;
 }
 function renderMatchupCardBody([home, away]) {
-    const teamName = (t) => t.team ?? t.owner;
-    return `
+  const teamName = (t) => t.team ?? t.owner;
+  return `
     <div class="home-team">
         <h3>${escapeForHTML(teamName(home))}</h3>
         <p>${escapeForHTML(home.points)}</p>
@@ -330,7 +342,7 @@ function renderMatchupCardBody([home, away]) {
     `;
 }
 function renderMatchupModal([home, away]) {
-    return `
+  return `
     <dialog class="matchup-modal">
         <button>Close</button>
         <section class="matchups-dialog-wrapper">
@@ -354,7 +366,7 @@ function renderMatchupModal([home, away]) {
     `;
 }
 function renderMatchupCard(match) {
-    return `
+  return `
     <article class="matchup-card">
         ${renderMatchupCardBody(match)}
         ${renderMatchupModal(match)}
@@ -362,7 +374,7 @@ function renderMatchupCard(match) {
     `;
 }
 function renderStandingsSection(rosters, season) {
-    return `
+  return `
         <header>
             <h2>${escapeForHTML(season)} Regular Season Standings</h2>
         </header>
@@ -385,8 +397,8 @@ function renderStandingsSection(rosters, season) {
     `;
 }
 function renderStandingsRow(team) {
-    const displayName = team.teamName ?? team.ownerName;
-    return `
+  const displayName = team.teamName ?? team.ownerName;
+  return `
     <tr>
         <th scope="row">${escapeForHTML(displayName)}</th>
         <td>${escapeForHTML(team.pointsFor.toString())}</td>

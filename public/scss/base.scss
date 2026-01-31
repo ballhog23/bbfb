@@ -1,0 +1,157 @@
+:root {
+    --ff-blue-primary: #0033a0;
+    --ff-blue-hover: #00257a;
+    --ff-blue-highlight: #3b82f6;
+
+    --ff-bg-page: #050b1e;
+    --ff-bg-surface: #0a1a3f;
+    --ff-bg-card: #111827;
+    --ff-bg-row-hover: #0f172a;
+
+    --ff-text-primary: #ffffff;
+    --ff-text-secondary: #d1d5db;
+    --ff-text-muted: #9ca3af;
+    --ff-text-disabled: #6b7280;
+
+    --ff-border-default: #1f2937;
+    --ff-border-strong: #2a3348;
+
+    --ff-win: #16a34a;
+    --ff-loss: #d62828;
+    --ff-tie: #f59e0b;
+
+    --ff-accent-gold: #f5b700;
+    --ff-accent-cyan: #00c2ff;
+    --ff-accent-purple: #7c3aed;
+
+    --ff-btn-primary-bg: var(--ff-blue-primary);
+    --ff-btn-primary-hover: var(--ff-blue-hover);
+    --ff-btn-secondary-bg: #1f2937;
+
+    --ff-table-header-bg: #020617;
+    --ff-table-row-alt: #0a1a3f;
+
+    --ff-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+html,
+body {
+    all: unset;
+    background-color: var(--ff-bg-page);
+    color: var(--ff-text-primary);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+body:has(dialog[open]) {
+    overflow: hidden;
+}
+
+h1 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ff-text-primary);
+}
+
+h2 {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ff-text-primary);
+}
+
+h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--ff-text-primary);
+}
+
+h4 {
+    margin-top: 0;
+    margin-bottom: 0.875rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ff-text-primary);
+}
+
+h5,
+h6 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ff-text-primary);
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--ff-text-primary);
+}
+
+label {
+    color: var(--ff-text-primary);
+}
+
+img {
+    height: 10rem;
+    width: 10rem;
+    display: block;
+    object-fit: cover;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.container-sm {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.container-lg {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+header {
+    margin-bottom: 2rem;
+}
+
+table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+th,
+tr {
+    text-align: left;
+}
+
+caption {
+    caption-side: bottom;
+    text-align: right;
+}
+
+thead {
+    background-color: var(--ff-table-header-bg);
+}
+
+tbody {
+    * {
+        font-weight: normal;
+    }
+
+    tr:nth-of-type(even) {
+        background-color: var(--ff-table-row-alt);
+    }
+}

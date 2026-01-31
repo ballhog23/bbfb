@@ -1,0 +1,70 @@
+@use './base.scss';
+
+h1 {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.winner,
+.loser {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    background: var(--ff-bg-surface);
+    border: 1px solid var(--ff-border-default);
+    border-radius: 8px;
+    box-shadow: var(--ff-shadow-card);
+
+    p {
+        margin: 0;
+    }
+}
+
+.winner {
+    border-color: var(--ff-win);
+}
+
+.winner h2 {
+    color: var(--ff-win);
+}
+
+.loser {
+    border-color: var(--ff-loss);
+}
+
+.loser h2 {
+    color: var(--ff-loss);
+}
+
+section {
+    margin-bottom: 2rem;
+}
+
+section h2 {
+    text-align: center;
+}
+
+section a {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--ff-btn-primary-bg);
+    color: var(--ff-text-primary);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin: 0 auto;
+    display: block;
+    width: fit-content;
+}
+
+section a:hover {
+    background: var(--ff-btn-primary-hover);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
