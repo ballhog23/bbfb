@@ -2,8 +2,6 @@ import {
     fetchJSON, escapeForHTML, findNearestElement
 } from "./lib.js";
 
-console.log("I'm just here so I don't get fined");
-
 const matchupsContent = document.getElementById("matchups-content")!;
 const standingsContainer = document.querySelector(".standings-container")!;
 const leaguesSelect = document.querySelector<HTMLSelectElement>("#league-select")!;

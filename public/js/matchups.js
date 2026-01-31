@@ -22,7 +22,6 @@ function findNearestElement(event, selector) {
 }
 
 // public-ts/matchups.ts
-console.log("I'm just here so I don't get fined");
 var matchupsContent = document.getElementById("matchups-content");
 var standingsContainer = document.querySelector(".standings-container");
 var leaguesSelect = document.querySelector("#league-select");

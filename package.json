@@ -8,7 +8,7 @@
     "build:server": "tsc -p tsconfig.json",
     "build:client": "tsc -p tsconfig.web.json --noEmit && esbuild public-ts/matchups.ts public-ts/homepage.ts --bundle --outdir=public/js --format=esm",
     "build:scss": "sass public/scss:public/css --no-source-map",
-    "watch:client": "esbuild public-ts/matchups.ts public-ts/homepage.ts --bundle --outdir=public/js --format=esm --watch",
+    "watch:client": "esbuild public-ts/matchups.ts public-ts/homepage.ts --bundle --outdir=public/js --format=esm --watch=forever",
     "watch:scss": "sass public/scss:public/css --watch --no-source-map",
     "typecheck": "tsc -p tsconfig.web.json --noEmit",
     "build": "npm run build:server && npm run build:client && npm run build:scss",
