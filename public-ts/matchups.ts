@@ -300,7 +300,7 @@ function renderRegularSeasonView(matchups: Matchups, currentWeek: number): strin
         <div class="select-wrapper">
             ${renderWeekSelect(currentWeek)}
         </div>
-        <section id="matchups-wrapper">
+        <section class="matchups-wrapper">
             ${matchups.map(renderMatchupCard).join("")}
         </section>
     `;
@@ -308,20 +308,18 @@ function renderRegularSeasonView(matchups: Matchups, currentWeek: number): strin
 
 function renderPlayoffsView(brackets: PlayoffBrackets): string {
     return `
-        <div class="post-season-container">
-            <div class="bracket-tabs">
-                <button class="btn tab-button active" data-bracket="winnersBracket">Winners</button>
-                <button class="btn tab-button" data-bracket="losersBracket">Losers</button>
-            </div>
-            <section class="playoff-bracket">
-                <div class="bracket-container active" data-bracket-type="winnersBracket">
-                    ${renderBracket(brackets.winnersBracket)}
-                </div>
-                <div class="bracket-container" data-bracket-type="losersBracket">
-                    ${renderBracket(brackets.losersBracket)}
-                </div>
-            </section>
+        <div class="bracket-tabs">
+            <button class="btn tab-button active" data-bracket="winnersBracket">Winners</button>
+            <button class="btn tab-button" data-bracket="losersBracket">Losers</button>
         </div>
+        <section class="playoff-bracket">
+            <div class="bracket-container active" data-bracket-type="winnersBracket">
+                ${renderBracket(brackets.winnersBracket)}
+            </div>
+            <div class="bracket-container" data-bracket-type="losersBracket">
+                ${renderBracket(brackets.losersBracket)}
+            </div>
+        </section>
     `;
 }
 
