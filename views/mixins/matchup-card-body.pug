@@ -2,11 +2,12 @@ mixin matchupCardBody(match)
     - const homeTeam = match[0];
     - const awayTeam = match[1];
     - const hasTeamName = (t) => t.team ? t.team : t.owner;
+    - const isWinner = (t1, t2) => parseFloat(t1.points) > parseFloat(t2.points) ? "winner" : "";
 
-    .home-team
+    .home-team(class=isWinner(homeTeam, awayTeam))
         h3= hasTeamName(homeTeam)
         p= homeTeam.points
     span.vs vs
-    .away-team
+    .away-team(class=isWinner(awayTeam, homeTeam))
         h3= hasTeamName(awayTeam)
         p= awayTeam.points

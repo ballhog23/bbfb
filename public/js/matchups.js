@@ -296,13 +296,14 @@ function renderPlayerList(players, label) {
 }
 function renderMatchupCardBody([home, away]) {
   const teamName = (t) => t.team ?? t.owner;
+  const isWinner = (t1, t2) => parseFloat(t1.points) > parseFloat(t2.points) ? "winner" : "";
   return `
-    <div class="home-team">
+    <div class="home-team ${isWinner(home, away)}">
         <h3>${escapeForHTML(teamName(home))}</h3>
         <p>${escapeForHTML(home.points)}</p>
     </div>
     <span class="vs">vs</span>
-    <div class="away-team">
+    <div class="away-team ${isWinner(away, home)}">
         <h3>${escapeForHTML(teamName(away))}</h3>
         <p>${escapeForHTML(away.points)}</p>
     </div>

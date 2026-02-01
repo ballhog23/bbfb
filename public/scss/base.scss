@@ -75,6 +75,7 @@ p {
 
 label {
     color: $text-primary;
+    margin-block: .625rem;
 }
 
 img {
@@ -134,7 +135,7 @@ a {
     background: $btn-secondary-bg;
     color: $text-secondary;
     border-radius: 6px;
-    font-weight: $font-weight-medium;
+    font-family: $font-body;
     cursor: pointer;
     transition: all 0.2s;
 

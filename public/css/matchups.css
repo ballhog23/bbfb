@@ -97,6 +97,7 @@ p {
 
 label {
   color: #ffffff;
+  margin-block: 0.625rem;
 }
 
 img {
@@ -153,7 +154,7 @@ a {
   background: #1f2937;
   color: #d1d5db;
   border-radius: 6px;
-  font-weight: 500;
+  font-family: "Inter", sans-serif;
   cursor: pointer;
   transition: all 0.2s;
 }
