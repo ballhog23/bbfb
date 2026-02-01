@@ -1,11 +1,11 @@
 extends ../layouts/base
 
 block content
-    main(class="container")
-        header.page-header
-            h1 Bleed Blue Fantasy Football
+    main
+        header.page-header.container
+            h1 Matchups
             
-        section.matchups-container
+        section.matchups-container.container
             header.matchups-header
                 h2#season-header Season #{currentLeagueSeason} - #{currentWeek >= 15 ? 'Post Season' : `Week ${currentWeek}`}
                 
@@ -25,5 +25,5 @@ block content
                 else
                     include ../partials/post-season-matchups.pug
 
-            section.standings-container
-                include ../partials/standings-section.pug
+        section.standings-container.container
+            include ../partials/standings-section.pug
