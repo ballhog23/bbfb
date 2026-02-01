@@ -247,6 +247,12 @@ a {
   line-height: 1;
   margin-bottom: 0;
 }
+.matchups-header .season-navigation {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: flex-start;
+}
 .matchups-header .league-select-wrapper {
   width: 100%;
 }
@@ -278,6 +284,12 @@ a {
 .week-select-wrapper {
   display: flex;
   flex-direction: column;
+}
+@media only screen and (min-width: 576px) {
+  .league-select-wrapper,
+  .week-select-wrapper {
+    width: 240px;
+  }
 }
 .league-select-wrapper label,
 .week-select-wrapper label {
@@ -314,29 +326,18 @@ a {
   border-color: #0033a0;
   box-shadow: 0 0 0 3px rgba(0, 51, 160, 0.1);
 }
+
+#matchups-content .week-select-wrapper {
+  margin-bottom: calc(1.25rem + 24px);
+}
+#matchups-content .bracket-tabs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
 @media only screen and (min-width: 768px) {
-  .league-select-wrapper #league-select,
-  .league-select-wrapper #week-select,
-  .week-select-wrapper #league-select,
-  .week-select-wrapper #week-select {
-    min-width: 150px;
-  }
-}
-
-.week-select-wrapper {
-  margin-bottom: 1.25rem;
-}
-@media only screen and (min-width: 576px) {
-  .week-select-wrapper {
-    align-self: flex-end;
-  }
-}
-
-@media only screen and (min-width: 576px) {
-  #matchups-content {
-    grid-column: 1/-1;
-    display: grid;
-    grid-template-columns: subgrid;
+  #matchups-content .bracket-tabs {
+    justify-content: flex-start;
   }
 }
 
@@ -344,11 +345,6 @@ a {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-@media only screen and (min-width: 576px) {
-  .matchups-wrapper {
-    grid-column: 1/-1;
-  }
 }
 
 dialog {
@@ -518,28 +514,4 @@ dialog::backdrop {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-
-.season-navigation {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  justify-content: center;
-}
-@media only screen and (min-width: 768px) {
-  .season-navigation {
-    width: auto;
-    justify-content: flex-start;
-  }
-}
-
-.bracket-tabs {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-}
-@media only screen and (min-width: 768px) {
-  .bracket-tabs {
-    justify-content: flex-start;
-  }
 }

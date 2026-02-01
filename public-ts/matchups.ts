@@ -297,9 +297,7 @@ function applyState(state: PageState) {
 
 function renderRegularSeasonView(matchups: Matchups, currentWeek: number): string {
     return `
-        <div class="select-wrapper">
-            ${renderWeekSelect(currentWeek)}
-        </div>
+        ${renderWeekSelect(currentWeek)}
         <section class="matchups-wrapper">
             ${matchups.map(renderMatchupCard).join("")}
         </section>
