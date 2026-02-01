@@ -114,7 +114,6 @@ type PageState = {
     matchupsTitle: string;
     leagueId: string;
     weekValue: number;
-    allLeagues: LeagueData[];
     contentHTML: string;
     standingsHTML: string;
     isPlayoffs: boolean;
@@ -130,7 +129,6 @@ window.addEventListener("DOMContentLoaded", () => {
         matchupsTitle: matchupsTitle.innerHTML,
         leagueId: leaguesSelect.value,
         weekValue: initialWeek,
-        allLeagues: [],
         contentHTML: matchupsContent.innerHTML,
         standingsHTML: standingsContainer.innerHTML,
         isPlayoffs: initialWeek >= 15
@@ -237,44 +235,34 @@ async function loadMatchupsData(leagueId: string, week: number) {
 }
 
 async function onSelectChange() {
-    // Query for current league select in DOM (may have been re-rendered)
-    const currentLeagueSelect = document.querySelector<HTMLSelectElement>("#league-select");
     const currentWeekSelect = document.querySelector<HTMLSelectElement>("#week-select");
-
-    if (!currentLeagueSelect) return;
-
-    const leagueId = currentLeagueSelect.value;
-
-    // If in playoffs view (no week select), use week 17
-    // Otherwise read from week select
+    const leagueId = leaguesSelect.value;
     const weekValue = currentWeekSelect ? parseInt(currentWeekSelect.value) : 17;
 
     await loadMatchupsData(leagueId, weekValue);
 }
 
 function buildRegularSeasonState(pageData: RegularSeasonResponse): PageState {
-    const { matchups, rosters, currentLeagueSeason, currentWeek, allLeagues, currentLeagueId } = pageData;
+    const { matchups, rosters, currentLeagueSeason, currentWeek, currentLeagueId } = pageData;
 
     return {
         matchupsTitle: `Season ${currentLeagueSeason} - Week ${currentWeek}`,
         leagueId: currentLeagueId,
         weekValue: currentWeek,
-        allLeagues,
-        contentHTML: renderRegularSeasonView(matchups, allLeagues, currentLeagueId, currentWeek),
+        contentHTML: renderRegularSeasonView(matchups, currentWeek),
         standingsHTML: renderStandingsSection(rosters, currentLeagueSeason),
         isPlayoffs: false
     };
 }
 
 function buildPlayoffsState(pageData: PlayoffsResponse): PageState {
-    const { matchups, rosters, currentLeagueSeason, currentWeek, allLeagues, currentLeagueId } = pageData;
+    const { matchups, rosters, currentLeagueSeason, currentWeek, currentLeagueId } = pageData;
 
     return {
         matchupsTitle: `Season ${currentLeagueSeason} - Post Season`,
         leagueId: currentLeagueId,
         weekValue: currentWeek,
-        allLeagues,
-        contentHTML: renderPlayoffsView(matchups, allLeagues, currentLeagueId),
+        contentHTML: renderPlayoffsView(matchups),
         standingsHTML: renderStandingsSection(rosters, currentLeagueSeason),
         isPlayoffs: true
     };
@@ -301,27 +289,15 @@ function applyState(state: PageState) {
     });
 
     // Reattach event listeners for new dropdowns
-    const newLeagueSelect = document.querySelector<HTMLSelectElement>("#league-select");
     const newWeekSelect = document.querySelector<HTMLSelectElement>("#week-select");
-
-    if (newLeagueSelect) {
-        newLeagueSelect.addEventListener("change", onSelectChange);
-    }
-
     if (newWeekSelect) {
         newWeekSelect.addEventListener("change", onSelectChange);
     }
 }
 
-function renderRegularSeasonView(
-    matchups: Matchups,
-    allLeagues: LeagueData[],
-    currentLeagueId: string,
-    currentWeek: number
-): string {
+function renderRegularSeasonView(matchups: Matchups, currentWeek: number): string {
     return `
         <div class="select-wrapper">
-            ${renderLeagueSelect(allLeagues, currentLeagueId)}
             ${renderWeekSelect(currentWeek)}
         </div>
         <section id="matchups-wrapper">
@@ -330,21 +306,12 @@ function renderRegularSeasonView(
     `;
 }
 
-function renderPlayoffsView(
-    brackets: PlayoffBrackets,
-    allLeagues: LeagueData[],
-    currentLeagueId: string
-): string {
+function renderPlayoffsView(brackets: PlayoffBrackets): string {
     return `
         <div class="post-season-container">
-            <div class="controls-wrapper">
-                <div class="select-wrapper">
-                    ${renderLeagueSelect(allLeagues, currentLeagueId)}
-                </div>
-                <div class="bracket-tabs">
-                    <button class="btn tab-button active" data-bracket="winnersBracket">Winners</button>
-                    <button class="btn tab-button" data-bracket="losersBracket">Losers</button>
-                </div>
+            <div class="bracket-tabs">
+                <button class="btn tab-button active" data-bracket="winnersBracket">Winners</button>
+                <button class="btn tab-button" data-bracket="losersBracket">Losers</button>
             </div>
             <section class="playoff-bracket">
                 <div class="bracket-container active" data-bracket-type="winnersBracket">
@@ -354,21 +321,6 @@ function renderPlayoffsView(
                     ${renderBracket(brackets.losersBracket)}
                 </div>
             </section>
-        </div>
-    `;
-}
-
-function renderLeagueSelect(allLeagues: LeagueData[], currentLeagueId: string): string {
-    return `
-        <div class="league-select-wrapper">
-            <label for="league-select">Select League:</label>
-            <select id="league-select" name="select-league">
-                ${allLeagues.map(league => `
-                    <option value="${escapeForHTML(league.leagueId)}" ${league.leagueId === currentLeagueId ? 'selected' : ''}>
-                        ${escapeForHTML(league.season)}
-                    </option>
-                `).join("")}
-            </select>
         </div>
     `;
 }

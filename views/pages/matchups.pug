@@ -8,7 +8,9 @@ block content
         section.matchups-container.container
             header.matchups-header
                 h2#season-header Season #{currentLeagueSeason} - #{currentWeek >= 15 ? 'Post Season' : `Week ${currentWeek}`}
-                
+
+                include ../partials/league-select.pug
+
                 nav.season-navigation
                     button.btn.nav-link(
                         data-view="regular"
@@ -18,7 +20,7 @@ block content
                         data-view="playoffs"
                         class=currentWeek >= 15 ? 'active' : ''
                     ) Playoffs
-            
+
             #matchups-content
                 if currentWeek < 15
                     include ../partials/regular-season-matchups.pug
