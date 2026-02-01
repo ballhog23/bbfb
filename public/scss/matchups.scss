@@ -6,6 +6,8 @@
     text-align: left;
 }
 
+// filter elements, excluding week select and bracket tabs
+// week select and bracket tabs are rendered within #matchups-content
 .matchups-header {
     display: flex;
     flex-direction: column;
@@ -55,7 +57,7 @@
     }
 }
 
-// base styles for select elements
+// base styles for dropdown select elements
 .league-select-wrapper,
 .week-select-wrapper {
     display: flex;
@@ -97,6 +99,8 @@
 }
 
 #matchups-content {
+
+    // winners/losers brackets toggles
     .bracket-tabs {
         display: flex;
         justify-content: flex-start;

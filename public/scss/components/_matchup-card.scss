@@ -3,15 +3,13 @@
 .matchup-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+    gap: 1.25rem;
     background-color: rgba($bg-card, 1);
-    backdrop-filter: blur(8px);
     color: $text-primary;
     border: 1px solid $border-default;
-    border-radius: 8px;
-    padding: 0.75rem;
-    box-shadow: 0 2px 8px rgba($black, 0.3);
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    box-shadow: $shadow-card;
     transition:
         background-color $transition,
         border-color $transition,
@@ -24,77 +22,33 @@
         box-shadow: 0 4px 12px rgba($blue-highlight, 0.2);
     }
 
-    .home-team,
-    .away-team {
-        display: flex;
+    @media only screen and (min-width: $sm-breakpoint-up) {
         flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        gap: 1rem;
+    }
 
-        h3 {
-            font-size: 1rem;
-            color: $text-primary;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
+    >div {
+        display: flex;
+        flex-direction: column;
+
+        h3,
+        p {
+            margin-bottom: 0;
         }
 
-        p {
-            font-size: 1.1rem;
-            font-weight: $font-weight-bold;
-            color: $blue-highlight;
-            min-width: 50px;
-            text-align: right;
+        &.winner {
+            p {
+                color: $win;
+            }
         }
     }
 
-    .winner {
-        h3 {
-            color: $win;
-        }
-
-        p {
-            color: $win;
-        }
-    }
 
     span.vs {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.7rem;
-        font-weight: $font-weight-semibold;
-        color: $text-muted;
-        min-width: 100%;
-        flex-shrink: 0;
+        text-transform: uppercase;
+        font-size: 1rem;
+        margin-block: auto;
+        text-align: center;
+        flex: 1;
     }
 
-
-    @media (min-width: $md-breakpoint-up) {
-        flex-direction: row;
-        gap: 1rem;
-        padding: 0.75rem 1rem;
-        min-height: 60px;
-
-        .home-team,
-        .away-team {
-            width: auto;
-            flex: 1;
-        }
-
-        .away-team {
-            flex-direction: row-reverse;
-
-            h3 {
-                text-align: right;
-            }
-
-            p {
-                text-align: left;
-            }
-        }
-    }
 }
