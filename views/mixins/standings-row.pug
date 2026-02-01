@@ -12,7 +12,7 @@ mixin standingsRow(team)
         td #{team.wins} / #{team.losses}
             td.roster-modal-cell
                 dialog.matchup-modal.rosters-modal
-                    button Close
+                    button.btn Close
                     .players-wrapper
                         h3= displayTeamName
                         +playerList(playersStarting, 'Starting')

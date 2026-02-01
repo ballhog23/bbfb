@@ -1,0 +1,29 @@
+@use '../_variables' as *;
+
+dialog {
+    width: auto;
+    max-width: 62.5rem;
+    background-color: rgba(5, 11, 30, 0.4);
+    border: .125rem solid $border-strong;
+    border-radius: .5rem;
+    padding: 1rem;
+
+    @media only screen and (min-width: $sm-breakpoint-up) {
+        width: 90%;
+        height: 90%;
+    }
+
+    button {
+        display: block;
+        margin: 0 0 2rem auto;
+        cursor: pointer;
+    }
+
+    &::backdrop {
+        backdrop-filter: blur(0.5rem);
+    }
+
+    * {
+        cursor: default;
+    }
+}

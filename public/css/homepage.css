@@ -24,6 +24,18 @@ body {
   font-size: 1rem;
   line-height: 1;
   font-family: "Inter", sans-serif;
+  scrollbar-color: #6b7280 #111827;
+}
+
+::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 body:has(dialog[open]) {
@@ -155,8 +167,11 @@ a {
   color: #d1d5db;
   border-radius: 6px;
   font-family: "Inter", sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s;
+  letter-spacing: 2px;
 }
 .btn:hover {
   background: #0f172a;

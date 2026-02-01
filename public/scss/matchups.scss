@@ -1,6 +1,8 @@
-@use './variables' as *;
-@use './base.scss';
-@use './components/matchup-card';
+@use './variables.scss' as *;
+@use './_base.scss';
+@use './components/_matchup-card.scss';
+@use './components/_dialog-base.scss';
+@use './components/_matchup-modal.scss';
 
 .page-header {
     text-align: left;
@@ -150,29 +152,9 @@
     }
 }
 
-dialog {
-    width: 75%;
-    height: 75%;
-    background-color: rgba(5, 11, 30, 0.4);
 
-    button {
-        display: block;
-        margin-left: auto;
-    }
 
-    &::backdrop {
-        backdrop-filter: blur(0.1rem);
-    }
-}
 
-.rosters-wrapper {
-    display: flex;
-    gap: 1rem;
-
-    div {
-        flex-grow: 1;
-    }
-}
 
 .roster-modal-cell {
     width: 0;

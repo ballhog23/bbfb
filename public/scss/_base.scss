@@ -1,4 +1,4 @@
-@use './variables' as *;
+@use './_variables' as *;
 
 html,
 body {
@@ -8,6 +8,22 @@ body {
     font-size: 1rem;
     line-height: 1;
     font-family: $font-body;
+
+    // modern scrollbar (Firefox, Chrome 121+)
+    scrollbar-color: $text-disabled $bg-card;
+}
+
+// webkit scrollbar (Safari, older Chrome/Edge)
+::-webkit-scrollbar-track {
+    background: $bg-card;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $text-disabled;
+
+    &:hover {
+        background: $text-muted;
+    }
 }
 
 body:has(dialog[open]) {
@@ -136,8 +152,11 @@ a {
     color: $text-secondary;
     border-radius: 6px;
     font-family: $font-body;
+    font-weight: 600;
+    text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
+    letter-spacing: 2px;
 
     &:hover {
         background: $bg-row-hover;

@@ -239,7 +239,7 @@ function renderPlayoffMatchupCardBody(matchup) {
 function renderPlayoffMatchupModal(matchup) {
   return `
         <dialog class="matchup-modal">
-            <button>Close</button>
+            <button class="btn">Close</button>
             <section class="matchups-dialog-wrapper">
                 <article class="matchup-card">
                     ${renderPlayoffMatchupCardBody(matchup)}
@@ -312,7 +312,7 @@ function renderMatchupCardBody([home, away]) {
 function renderMatchupModal([home, away]) {
   return `
     <dialog class="matchup-modal">
-        <button>Close</button>
+        <button class="btn">Close</button>
         <section class="matchups-dialog-wrapper">
             <article class="matchup-card">
                 ${renderMatchupCardBody([home, away])}
@@ -374,7 +374,7 @@ function renderStandingsRow(team) {
         <td>${escapeForHTML(team.wins.toString())} / ${escapeForHTML(team.losses.toString())}</td>
         <td class="roster-modal-cell">
             <dialog class="matchup-modal rosters-modal">
-                <button>Close</button>
+                <button class="btn">Close</button>
                 <div class="players-wrapper">
                     <h3>${escapeForHTML(displayName)}</h3>
                     ${renderPlayerList(team.startingRoster, "Starting")}
