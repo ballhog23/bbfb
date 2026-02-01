@@ -37,6 +37,10 @@
             margin-bottom: 0;
         }
 
+        h3 {
+            margin-block: 0 1rem;
+        }
+
         &.winner {
             p {
                 color: $win;

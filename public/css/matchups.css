@@ -201,6 +201,9 @@ a {
 .matchup-card > div p {
   margin-bottom: 0;
 }
+.matchup-card > div h3 {
+  margin-block: 0 1rem;
+}
 .matchup-card > div.winner p {
   color: #16a34a;
 }
