@@ -1,0 +1,20 @@
+include ./player-list.pug
+mixin standingsRow(team)
+    - const teamName = (t) => t.teamName ? t.teamName : t.ownerName;
+    - const displayTeamName = teamName(team);
+    - const playersStarting = team.startingRoster;
+    - const playersBench = team.benchRoster;
+    - const playersIR = team.reserveRoster;
+    tr
+        th(scope="row")= displayTeamName
+        td= team.pointsFor
+        td= team.pointsAgainst
+        td #{team.wins} / #{team.losses}
+            td.roster-modal-cell
+                dialog.matchup-modal.rosters-modal
+                    button Close
+                    .players-wrapper
+                        h3= displayTeamName
+                        +playerList(playersStarting, 'Starting')
+                        +playerList(playersBench, 'Bench')
+                        +playerList(playersIR, 'Injured Reserve')

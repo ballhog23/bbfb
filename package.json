@@ -1,0 +1,45 @@
+{
+  "name": "bbfb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "build:server": "tsc -p tsconfig.json",
+    "build:client": "tsc -p tsconfig.web.json --noEmit && esbuild public-ts/matchups.ts public-ts/homepage.ts --bundle --outdir=public/js --format=esm",
+    "build:scss": "sass public/scss:public/css --no-source-map --style=compressed",
+    "watch:client": "esbuild public-ts/matchups.ts public-ts/homepage.ts --bundle --outdir=public/js --format=esm --watch=forever",
+    "watch:scss": "sass public/scss:public/css --watch --no-source-map",
+    "typecheck": "tsc -p tsconfig.web.json --noEmit",
+    "build": "npm run build:server && npm run build:client && npm run build:scss",
+    "dev": "npm run build && tsc -p tsconfig.json --watch & npm run watch:client & npm run watch:scss & node --watch dist/server.js",
+    "start": "node dist/server.js",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "push": "drizzle-kit push",
+    "test": "NODE_OPTIONS='--localstorage-file=/home/caleb/.vitest/vitest.localstorage' vitest --run",
+    "tee": "npm run dev | tee info.log"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.0",
+    "drizzle-kit": "^0.31.7",
+    "esbuild": "^0.27.2",
+    "msw": "^2.12.4",
+    "sass": "^1.97.3",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  },
+  "dependencies": {
+    "compression": "^1.8.1",
+    "drizzle-orm": "^0.44.7",
+    "express": "^5.1.0",
+    "postgres": "^3.4.7",
+    "pug": "^3.0.3",
+    "zod": "^4.3.5"
+  }
+}

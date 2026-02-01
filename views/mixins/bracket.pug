@@ -1,0 +1,11 @@
+include ./bracket-matchup-card.pug
+
+mixin bracket(roundsData)
+    .bracket-rounds
+        each roundData in roundsData
+            .round-container
+                .round-header
+                    h3 Round #{roundData.round}
+                .round-matchups
+                    each matchup in roundData.matchups
+                        +bracketMatchupCard(matchup)

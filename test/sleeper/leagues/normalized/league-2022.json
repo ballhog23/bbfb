@@ -1,0 +1,26 @@
+{
+    "leagueId": "853787546600181760",
+    "status": "complete",
+    "season": "2022",
+    "leagueName": "BleedBlue2022",
+    "avatarId": "6544853848432edefae66b833d48800c",
+    "previousLeagueId": "734440532654313472",
+    "draftId": "853787546600181761",
+    "rosterPositions": [
+        "QB",
+        "RB",
+        "RB",
+        "WR",
+        "WR",
+        "TE",
+        "FLEX",
+        "FLEX",
+        "DEF",
+        "BN",
+        "BN",
+        "BN",
+        "BN",
+        "BN"
+    ],
+    "totalRosters": 12
+}

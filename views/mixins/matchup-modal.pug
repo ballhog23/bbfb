@@ -1,0 +1,27 @@
+include ./player-list.pug
+
+mixin matchupModal(match)
+    - const homeTeam = match[0];
+    - const homeTeamStarting = homeTeam.startingRoster;
+    - const homeTeamBench = homeTeam.benchRoster;
+    - const homeTeamIR = homeTeam.reserveRoster;
+    - const awayTeam = match[1];
+    - const awayTeamStarting = awayTeam.startingRoster;
+    - const awayTeamBench = awayTeam.benchRoster;
+    - const awayTeamIR = awayTeam.reserveRoster;
+    
+    dialog.matchup-modal
+        button Close
+        section.matchups-dialog-wrapper
+            article.matchup-card
+                +matchupCardBody(match)
+            div.rosters-wrapper
+                .roster.home-team-players
+                    +playerList(homeTeamStarting, 'Starting')
+                    +playerList(homeTeamBench, 'Bench')
+                    +playerList(homeTeamIR, 'Injured Reserve')
+                        
+                .roster.away-team-players
+                    +playerList(awayTeamStarting, 'Starting')
+                    +playerList(awayTeamBench, 'Bench')
+                    +playerList(awayTeamIR, 'Injured Reserve')

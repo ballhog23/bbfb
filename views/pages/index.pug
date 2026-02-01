@@ -1,0 +1,16 @@
+extends ../layouts/base
+block head
+block content
+    main
+        header.container
+            h1 Bleed Blue Fantasy Football
+        if leagueState.leg > 17
+            section.winner.container
+                h2 #{leagueState.season} Season Champ
+                p #{winner.teamName}
+            section.loser.container
+                h2 #{leagueState.season} Season BK Randy
+                p #{loser.teamName}
+        section.container
+            h2 Check Out League Matchups
+            a.btn(href="/matchups") League Matchups

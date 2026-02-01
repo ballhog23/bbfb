@@ -1,0 +1,29 @@
+extends ../layouts/base
+
+block content
+    main(class="container")
+        header.page-header
+            h1 Bleed Blue Fantasy Football
+            
+        section.matchups-container
+            header.matchups-header
+                h2#season-header Season #{currentLeagueSeason} - #{currentWeek >= 15 ? 'Post Season' : `Week ${currentWeek}`}
+                
+                nav.season-navigation
+                    button.btn.nav-link(
+                        data-view="regular"
+                        class=currentWeek < 15 ? 'active' : ''
+                    ) Regular Season
+                    button.btn.nav-link(
+                        data-view="playoffs"
+                        class=currentWeek >= 15 ? 'active' : ''
+                    ) Playoffs
+            
+            #matchups-content
+                if currentWeek < 15
+                    include ../partials/regular-season-matchups.pug
+                else
+                    include ../partials/post-season-matchups.pug
+
+            section.standings-container
+                include ../partials/standings-section.pug

@@ -1,0 +1,17 @@
+mixin playerRow(player)
+    .player-card
+        img.player-avatar(
+            src=player.image || "https://placehold.co/50",
+            alt=`${player.playerName} headshot`
+            loading='lazy'
+        )
+
+        .player-info
+            .player-name #{player.playerName}
+            .player-meta
+                span.player-position(class=`pos-${player.position.toLowerCase()}`)= player.position
+                span.player-team #{player.team}
+
+        if player.points != null
+            .player-stats
+                span.stat-value #{player.points}

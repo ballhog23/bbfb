@@ -1,0 +1,26 @@
+{
+    "leagueId": "734440532654313472",
+    "status": "complete",
+    "season": "2021",
+    "leagueName": "BleedBlue2021",
+    "avatarId": "6544853848432edefae66b833d48800c",
+    "previousLeagueId": null,
+    "draftId": "734440534499840000",
+    "rosterPositions": [
+        "QB",
+        "RB",
+        "RB",
+        "WR",
+        "WR",
+        "TE",
+        "FLEX",
+        "K",
+        "DEF",
+        "BN",
+        "BN",
+        "BN",
+        "BN",
+        "BN"
+    ],
+    "totalRosters": 12
+}

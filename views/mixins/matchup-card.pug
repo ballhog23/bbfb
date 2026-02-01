@@ -1,0 +1,13 @@
+include ./matchup-card-body.pug
+include ./matchup-modal.pug
+
+mixin matchupCard(match)
+    - const homeTeam = match[0];
+    - const homeTeamPlayers = homeTeam.rosterPlayers;
+    - const awayTeam = match[1];
+    - const awayTeamPlayers = awayTeam.rosterPlayers;
+    - const hasTeamName = (t) => t.team ? t.team : t.owner;
+
+    article.matchup-card
+        +matchupCardBody(match)
+        +matchupModal(match)

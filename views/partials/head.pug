@@ -1,0 +1,16 @@
+meta(charset="utf-8")
+meta(name="viewport" content="width=device-width, initial-scale=1")
+
+title #{title || "Bleed Blue Fantasy Football"}
+
+//- Conditional page-specific CSS
+if page === 'matchups'
+    link(rel="stylesheet" href="/css/matchups.css")
+else if page === 'homepage'
+    link(rel="stylesheet" href="/css/homepage.css")
+
+//- Conditional page-specific JS
+if page === 'matchups'
+    script(type="module" src="/js/matchups.js" defer)
+else if page === 'homepage'
+    script(type="module" src="/js/homepage.js" defer)

@@ -1,0 +1,52 @@
+$blue-primary: #0033a0;
+$blue-hover: #00257a;
+$blue-highlight: #3b82f6;
+
+$bg-page: #050b1e;
+$bg-surface: #0a1a3f;
+$bg-card: #111827;
+$bg-row-hover: #0f172a;
+
+$black: #000000;
+$text-primary: #ffffff;
+$text-secondary: #d1d5db;
+$text-muted: #9ca3af;
+$text-disabled: #6b7280;
+
+$border-default: #1f2937;
+$border-strong: #2a3348;
+
+$win: #16a34a;
+$loss: #d62828;
+$tie: #f59e0b;
+
+$accent-gold: #f5b700;
+$accent-cyan: #00c2ff;
+$accent-purple: #7c3aed;
+
+$btn-primary-bg: $blue-primary;
+$btn-primary-hover: $blue-hover;
+$btn-secondary-bg: #1f2937;
+
+$table-header-bg: #020617;
+$table-row-alt: #0a1a3f;
+
+$shadow-card: 0 10px 30px rgba($black, 0.4);
+$transition: 0.2s ease;
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+
+// Breakpoints (Bootstrap 5 values)
+$sm-breakpoint-up: 576px;
+$md-breakpoint-up: 768px;
+$lg-breakpoint-up: 992px;
+$xl-breakpoint-up: 1200px;
+$xxl-breakpoint-up: 1400px;
+
+@function rem($px) {
+    @return calc($px / 16) * 1rem;
+}

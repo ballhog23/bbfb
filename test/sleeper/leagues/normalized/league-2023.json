@@ -1,0 +1,27 @@
+{
+    "leagueId": "972913397740240896",
+    "status": "complete",
+    "season": "2023",
+    "leagueName": "BleedBlue2023",
+    "avatarId": "6544853848432edefae66b833d48800c",
+    "previousLeagueId": "853787546600181760",
+    "draftId": "972913397740240897",
+    "rosterPositions": [
+        "QB",
+        "RB",
+        "RB",
+        "WR",
+        "WR",
+        "TE",
+        "FLEX",
+        "FLEX",
+        "DEF",
+        "BN",
+        "BN",
+        "BN",
+        "BN",
+        "BN",
+        "BN"
+    ],
+    "totalRosters": 12
+}
