@@ -11,15 +11,11 @@ html.overlay-nav-open {
     left: 0;
     height: 100%;
     width: 100%;
-    padding-top: rem(60);
+    padding-block: rem(81) 0;
     background-color: $bg-page;
     visibility: hidden;
     opacity: 0;
     transition: opacity $transition, visibility $transition;
-
-    @media only screen and (min-width: $md-breakpoint-up) {
-        padding-top: rem(72);
-    }
 
     html.overlay-nav-open & {
         opacity: 1;
@@ -34,9 +30,8 @@ html.overlay-nav-open {
         height: 100%;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: rem(40);
+        gap: 1.25rem;
+        padding-top: 3rem;
         list-style: none;
         opacity: 0;
         transition: opacity 0.3s 0.15s ease-in;
@@ -49,7 +44,7 @@ html.overlay-nav-open {
             font-family: $font-heading;
             font-size: rem(32);
             font-weight: $font-weight-normal;
-            color: $text-secondary;
+            color: $text-muted;
             text-transform: uppercase;
             letter-spacing: 3px;
             transition: color $transition;
