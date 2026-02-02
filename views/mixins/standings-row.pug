@@ -15,6 +15,7 @@ mixin standingsRow(team)
                     button.btn Close
                     .players-wrapper
                         h3= displayTeamName
-                        +playerList(playersStarting, 'Starting')
-                        +playerList(playersBench, 'Bench')
-                        +playerList(playersIR, 'Injured Reserve')
+                        .roster
+                            +playerList(playersStarting, 'Starting')
+                            +playerList(playersBench, 'Bench')
+                            +playerList(playersIR, 'Injured Reserve')

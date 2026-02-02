@@ -544,9 +544,11 @@ function renderStandingsRow(team: RostersRow) {
                 <button class="btn">Close</button>
                 <div class="players-wrapper">
                     <h3>${escapeForHTML(displayName)}</h3>
-                    ${renderPlayerList(team.startingRoster, "Starting")}
-                    ${renderPlayerList(team.benchRoster, "Bench")}
-                    ${renderPlayerList(team.reserveRoster, "Injured Reserve")}
+                    <div class="roster">
+                        ${renderPlayerList(team.startingRoster, "Starting")}
+                        ${renderPlayerList(team.benchRoster, "Bench")}
+                        ${renderPlayerList(team.reserveRoster, "Injured Reserve")}
+                    </div>
                 </div>
             </dialog>
         </td>

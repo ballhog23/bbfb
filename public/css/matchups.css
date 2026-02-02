@@ -261,6 +261,11 @@ dialog::backdrop {
 dialog * {
   cursor: default;
 }
+dialog button {
+  display: block;
+  margin: 0 0 2rem auto;
+  cursor: pointer;
+}
 dialog h3,
 dialog h4 {
   color: #ffffff;
@@ -268,10 +273,16 @@ dialog h4 {
 dialog h4 {
   font-size: 1.125rem;
 }
-dialog button {
-  display: block;
-  margin: 0 0 2rem auto;
-  cursor: pointer;
+dialog .roster {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+dialog .player-list-section .player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .matchup-modal .matchup-card {
@@ -291,21 +302,10 @@ dialog button {
     flex-direction: row;
   }
 }
-.matchup-modal .rosters-wrapper .roster {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  width: 100%;
-}
 @media only screen and (min-width: 576px) {
   .matchup-modal .rosters-wrapper .roster {
     width: calc((100% - 1rem) / 2);
   }
-}
-.matchup-modal .rosters-wrapper .player-list-section .player-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 .matchup-modal .rosters-wrapper .away-team-players h4 {
   text-align: right;
