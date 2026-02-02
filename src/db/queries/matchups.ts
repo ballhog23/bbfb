@@ -95,7 +95,6 @@ export async function selectLeagueMatchups(leagueId: string) {
     return result;
 }
 
-// includes null matchupIds aka bye weeks
 export async function selectLeagueMatchupsByWeek(leagueId: string, week: number) {
     const result = await db
         .select({
@@ -180,7 +179,11 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
             'position', ${NFLPlayersTable.position},
             'points', player_scoring.points,
-            'team', ${NFLPlayersTable.team}
+            'team', ${NFLPlayersTable.team},
+            'playerImage', CASE
+                WHEN ${NFLPlayersTable.position} = 'DEF' THEN 'https\://sleepercdn.com/images/team_logos/nfl/' || lower(nfl_players.team) || '.png'
+                ELSE 'https://sleepercdn.com/content/nfl/players/' || nfl_players.player_id || '.jpg'
+                END
         )
     `;
 

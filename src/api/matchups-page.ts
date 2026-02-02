@@ -12,6 +12,6 @@ export async function handlerApiMatchupsPage(req: Request<MatchupsPageParams>, r
         req.params.leagueId,
         req.params.week
     );
-    console.log(matchupsPage);
+
     respondWithJSON(res, 200, matchupsPage);
 }

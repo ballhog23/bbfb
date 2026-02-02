@@ -1,8 +1,9 @@
-@use './variables.scss' as *;
-@use './_base.scss';
-@use './components/_matchup-card.scss';
-@use './components/_dialog-base.scss';
-@use './components/_matchup-modal.scss';
+@use './_variables' as *;
+@use './_base';
+@use './components/_matchup-card';
+@use './components/_dialog-base';
+@use './components/_matchup-modal';
+@use './components/_player-card';
 
 .page-header {
     text-align: left;
@@ -163,17 +164,7 @@
     border: 0;
 }
 
-.player-card {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
-    background: $bg-card;
-    border: 1px solid $border-default;
-    border-radius: 0.5rem;
-    box-shadow: $shadow-card;
-    color: $text-primary;
-}
+
 
 .away-team-players {
     .player-card {
@@ -203,7 +194,6 @@
     height: 50px;
     border-radius: 0.375rem;
     object-fit: cover;
-    background: $bg-surface;
 }
 
 .player-info {
