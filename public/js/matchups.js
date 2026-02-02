@@ -127,7 +127,7 @@ function buildRegularSeasonState(pageData) {
 function buildPlayoffsState(pageData) {
   const { matchups, rosters, currentLeagueSeason, currentWeek, currentLeagueId } = pageData;
   return {
-    matchupsTitle: `Season ${currentLeagueSeason} - Post Season`,
+    matchupsTitle: `Season ${currentLeagueSeason} - Playoffs`,
     leagueId: currentLeagueId,
     weekValue: currentWeek,
     contentHTML: renderPlayoffsView(matchups),
