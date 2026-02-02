@@ -1,11 +1,12 @@
 mixin bracketMatchupCardBody(matchup)
     - const hasTeamName = (team, owner) => team ? team : owner || 'TBD';
-    - const imageURL = (teamImage, ownerImage) => teamImage ?? ownerImage;
+    - const isTwistedTitTeas = (owner) => owner && owner.toLowerCase().includes('twistedtitteas');
+    - const imageURL = (teamImage, ownerImage, owner) => isTwistedTitTeas(owner) ? ownerImage : (teamImage ?? ownerImage);
     - const isWinner = (rosterId) => matchup.winnerId === rosterId;
 
     section.home-team(class=isWinner(matchup.t1) ? 'winner' : 'loser')
         img(
-            src= imageURL(matchup.teamImage1, matchup.ownerImage1) || "https://placehold.co/50",
+            src= imageURL(matchup.teamImage1, matchup.ownerImage1, matchup.owner1) || "https://placehold.co/50",
             alt= hasTeamName(matchup.team1, matchup.owner1) + ' team logo'
             loading='lazy'
             decoding='async'
@@ -18,7 +19,7 @@ mixin bracketMatchupCardBody(matchup)
 
     section.away-team(class=isWinner(matchup.t2) ? 'winner' : 'loser')
         img(
-            src= imageURL(matchup.teamImage2, matchup.ownerImage2) || "https://placehold.co/50",
+            src= imageURL(matchup.teamImage2, matchup.ownerImage2, matchup.owner2) || "https://placehold.co/50",
             alt= hasTeamName(matchup.team2, matchup.owner2) + ' team logo'
             loading='lazy'
             decoding='async'

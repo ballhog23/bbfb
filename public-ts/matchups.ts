@@ -133,6 +133,8 @@ type MatchupCard = HTMLElement;
 type MatchupModal = HTMLDialogElement;
 type PlayersWrapper = HTMLElement;
 
+const isTwistedTitTeas = (owner: string | null) => owner?.toLowerCase().includes('twistedtitteas') ?? false;
+
 window.addEventListener("DOMContentLoaded", () => {
     const initialWeek = parseInt(matchupsContent.dataset.currentWeek || "1");
     const initialState: PageState = {
@@ -379,13 +381,13 @@ function renderPlayoffMatchupCard(matchup: PlayoffMatchup): string {
 
 function renderPlayoffMatchupCardBody(matchup: PlayoffMatchup): string {
     const hasTeamName = (team: string | null, owner: string | null) => team || owner || "TBD";
-    const imageURL = (teamImage: string | null, ownerImage: string) => teamImage ?? ownerImage;
+    const imageURL = (teamImage: string | null, ownerImage: string, owner: string | null) => isTwistedTitTeas(owner) ? ownerImage : (teamImage ?? ownerImage);
     const isWinner = (rosterId: number | null) => matchup.winnerId === rosterId;
 
     return `
         <section class="home-team ${isWinner(matchup.t1) ? "winner" : "loser"}">
             <img
-                src="${imageURL(matchup.teamImage1, matchup.ownerImage1) || "https://placehold.co/50"}"
+                src="${imageURL(matchup.teamImage1, matchup.ownerImage1, matchup.owner1) || "https://placehold.co/50"}"
                 alt="${escapeForHTML(hasTeamName(matchup.team1, matchup.owner1))} team logo"
                 loading="lazy"
                 decoding="async"
@@ -398,7 +400,7 @@ function renderPlayoffMatchupCardBody(matchup: PlayoffMatchup): string {
         <span class="vs">vs</span>
         <section class="away-team ${isWinner(matchup.t2) ? "winner" : "loser"}">
             <img
-                src="${imageURL(matchup.teamImage2, matchup.ownerImage2) || "https://placehold.co/50"}"
+                src="${imageURL(matchup.teamImage2, matchup.ownerImage2, matchup.owner2) || "https://placehold.co/50"}"
                 alt="${escapeForHTML(hasTeamName(matchup.team2, matchup.owner2))} team logo"
                 loading="lazy"
                 decoding="async"
@@ -483,7 +485,7 @@ function renderPlayerList(
 
 function renderMatchupCardBody([home, away]: MatchupTuple) {
     const teamName = (t: MatchupRow) => t.team ?? t.owner;
-    const imageURL = (t: MatchupRow) => t.teamImage ?? t.ownerImage;
+    const imageURL = (t: MatchupRow) => isTwistedTitTeas(t.owner) ? t.ownerImage : (t.teamImage ?? t.ownerImage);
     const isWinner = (t1: MatchupRow, t2: MatchupRow) => parseFloat(t1.points) > parseFloat(t2.points) ? "winner" : "loser";
 
     return `

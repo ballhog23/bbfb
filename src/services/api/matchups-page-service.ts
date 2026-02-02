@@ -71,7 +71,7 @@ async function assemblePostSeasonMatchupsData(
 
     // Transform the flat query results into structured bracket data
     const matchups = transformPlayoffDataForView(playoffResults);
-    console.log('post season ', currentWeek);
+
     return {
         allLeagues,
         currentLeagueId,
@@ -176,7 +176,7 @@ async function assembleRegularSeasonMatchupsData(
     const currentLeagueSeason = currentLeague.season;
 
     const matchups = groupAdjacentMatchups(orderedMatchups);
-    console.log('regular season ', currentWeek);
+
     return {
         allLeagues,
         currentLeagueId,

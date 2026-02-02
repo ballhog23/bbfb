@@ -3,7 +3,8 @@ mixin matchupCardBody(match)
     - const awayTeam = match[1];
     - const hasTeamName = (t) => t.team ? t.team : t.owner;
     - const isWinner = (t1, t2) => parseFloat(t1.points) > parseFloat(t2.points) ? "winner" : "loser";
-    - const imageURL = (t) => t.teamImage ?? t.ownerImage;
+    - const isTwistedTitTeas = (t) => t.owner && t.owner.toLowerCase().includes('twistedtitteas');
+    - const imageURL = (t) => isTwistedTitTeas(t) ? t.ownerImage : (t.teamImage ?? t.ownerImage);
 
     section.home-team(class=isWinner(homeTeam, awayTeam))
         img(
