@@ -96,7 +96,7 @@ export async function selectPlayoffMatchupsWithDetails(
                 ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as('t1_owner_image'),
                 points: matchupsTable.points,
                 startingRoster: sql<(typeof playerJson)[] | null>`
-                    jsonb_agg(${playerJson})
+                    jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
                     FILTER (
                         WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
                     )
@@ -172,7 +172,7 @@ export async function selectPlayoffMatchupsWithDetails(
                 ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as('t2_owner_image'),
                 points: matchupsTable.points,
                 startingRoster: sql<(typeof playerJson)[] | null>`
-                    jsonb_agg(${playerJson})
+                    jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
                     FILTER (
                         WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
                     )

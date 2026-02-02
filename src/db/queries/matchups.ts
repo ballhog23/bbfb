@@ -201,7 +201,7 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
             ownerImage: sleeperUsersTable.avatarId,
             points: matchupsTable.points,
             startingRoster: sql<(typeof playerJson)[] | null>`
-                jsonb_agg(${playerJson})
+                jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
                 FILTER (
                     WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
                 )
