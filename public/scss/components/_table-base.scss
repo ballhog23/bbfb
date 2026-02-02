@@ -4,37 +4,80 @@
 table {
     width: 100%;
     border-spacing: 0;
-}
 
-th,
-tr {
-    text-align: left;
-}
-
-caption {
-    margin-block: .625rem 0;
-    caption-side: bottom;
-    text-align: right;
-    text-transform: lowercase;
-}
-
-.roster-modal-cell {
-    width: 0;
-    height: 0;
-    padding: 0;
-    border: 0;
-}
-
-thead {
-    background-color: $table-header-bg;
-}
-
-tbody {
-    * {
-        font-weight: $font-weight-normal;
+    th,
+    tr {
+        text-align: left;
     }
 
-    tr:nth-of-type(even) {
-        background-color: $table-row-alt;
+    th,
+    td {
+        padding: .75rem;
+    }
+
+    td {
+        white-space: nowrap;
+    }
+
+    thead {
+        background-color: $table-header-bg;
+
+        tr {
+
+            th {
+                &[scope="col"] {
+                    font-family: $font-heading;
+                }
+
+                &:not(:last-of-type) {
+                    min-width: 7.5rem;
+                }
+
+                &:last-of-type {
+                    min-width: 5.3125rem;
+                }
+
+                @media only screen and (min-width: $sm-breakpoint-up) {
+                    &:not(:last-of-type) {
+                        min-width: unset;
+                    }
+
+                    &:last-of-type {
+                        min-width: unset;
+                    }
+                }
+            }
+
+        }
+    }
+
+    tbody {
+        tr:nth-of-type(even) {
+            background-color: $table-row-alt;
+        }
+
+        th {
+            &[scope="row"] {
+                font-weight: $font-weight-normal;
+            }
+        }
+    }
+
+    caption {
+        margin-block: .625rem 1rem;
+        caption-side: bottom;
+        text-align: left;
+        text-transform: lowercase;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            text-align: right;
+        }
+    }
+
+    .roster-modal-cell {
+        width: 0;
+        height: 0;
+        padding: 0;
+        border: 0;
     }
 }

@@ -192,10 +192,27 @@
 .standings-container {
     margin-block: 6.25rem;
 
-    header {
+    >header {
+        padding: 3rem;
+        border-radius: 0.5rem 0.5rem 0 0;
+        background-color: $table-header-bg;
+        margin: 0;
+
         h2 {
             text-transform: uppercase;
             font-family: $font-accent;
+            color: $accent-gold;
+            text-align: center;
+            margin: 0;
+        }
+    }
+
+    #standings-wrapper {
+        width: 100%;
+        overflow: scroll hidden;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            overflow: hidden hidden;
         }
     }
 }
