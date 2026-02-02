@@ -47,6 +47,12 @@
             }
         }
 
+        &.loser {
+            p {
+                color: $loss;
+            }
+        }
+
         @media only screen and (min-width: $sm-breakpoint-up) {
             h3 {
                 font-size: 1.25rem;

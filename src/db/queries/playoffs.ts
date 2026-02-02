@@ -1,4 +1,4 @@
-import { sql, eq, and, desc } from "drizzle-orm";
+import { sql, eq, and, desc, isNotNull } from "drizzle-orm";
 import { db } from "../index.js";
 import {
     leagueUsersTable, matchupsTable, sleeperUsersTable,
@@ -135,7 +135,10 @@ export async function selectPlayoffMatchupsWithDetails(
                 eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId)
             )
             .where(
-                eq(matchupsTable.leagueId, leagueId)
+                and(
+                    eq(matchupsTable.leagueId, leagueId),
+                    isNotNull(matchupsTable.matchupId)
+                )
             )
             .groupBy(
                 matchupsTable.rosterId,
@@ -204,7 +207,10 @@ export async function selectPlayoffMatchupsWithDetails(
                 eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId)
             )
             .where(
-                eq(matchupsTable.leagueId, leagueId)
+                and(
+                    eq(matchupsTable.leagueId, leagueId),
+                    isNotNull(matchupsTable.matchupId)
+                )
             )
             .groupBy(
                 matchupsTable.rosterId,
@@ -277,7 +283,11 @@ export async function selectPlayoffMatchupsWithDetails(
         )
 
         .where(
-            eq(playoffsTable.leagueId, leagueId)
+            and(
+                eq(playoffsTable.leagueId, leagueId),
+                isNotNull(playoffsTable.matchupId)
+
+            )
         )
 
         .orderBy(

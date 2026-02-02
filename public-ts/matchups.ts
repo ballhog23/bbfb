@@ -371,12 +371,12 @@ function renderPlayoffMatchupCardBody(matchup: PlayoffMatchup): string {
     const isWinner = (rosterId: number | null) => matchup.winnerId === rosterId;
 
     return `
-        <div class="home-team ${isWinner(matchup.t1) ? "winner" : ""}">
+        <div class="home-team ${isWinner(matchup.t1) ? "winner" : "loser"}">
             <h3>${escapeForHTML(hasTeamName(matchup.team1, matchup.owner1))}</h3>
             <p>${matchup.points1 != null ? escapeForHTML(parseFloat(matchup.points1).toFixed(2)) : "TBD"}</p>
         </div>
         <span class="vs">vs</span>
-        <div class="away-team ${isWinner(matchup.t2) ? "winner" : ""}">
+        <div class="away-team ${isWinner(matchup.t2) ? "winner" : "loser"}">
             <h3>${escapeForHTML(hasTeamName(matchup.team2, matchup.owner2))}</h3>
             <p>${matchup.points2 != null ? escapeForHTML(parseFloat(matchup.points2).toFixed(2)) : "TBD"}</p>
         </div>
@@ -454,7 +454,7 @@ function renderPlayerList(
 
 function renderMatchupCardBody([home, away]: MatchupTuple) {
     const teamName = (t: MatchupRow) => t.team ?? t.owner;
-    const isWinner = (t1: MatchupRow, t2: MatchupRow) => parseFloat(t1.points) > parseFloat(t2.points) ? "winner" : "";
+    const isWinner = (t1: MatchupRow, t2: MatchupRow) => parseFloat(t1.points) > parseFloat(t2.points) ? "winner" : "loser";
 
     return `
     <div class="home-team ${isWinner(home, away)}">
