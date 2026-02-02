@@ -275,7 +275,7 @@ function renderPlayerRow(player) {
                 <span class="player-position pos-${escapeForHTML(player.position?.toLowerCase() || "")}">
                     ${escapeForHTML(player.position)}
                 </span>
-                <span class="player-team">${escapeForHTML(player.team || "")}</span>
+                ${player.team ? `<span class="player-team">${escapeForHTML(player.team)}</span>` : ""}
             </div>
         </div>
         ${hasPoints ? `<div class="player-stats">

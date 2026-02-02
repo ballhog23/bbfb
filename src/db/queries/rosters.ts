@@ -112,7 +112,7 @@ export async function selectLeagueRosters(leagueId: string) {
     const playerJson = sql<{
         playerName: string;
         position: string;
-        team: string;
+        team: string | null;
         playerImage: string;
     }>`
         jsonb_build_object(

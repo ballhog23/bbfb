@@ -11,7 +11,8 @@ mixin playerRow(player)
             .player-name #{player.playerName}
             .player-meta
                 span.player-position(class=`pos-${player.position.toLowerCase()}`)= player.position
-                span.player-team #{player.team}
+                if player.team
+                    span.player-team #{player.team}
 
         if player.points != null
             .player-stats

@@ -12,7 +12,7 @@ const seasonNavButtons = document.querySelectorAll<HTMLButtonElement>(".season-n
 type MatchupPlayer = {
     playerName: string;
     position: string;
-    team: string;
+    team: string | null;
     points: string;
     playerImage: string;
 };
@@ -20,7 +20,7 @@ type MatchupPlayer = {
 type RosterPlayer = {
     playerName: string;
     position: string;
-    team: string;
+    team: string | null;
     playerImage: string;
 };
 
@@ -426,7 +426,7 @@ function renderPlayerRow(player: MatchupPlayer | RosterPlayer) {
                 <span class="player-position pos-${escapeForHTML(player.position?.toLowerCase() || "")}">
                     ${escapeForHTML(player.position)}
                 </span>
-                <span class="player-team">${escapeForHTML(player.team || "")}</span>
+                ${player.team ? `<span class="player-team">${escapeForHTML(player.team)}</span>` : ""}
             </div>
         </div>
         ${hasPoints

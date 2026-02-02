@@ -68,7 +68,7 @@ export async function selectPlayoffMatchupsWithDetails(
         playerName: string;
         position: string;
         points: string | null;
-        team: string;
+        team: string | null;
     }>`
         jsonb_build_object(
             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
