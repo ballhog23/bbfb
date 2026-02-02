@@ -1,5 +1,7 @@
 @use './_variables' as *;
 @use './_base';
+@use './components/_navbar';
+@use './components/_nav-overlay';
 @use './components/_matchup-card';
 @use './components/_dialog-base';
 @use './components/_matchup-modal';

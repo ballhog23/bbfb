@@ -1,0 +1,66 @@
+@use '../variables' as *;
+
+html.overlay-nav-open {
+    overflow: hidden;
+}
+
+.nav-overlay {
+    position: fixed;
+    z-index: 99;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    padding-top: rem(60);
+    background-color: $bg-page;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity $transition, visibility $transition;
+
+    @media only screen and (min-width: $md-breakpoint-up) {
+        padding-top: rem(72);
+    }
+
+    html.overlay-nav-open & {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .container {
+        height: 100%;
+    }
+
+    .overlay-links {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: rem(40);
+        list-style: none;
+        opacity: 0;
+        transition: opacity 0.3s 0.15s ease-in;
+
+        html.overlay-nav-open & {
+            opacity: 1;
+        }
+
+        a {
+            font-family: $font-heading;
+            font-size: rem(32);
+            font-weight: $font-weight-normal;
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: color $transition;
+
+            &:hover {
+                color: $blue-highlight;
+            }
+
+            &.current-page {
+                color: $blue-highlight;
+            }
+        }
+    }
+}

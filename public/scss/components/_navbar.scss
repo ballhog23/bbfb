@@ -1,0 +1,141 @@
+@use '../variables' as *;
+
+body {
+    padding-top: rem(60);
+
+    @media only screen and (min-width: $md-breakpoint-up) {
+        padding-top: rem(72);
+    }
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    background-color: $bg-card;
+    border-bottom: 1px solid $border-default;
+    padding-block: rem(12);
+
+    @media only screen and (min-width: $md-breakpoint-up) {
+        padding-block: rem(16);
+    }
+
+    .container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .brand {
+        font-family: $font-heading;
+        font-size: rem(20);
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        color: $text-primary;
+        letter-spacing: 2px;
+
+        @media only screen and (min-width: $md-breakpoint-up) {
+            font-size: rem(24);
+        }
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: flex-end;
+        gap: rem(24);
+        list-style: none;
+
+        @media (max-width: #{$md-breakpoint-up - 1}) {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            clip-path: inset(50%);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        a {
+            font-size: rem(16);
+            font-weight: $font-weight-medium;
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color $transition;
+
+            &:hover {
+                color: $text-primary;
+            }
+
+            &.current-page {
+                color: $blue-highlight;
+            }
+        }
+    }
+
+    .hamburger {
+        height: rem(36);
+        width: rem(36);
+        position: relative;
+        padding: 0;
+        margin: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+
+        @media only screen and (min-width: $md-breakpoint-up) {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            clip-path: inset(50%);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        span {
+            display: block;
+            position: absolute;
+            left: rem(4);
+            right: rem(4);
+            height: 2px;
+            background-color: $text-primary;
+            transition: transform $transition, opacity $transition;
+
+            &:first-of-type {
+                top: rem(8);
+            }
+
+            &:nth-of-type(2) {
+                top: rem(17);
+            }
+
+            &:nth-of-type(3) {
+                top: rem(26);
+            }
+        }
+
+        &.open span {
+            &:first-of-type {
+                transform: translateY(rem(9)) rotate(45deg);
+            }
+
+            &:nth-of-type(2) {
+                opacity: 0;
+            }
+
+            &:nth-of-type(3) {
+                transform: translateY(rem(-9)) rotate(-45deg);
+            }
+        }
+    }
+}

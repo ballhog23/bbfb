@@ -16,6 +16,8 @@ if page === 'matchups'
 else if page === 'homepage'
     link(rel="stylesheet" href="/css/homepage.css")
 
+script(type="module" src="/js/nav.js" defer)
+
 //- Conditional page-specific JS
 if page === 'matchups'
     script(type="module" src="/js/matchups.js" defer)
