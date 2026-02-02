@@ -15,8 +15,14 @@ export async function handlerServeMatchupsPage(req: Request<MatchupsPageParams>,
         req.params.leagueId,
         req.params.week
     );
+    const title = `Matchups | Season ${matchupsPage.currentLeagueSeason} Week ${matchupsPage.currentWeek}`;
 
-    return res.render('pages/matchups', { ...matchupsPage, page: 'matchups' });
+    return res.render('pages/matchups', {
+        ...matchupsPage,
+        page: 'matchups',
+        title,
+        description: `Sleeper Fantasy Football ${title}`
+    });
 }
 
 export async function handlerRedirectToMatchups(_: Request, res: Response) {
