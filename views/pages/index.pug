@@ -4,12 +4,17 @@ block content
     main
         header.container
             h1 Bleed Blue Fantasy Football
+            img(
+                src= 'assets/mascot.webp',
+                loading= 'eager'
+                decoding= 'sync'
+            )
         if leagueState.leg > 17
             section.winner.container
                 h2 #{leagueState.season} Season Champ
                 p #{winner.teamName}
             section.loser.container
-                h2 #{leagueState.season} Season BK Randy
+                h2 #{leagueState.season} Season Sacko
                 p #{loser.teamName}
         section.container
             h2 Check Out League Matchups

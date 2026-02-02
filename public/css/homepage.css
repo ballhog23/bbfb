@@ -115,10 +115,10 @@ label {
 }
 
 img {
-  height: 10rem;
   width: 10rem;
   display: block;
   object-fit: cover;
+  margin: 0 auto;
 }
 
 .container {
@@ -162,6 +162,10 @@ a {
 h1 {
   text-align: center;
   padding: 2rem 0;
+}
+
+img {
+  width: 13rem;
 }
 
 .winner,
