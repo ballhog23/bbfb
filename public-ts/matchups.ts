@@ -279,6 +279,7 @@ function buildPlayoffsState(pageData: PlayoffsResponse): PageState {
 }
 
 function applyState(state: PageState) {
+    document.title = `Matchups | ${state.matchupsTitle}`;
     matchupsTitle.innerHTML = state.matchupsTitle;
     matchupsContent.innerHTML = state.contentHTML;
     standingsContainer.innerHTML = state.standingsHTML;

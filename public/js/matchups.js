@@ -138,6 +138,7 @@ function buildPlayoffsState(pageData) {
   };
 }
 function applyState(state) {
+  document.title = `Matchups | ${state.matchupsTitle}`;
   matchupsTitle.innerHTML = state.matchupsTitle;
   matchupsContent.innerHTML = state.contentHTML;
   standingsContainer.innerHTML = state.standingsHTML;
