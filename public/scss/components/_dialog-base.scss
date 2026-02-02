@@ -8,22 +8,31 @@ dialog {
     border-radius: .5rem;
     padding: 1rem;
 
+    &::backdrop {
+        backdrop-filter: blur(0.5rem);
+    }
+
     @media only screen and (min-width: $sm-breakpoint-up) {
         width: 90%;
         height: 90%;
+    }
+
+    * {
+        cursor: default;
+    }
+
+    h3,
+    h4 {
+        color: $text-primary;
+    }
+
+    h4 {
+        font-size: 1.125rem;
     }
 
     button {
         display: block;
         margin: 0 0 2rem auto;
         cursor: pointer;
-    }
-
-    &::backdrop {
-        backdrop-filter: blur(0.5rem);
-    }
-
-    * {
-        cursor: default;
     }
 }

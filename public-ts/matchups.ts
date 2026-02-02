@@ -540,7 +540,7 @@ function renderStandingsRow(team: RostersRow) {
         <td>${escapeForHTML(team.pointsAgainst.toString())}</td>
         <td>${escapeForHTML(team.wins.toString())} / ${escapeForHTML(team.losses.toString())}</td>
         <td class="roster-modal-cell">
-            <dialog class="matchup-modal rosters-modal">
+            <dialog class="rosters-modal">
                 <button class="btn">Close</button>
                 <div class="players-wrapper">
                     <h3>${escapeForHTML(displayName)}</h3>

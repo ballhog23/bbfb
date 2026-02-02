@@ -1,6 +1,5 @@
 @use '../_variables' as *;
 
-
 .matchup-modal {
     .matchup-card {
         background-color: transparent;
@@ -31,12 +30,6 @@
         }
 
         .player-list-section {
-            h4 {
-                color: $text-primary;
-                text-decoration: solid;
-                font-size: 1.125rem;
-            }
-
             .player-list {
                 display: flex;
                 flex-direction: column;
