@@ -20,7 +20,7 @@ block content
                         class=currentWeek >= 15 ? 'active' : ''
                     ) Playoffs
 
-            #matchups-content
+            #matchups-content(data-current-week=currentWeek)
                 if currentWeek < 15
                     include ../partials/regular-season-matchups.pug
                 else

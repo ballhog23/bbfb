@@ -29,7 +29,7 @@ var weeksSelect = document.querySelector("#week-select");
 var matchupsTitle = document.querySelector("#season-header");
 var seasonNavButtons = document.querySelectorAll(".season-navigation .nav-link");
 window.addEventListener("DOMContentLoaded", () => {
-  const initialWeek = weeksSelect ? parseInt(weeksSelect.value) : 1;
+  const initialWeek = parseInt(matchupsContent.dataset.currentWeek || "1");
   const initialState = {
     matchupsTitle: matchupsTitle.innerHTML,
     leagueId: leaguesSelect.value,
@@ -38,6 +38,7 @@ window.addEventListener("DOMContentLoaded", () => {
     standingsHTML: standingsContainer.innerHTML,
     isPlayoffs: initialWeek >= 15
   };
+  console.log(initialState);
   history.replaceState(initialState, "", location.href);
 });
 window.addEventListener("popstate", (event) => {
@@ -91,6 +92,7 @@ seasonNavButtons.forEach((btn) => {
     } else {
       week = 17;
     }
+    console.log(currentWeek, week);
     seasonNavButtons.forEach((b) => b.classList.remove("active"));
     e.target.classList.add("active");
     await loadMatchupsData(leaguesSelect.value, week);
