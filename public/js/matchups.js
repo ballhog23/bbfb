@@ -376,14 +376,22 @@ function renderStandingsRow(team) {
         <td class="roster-modal-cell">
             <dialog class="rosters-modal">
                 <button class="btn">Close</button>
-                <div class="players-wrapper">
-                    <h3>${escapeForHTML(displayName)}</h3>
+                <section class="players-wrapper">
+                    <header>
+                        <img
+                            src="${(team.teamImage ?? team.ownerImage) || "https://placehold.co/50"}"
+                            alt="${escapeForHTML(displayName)} team logo"
+                            loading="lazy"
+                            decoding="async"
+                        />
+                        <h3>${escapeForHTML(displayName)}</h3>
+                    </header>
                     <div class="roster">
                         ${renderPlayerList(team.startingRoster, "Starting")}
                         ${renderPlayerList(team.benchRoster, "Bench")}
                         ${renderPlayerList(team.reserveRoster, "Injured Reserve")}
                     </div>
-                </div>
+                </section>
             </dialog>
         </td>
     </tr>

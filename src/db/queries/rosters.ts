@@ -129,7 +129,9 @@ export async function selectLeagueRosters(leagueId: string) {
     const result = await db
         .select({
             ownerName: sleeperUsersTable.displayName,
+            ownerImage: sleeperUsersTable.avatarId,
             teamName: leagueUsersTable.teamName,
+            teamImage: leagueUsersTable.avatarId,
             pointsFor: rostersTable.fpts,
             pointsAgainst: rostersTable.fptsAgainst,
             wins: rostersTable.wins,
@@ -173,7 +175,9 @@ export async function selectLeagueRosters(leagueId: string) {
         .where(eq(rostersTable.leagueId, leagueId))
         .groupBy(
             sleeperUsersTable.displayName,
+            sleeperUsersTable.avatarId,
             leagueUsersTable.teamName,
+            leagueUsersTable.avatarId,
             rostersTable.fpts,
             rostersTable.fptsAgainst,
             rostersTable.wins,

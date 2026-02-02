@@ -1,6 +1,7 @@
 include ./player-list.pug
 mixin standingsRow(team)
     - const teamName = (t) => t.teamName ? t.teamName : t.ownerName;
+    - const imageURL = (t) => t.teamImage ?? t.ownerImage;
     - const displayTeamName = teamName(team);
     - const playersStarting = team.startingRoster;
     - const playersBench = team.benchRoster;
@@ -13,8 +14,15 @@ mixin standingsRow(team)
             td.roster-modal-cell
                 dialog.rosters-modal
                     button.btn Close
-                    .players-wrapper
-                        h3= displayTeamName
+                    section.players-wrapper
+                        header
+                            img(
+                                src= imageURL(team) || "https://placehold.co/50",
+                                alt= displayTeamName + ' team logo'
+                                loading='lazy'
+                                decoding='async'
+                            )
+                            h3= displayTeamName
                         .roster
                             +playerList(playersStarting, 'Starting')
                             +playerList(playersBench, 'Bench')
