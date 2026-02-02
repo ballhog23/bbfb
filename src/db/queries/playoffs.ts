@@ -91,7 +91,9 @@ export async function selectPlayoffMatchupsWithDetails(
                 week: matchupsTable.week,
                 season: matchupsTable.season,
                 team: leagueUsersTable.teamName,
+                teamImage: sql<string>`${leagueUsersTable.avatarId}`.as('t1_team_image'),
                 owner: sleeperUsersTable.displayName,
+                ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as('t1_owner_image'),
                 points: matchupsTable.points,
                 startingRoster: sql<(typeof playerJson)[] | null>`
                     jsonb_agg(${playerJson})
@@ -149,6 +151,8 @@ export async function selectPlayoffMatchupsWithDetails(
                 matchupsTable.leagueId,
                 matchupsTable.week,
                 matchupsTable.season,
+                leagueUsersTable.avatarId,
+                sleeperUsersTable.avatarId,
                 leagueUsersTable.teamName,
                 sleeperUsersTable.displayName,
                 matchupsTable.points
@@ -163,7 +167,9 @@ export async function selectPlayoffMatchupsWithDetails(
                 week: matchupsTable.week,
                 season: matchupsTable.season,
                 team: leagueUsersTable.teamName,
+                teamImage: sql<string>`${leagueUsersTable.avatarId}`.as('t2_team_image'),
                 owner: sleeperUsersTable.displayName,
+                ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as('t2_owner_image'),
                 points: matchupsTable.points,
                 startingRoster: sql<(typeof playerJson)[] | null>`
                     jsonb_agg(${playerJson})
@@ -221,6 +227,8 @@ export async function selectPlayoffMatchupsWithDetails(
                 matchupsTable.leagueId,
                 matchupsTable.week,
                 matchupsTable.season,
+                leagueUsersTable.avatarId,
+                sleeperUsersTable.avatarId,
                 leagueUsersTable.teamName,
                 sleeperUsersTable.displayName,
                 matchupsTable.points
@@ -254,6 +262,8 @@ export async function selectPlayoffMatchupsWithDetails(
             t1Season: t1Data.season,
             t1StartingRoster: t1Data.startingRoster,
             t1BenchRoster: t1Data.benchRoster,
+            t1TeamImage: t1Data.teamImage,
+            t1OwnerImage: t1Data.ownerImage,
 
             // Team 2 data
             t2RosterId: playoffsTable.t2,
@@ -263,6 +273,8 @@ export async function selectPlayoffMatchupsWithDetails(
             t2Season: t2Data.season,
             t2StartingRoster: t2Data.startingRoster,
             t2BenchRoster: t2Data.benchRoster,
+            t2TeamImage: t2Data.teamImage,
+            t2OwnerImage: t2Data.ownerImage,
         })
         .from(playoffsTable)
 

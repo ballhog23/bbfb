@@ -1,19 +1,28 @@
 mixin bracketMatchupCardBody(matchup)
     - const hasTeamName = (team, owner) => team ? team : owner || 'TBD';
+    - const imageURL = (teamImage, ownerImage) => teamImage ?? ownerImage;
     - const isWinner = (rosterId) => matchup.winnerId === rosterId;
 
-    .home-team(class=isWinner(matchup.t1) ? 'winner' : 'loser')
-        h3= hasTeamName(matchup.team1, matchup.owner1)
-        if matchup.points1 !== null && matchup.points1 !== undefined
-            p= parseFloat(matchup.points1).toFixed(2)
-        else
-            p TBD
-    
+    section.home-team(class=isWinner(matchup.t1) ? 'winner' : 'loser')
+        img(
+            src= imageURL(matchup.teamImage1, matchup.ownerImage1) || "https://placehold.co/50",
+            alt= hasTeamName(matchup.team1, matchup.owner1) + ' team logo'
+            loading='lazy'
+            decoding='async'
+        )
+        .team-details
+            h3= hasTeamName(matchup.team1, matchup.owner1)
+            p= matchup.points1
+
     span.vs vs
-    
-    .away-team(class=isWinner(matchup.t2) ? 'winner' : 'loser')
-        h3= hasTeamName(matchup.team2, matchup.owner2)
-        if matchup.points2 !== null && matchup.points2 !== undefined
-            p= parseFloat(matchup.points2).toFixed(2)
-        else
-            p TBD
+
+    section.away-team(class=isWinner(matchup.t2) ? 'winner' : 'loser')
+        img(
+            src= imageURL(matchup.teamImage2, matchup.ownerImage2) || "https://placehold.co/50",
+            alt= hasTeamName(matchup.team2, matchup.owner2) + ' team logo'
+            loading='lazy'
+            decoding='async'
+        )
+        .team-details
+            h3= hasTeamName(matchup.team2, matchup.owner2)
+            p= matchup.points2

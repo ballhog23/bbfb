@@ -111,6 +111,8 @@ function transformPlayoffDataForView(queryResults: Awaited<ReturnType<typeof sel
             points1: row.t1Points,
             startingRoster1: row.t1StartingRoster,
             benchRoster1: row.t1BenchRoster,
+            teamImage1: row.t1TeamImage,
+            ownerImage1: row.t1OwnerImage,
 
             // Team 2
             t2: row.t2RosterId,
@@ -119,6 +121,8 @@ function transformPlayoffDataForView(queryResults: Awaited<ReturnType<typeof sel
             points2: row.t2Points,
             startingRoster2: row.t2StartingRoster,
             benchRoster2: row.t2BenchRoster,
+            teamImage2: row.t2TeamImage,
+            ownerImage2: row.t2OwnerImage,
 
             // Navigation
             t1FromWinner: row.t1FromWinner,

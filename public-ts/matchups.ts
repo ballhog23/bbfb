@@ -34,7 +34,9 @@ type MatchupRow = {
     week: number;
     matchupId: number | null;
     team: string | null;
+    teamImage: string | null;
     owner: string;
+    ownerImage: string;
     points: string;
     startingRoster: MatchupPlayer[] | null;
     reserveRoster: MatchupPlayer[] | null;
@@ -54,15 +56,19 @@ type PlayoffMatchup = {
     t1: number | null;
     team1: string | null;
     owner1: string | null;
-    points1: string | null;
+    points1: string;
     startingRoster1: MatchupPlayer[] | null;
     benchRoster1: MatchupPlayer[] | null;
+    teamImage1: string | null;
+    ownerImage1: string;
     t2: number | null;
     team2: string | null;
     owner2: string | null;
-    points2: string | null;
+    points2: string;
     startingRoster2: MatchupPlayer[] | null;
     benchRoster2: MatchupPlayer[] | null;
+    teamImage2: string | null;
+    ownerImage2: string;
     t1FromWinner: number | null;
     t1FromLoser: number | null;
     t2FromWinner: number | null;
@@ -372,18 +378,35 @@ function renderPlayoffMatchupCard(matchup: PlayoffMatchup): string {
 
 function renderPlayoffMatchupCardBody(matchup: PlayoffMatchup): string {
     const hasTeamName = (team: string | null, owner: string | null) => team || owner || "TBD";
+    const imageURL = (teamImage: string | null, ownerImage: string) => teamImage ?? ownerImage;
     const isWinner = (rosterId: number | null) => matchup.winnerId === rosterId;
 
     return `
-        <div class="home-team ${isWinner(matchup.t1) ? "winner" : "loser"}">
-            <h3>${escapeForHTML(hasTeamName(matchup.team1, matchup.owner1))}</h3>
-            <p>${matchup.points1 != null ? escapeForHTML(parseFloat(matchup.points1).toFixed(2)) : "TBD"}</p>
-        </div>
+        <section class="home-team ${isWinner(matchup.t1) ? "winner" : "loser"}">
+            <img
+                src="${imageURL(matchup.teamImage1, matchup.ownerImage1) || "https://placehold.co/50"}"
+                alt="${escapeForHTML(hasTeamName(matchup.team1, matchup.owner1))} team logo"
+                loading="lazy"
+                decoding="async"
+            />
+            <div class="team-details">
+                <h3>${escapeForHTML(hasTeamName(matchup.team1, matchup.owner1))}</h3>
+                <p>${escapeForHTML(matchup.points1)}</p>
+            </div>
+        </section>
         <span class="vs">vs</span>
-        <div class="away-team ${isWinner(matchup.t2) ? "winner" : "loser"}">
-            <h3>${escapeForHTML(hasTeamName(matchup.team2, matchup.owner2))}</h3>
-            <p>${matchup.points2 != null ? escapeForHTML(parseFloat(matchup.points2).toFixed(2)) : "TBD"}</p>
-        </div>
+        <section class="away-team ${isWinner(matchup.t2) ? "winner" : "loser"}">
+            <img
+                src="${imageURL(matchup.teamImage2, matchup.ownerImage2) || "https://placehold.co/50"}"
+                alt="${escapeForHTML(hasTeamName(matchup.team2, matchup.owner2))} team logo"
+                loading="lazy"
+                decoding="async"
+            />
+            <div class="team-details">
+                <h3>${escapeForHTML(hasTeamName(matchup.team2, matchup.owner2))}</h3>
+                <p>${escapeForHTML(matchup.points2)}</p>
+            </div>
+        </section>
     `;
 }
 
@@ -459,18 +482,35 @@ function renderPlayerList(
 
 function renderMatchupCardBody([home, away]: MatchupTuple) {
     const teamName = (t: MatchupRow) => t.team ?? t.owner;
+    const imageURL = (t: MatchupRow) => t.teamImage ?? t.ownerImage;
     const isWinner = (t1: MatchupRow, t2: MatchupRow) => parseFloat(t1.points) > parseFloat(t2.points) ? "winner" : "loser";
 
     return `
-    <div class="home-team ${isWinner(home, away)}">
-        <h3>${escapeForHTML(teamName(home))}</h3>
-        <p>${escapeForHTML(home.points)}</p>
-    </div>
+    <section class="home-team ${isWinner(home, away)}">
+        <img
+            src="${imageURL(home) || "https://placehold.co/50"}"
+            alt="${escapeForHTML(teamName(home))} team logo"
+            loading="lazy"
+            decoding="async"
+        />
+        <div class="team-details">
+            <h3>${escapeForHTML(teamName(home))}</h3>
+            <p>${escapeForHTML(home.points)}</p>
+        </div>
+    </section>
     <span class="vs">vs</span>
-    <div class="away-team ${isWinner(away, home)}">
-        <h3>${escapeForHTML(teamName(away))}</h3>
-        <p>${escapeForHTML(away.points)}</p>
-    </div>
+    <section class="away-team ${isWinner(away, home)}">
+        <img
+            src="${imageURL(away) || "https://placehold.co/50"}"
+            alt="${escapeForHTML(teamName(away))} team logo"
+            loading="lazy"
+            decoding="async"
+        />
+        <div class="team-details">
+            <h3>${escapeForHTML(teamName(away))}</h3>
+            <p>${escapeForHTML(away.points)}</p>
+        </div>
+    </section>
     `;
 }
 

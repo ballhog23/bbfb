@@ -1,11 +1,10 @@
-import { sql, and, eq, desc, gte, isNotNull, isNull } from "drizzle-orm";
+import { sql, and, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../index.js";
 import {
     leagueUsersTable, matchupsTable,
     rostersTable, NFLPlayersTable,
     type StrictInsertMatchup,
     sleeperUsersTable,
-    SelectPlayoffMatchup
 } from "../schema.js";
 
 export async function insertMatchup(matchup: StrictInsertMatchup) {
@@ -40,7 +39,9 @@ export async function selectLeagueMatchups(leagueId: string) {
             week: matchupsTable.week,
             matchupId: matchupsTable.matchupId,
             team: leagueUsersTable.teamName,
+            teamImage: leagueUsersTable.avatarId,
             owner: sleeperUsersTable.displayName,
+            ownerImage: sleeperUsersTable.avatarId,
             pointsTotal: matchupsTable.points,
             players: sql
                 `
@@ -86,6 +87,8 @@ export async function selectLeagueMatchups(leagueId: string) {
             matchupsTable.season,
             matchupsTable.week,
             matchupsTable.matchupId,
+            leagueUsersTable.avatarId,
+            sleeperUsersTable.avatarId,
             leagueUsersTable.teamName,
             sleeperUsersTable.displayName,
             matchupsTable.points,
@@ -193,7 +196,9 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
             week: matchupsTable.week,
             matchupId: matchupsTable.matchupId,
             team: leagueUsersTable.teamName,
+            teamImage: leagueUsersTable.avatarId,
             owner: sleeperUsersTable.displayName,
+            ownerImage: sleeperUsersTable.avatarId,
             points: matchupsTable.points,
             startingRoster: sql<(typeof playerJson)[] | null>`
                 jsonb_agg(${playerJson})
@@ -251,6 +256,8 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
             matchupsTable.season,
             matchupsTable.week,
             matchupsTable.matchupId,
+            leagueUsersTable.avatarId,
+            sleeperUsersTable.avatarId,
             leagueUsersTable.teamName,
             sleeperUsersTable.displayName,
             matchupsTable.points

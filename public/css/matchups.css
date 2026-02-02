@@ -182,30 +182,42 @@ a {
     align-items: center;
   }
 }
-.matchup-card > div {
+.matchup-card > section {
   display: flex;
-  flex-direction: column;
+  gap: 1rem;
 }
-.matchup-card > div h3,
-.matchup-card > div p {
+.matchup-card > section img {
+  border-radius: 50%;
+  height: 3.125rem;
+  width: 3.125rem;
+}
+.matchup-card > section h3,
+.matchup-card > section p {
   margin-bottom: 0;
 }
-.matchup-card > div h3 {
+.matchup-card > section h3 {
   margin-block: 0 1rem;
 }
-.matchup-card > div.winner p {
+.matchup-card > section.winner p {
   color: #16a34a;
 }
-.matchup-card > div.loser p {
+.matchup-card > section.loser p {
   color: #d62828;
 }
 @media only screen and (min-width: 576px) {
-  .matchup-card > div h3 {
+  .matchup-card > section h3 {
     font-size: 1.25rem;
   }
 }
 @media only screen and (min-width: 576px) {
-  .matchup-card .away-team * {
+  .matchup-card .away-team {
+    justify-content: flex-end;
+  }
+  .matchup-card .away-team img {
+    order: 1;
+  }
+  .matchup-card .away-team h3,
+  .matchup-card .away-team p {
     text-align: right;
   }
 }

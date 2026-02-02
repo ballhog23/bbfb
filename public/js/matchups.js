@@ -223,17 +223,34 @@ function renderPlayoffMatchupCard(matchup) {
 }
 function renderPlayoffMatchupCardBody(matchup) {
   const hasTeamName = (team, owner) => team || owner || "TBD";
+  const imageURL = (teamImage, ownerImage) => teamImage ?? ownerImage;
   const isWinner = (rosterId) => matchup.winnerId === rosterId;
   return `
-        <div class="home-team ${isWinner(matchup.t1) ? "winner" : "loser"}">
-            <h3>${escapeForHTML(hasTeamName(matchup.team1, matchup.owner1))}</h3>
-            <p>${matchup.points1 != null ? escapeForHTML(parseFloat(matchup.points1).toFixed(2)) : "TBD"}</p>
-        </div>
+        <section class="home-team ${isWinner(matchup.t1) ? "winner" : "loser"}">
+            <img
+                src="${imageURL(matchup.teamImage1, matchup.ownerImage1) || "https://placehold.co/50"}"
+                alt="${escapeForHTML(hasTeamName(matchup.team1, matchup.owner1))} team logo"
+                loading="lazy"
+                decoding="async"
+            />
+            <div class="team-details">
+                <h3>${escapeForHTML(hasTeamName(matchup.team1, matchup.owner1))}</h3>
+                <p>${escapeForHTML(matchup.points1)}</p>
+            </div>
+        </section>
         <span class="vs">vs</span>
-        <div class="away-team ${isWinner(matchup.t2) ? "winner" : "loser"}">
-            <h3>${escapeForHTML(hasTeamName(matchup.team2, matchup.owner2))}</h3>
-            <p>${matchup.points2 != null ? escapeForHTML(parseFloat(matchup.points2).toFixed(2)) : "TBD"}</p>
-        </div>
+        <section class="away-team ${isWinner(matchup.t2) ? "winner" : "loser"}">
+            <img
+                src="${imageURL(matchup.teamImage2, matchup.ownerImage2) || "https://placehold.co/50"}"
+                alt="${escapeForHTML(hasTeamName(matchup.team2, matchup.owner2))} team logo"
+                loading="lazy"
+                decoding="async"
+            />
+            <div class="team-details">
+                <h3>${escapeForHTML(hasTeamName(matchup.team2, matchup.owner2))}</h3>
+                <p>${escapeForHTML(matchup.points2)}</p>
+            </div>
+        </section>
     `;
 }
 function renderPlayoffMatchupModal(matchup) {
@@ -297,17 +314,34 @@ function renderPlayerList(players, label) {
 }
 function renderMatchupCardBody([home, away]) {
   const teamName = (t) => t.team ?? t.owner;
+  const imageURL = (t) => t.teamImage ?? t.ownerImage;
   const isWinner = (t1, t2) => parseFloat(t1.points) > parseFloat(t2.points) ? "winner" : "loser";
   return `
-    <div class="home-team ${isWinner(home, away)}">
-        <h3>${escapeForHTML(teamName(home))}</h3>
-        <p>${escapeForHTML(home.points)}</p>
-    </div>
+    <section class="home-team ${isWinner(home, away)}">
+        <img
+            src="${imageURL(home) || "https://placehold.co/50"}"
+            alt="${escapeForHTML(teamName(home))} team logo"
+            loading="lazy"
+            decoding="async"
+        />
+        <div class="team-details">
+            <h3>${escapeForHTML(teamName(home))}</h3>
+            <p>${escapeForHTML(home.points)}</p>
+        </div>
+    </section>
     <span class="vs">vs</span>
-    <div class="away-team ${isWinner(away, home)}">
-        <h3>${escapeForHTML(teamName(away))}</h3>
-        <p>${escapeForHTML(away.points)}</p>
-    </div>
+    <section class="away-team ${isWinner(away, home)}">
+        <img
+            src="${imageURL(away) || "https://placehold.co/50"}"
+            alt="${escapeForHTML(teamName(away))} team logo"
+            loading="lazy"
+            decoding="async"
+        />
+        <div class="team-details">
+            <h3>${escapeForHTML(teamName(away))}</h3>
+            <p>${escapeForHTML(away.points)}</p>
+        </div>
+    </section>
     `;
 }
 function renderMatchupModal([home, away]) {
