@@ -312,7 +312,13 @@ dialog .player-list-section .player-list {
 }
 
 .rosters-modal h3 {
+  font-size: 2rem;
   text-align: center;
+}
+@media only screen and (min-width: 768px) {
+  .rosters-modal h3 {
+    font-size: 2.25rem;
+  }
 }
 
 .player-card {
