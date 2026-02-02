@@ -369,8 +369,10 @@ tr {
 }
 
 caption {
+  margin-block: 0.625rem 0;
   caption-side: bottom;
   text-align: right;
+  text-transform: lowercase;
 }
 
 .roster-modal-cell {
@@ -548,6 +550,9 @@ tbody tr:nth-of-type(even) {
   gap: 1rem;
 }
 
+.standings-container {
+  margin-block: 6.25rem;
+}
 .standings-container header h2 {
   text-transform: uppercase;
   font-family: "Doto", sans-serif;

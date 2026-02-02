@@ -12,8 +12,10 @@ tr {
 }
 
 caption {
+    margin-block: .625rem 0;
     caption-side: bottom;
     text-align: right;
+    text-transform: lowercase;
 }
 
 .roster-modal-cell {

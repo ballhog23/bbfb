@@ -349,7 +349,7 @@ function renderStandingsSection(rosters, season) {
         </header>
         <section id="standings-wrapper">
             <table>
-                <caption>Standings are based on Regular Season Head-to-Heads</caption>
+                <caption>*Standings are based on Regular Season Head-to-Heads</caption>
                 <thead>
                     <tr>
                         <th scope="col">Team</th>
