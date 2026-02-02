@@ -4,6 +4,7 @@ mixin playerRow(player)
             src=player.playerImage || "https://placehold.co/50",
             alt=`${player.playerName} headshot`
             loading='lazy'
+            decoding='async'
         )
 
         .player-info

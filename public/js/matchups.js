@@ -264,9 +264,10 @@ function renderPlayerRow(player) {
     <div class="player-card">
         <img
             class="player-avatar"
-            src="https://placehold.co/50"
+            src="${player.playerImage || "https://placehold.co/50"}"
             alt="${escapeForHTML(player.playerName)} headshot"
             loading="lazy"
+            decoding="async"
         />
         <div class="player-info">
             <div class="player-name">${escapeForHTML(player.playerName)}</div>

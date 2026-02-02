@@ -14,12 +14,14 @@ type MatchupPlayer = {
     position: string;
     team: string;
     points: string;
+    playerImage: string;
 };
 
 type RosterPlayer = {
     playerName: string;
     position: string;
     team: string;
+    playerImage: string;
 };
 
 type LeagueData = {
@@ -413,9 +415,10 @@ function renderPlayerRow(player: MatchupPlayer | RosterPlayer) {
     <div class="player-card">
         <img
             class="player-avatar"
-            src="https://placehold.co/50"
+            src="${player.playerImage || "https://placehold.co/50"}"
             alt="${escapeForHTML(player.playerName)} headshot"
             loading="lazy"
+            decoding="async"
         />
         <div class="player-info">
             <div class="player-name">${escapeForHTML(player.playerName)}</div>

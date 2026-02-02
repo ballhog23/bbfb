@@ -113,11 +113,16 @@ export async function selectLeagueRosters(leagueId: string) {
         playerName: string;
         position: string;
         team: string;
+        playerImage: string;
     }>`
         jsonb_build_object(
             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
             'position', ${NFLPlayersTable.position},
-            'team', ${NFLPlayersTable.team}
+            'team', ${NFLPlayersTable.team},
+            'playerImage', CASE
+                WHEN ${NFLPlayersTable.position} = 'DEF' THEN 'https://sleepercdn.com/images/team_logos/nfl/' || lower(nfl_players.team) || '.png'
+                ELSE 'https://sleepercdn.com/content/nfl/players/' || nfl_players.player_id || '.jpg'
+                END
         )
     `;
 
