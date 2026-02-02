@@ -1,7 +1,8 @@
 include ./player-list.pug
 mixin standingsRow(team)
     - const teamName = (t) => t.teamName ? t.teamName : t.ownerName;
-    - const imageURL = (t) => t.teamImage ?? t.ownerImage;
+    - const isTwistedTitTeas = (t) => t.ownerName && t.ownerName.toLowerCase().includes('twistedtitteas');
+    - const imageURL = (t) => isTwistedTitTeas(t) ? t.ownerImage : (t.teamImage ?? t.ownerImage);
     - const displayTeamName = teamName(team);
     - const playersStarting = team.startingRoster;
     - const playersBench = team.benchRoster;

@@ -417,7 +417,7 @@ function renderStandingsRow(team) {
                 <section class="players-wrapper">
                     <header>
                         <img
-                            src="${(team.teamImage ?? team.ownerImage) || "https://placehold.co/50"}"
+                            src="${(isTwistedTitTeas(team.ownerName) ? team.ownerImage : team.teamImage ?? team.ownerImage) || "https://placehold.co/50"}"
                             alt="${escapeForHTML(displayName)} team logo"
                             loading="lazy"
                             decoding="async"
