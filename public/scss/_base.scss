@@ -111,35 +111,6 @@ header {
     margin-bottom: 2rem;
 }
 
-table {
-    width: 100%;
-    border-spacing: 0;
-}
-
-th,
-tr {
-    text-align: left;
-}
-
-caption {
-    caption-side: bottom;
-    text-align: right;
-}
-
-thead {
-    background-color: $table-header-bg;
-}
-
-tbody {
-    * {
-        font-weight: $font-weight-normal;
-    }
-
-    tr:nth-of-type(even) {
-        background-color: $table-row-alt;
-    }
-}
-
 a {
     color: inherit;
     text-decoration: none;

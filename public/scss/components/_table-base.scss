@@ -1,0 +1,38 @@
+@use '../_variables' as *;
+
+
+table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+th,
+tr {
+    text-align: left;
+}
+
+caption {
+    caption-side: bottom;
+    text-align: right;
+}
+
+.roster-modal-cell {
+    width: 0;
+    height: 0;
+    padding: 0;
+    border: 0;
+}
+
+thead {
+    background-color: $table-header-bg;
+}
+
+tbody {
+    * {
+        font-weight: $font-weight-normal;
+    }
+
+    tr:nth-of-type(even) {
+        background-color: $table-row-alt;
+    }
+}
