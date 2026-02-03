@@ -9,12 +9,10 @@ export async function handlerServeIndex(req: Request, res: Response) {
         return res.render('pages/404');
 
     const queries = [];
-
-    if (leagueState.leg > 17)
-        queries.push(
-            selectLeagueWinner(config.league.id),
-            selectLeagueLoser(config.league.id)
-        );
+    queries.push(
+        selectLeagueWinner(config.league.id),
+        selectLeagueLoser(config.league.id)
+    );
 
     const results = await Promise.all(queries);
     const [winner, loser] = results;

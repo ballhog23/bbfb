@@ -1,5 +1,7 @@
 .env
 players.json
+*.css
+*.js
 
 
 # Logs
