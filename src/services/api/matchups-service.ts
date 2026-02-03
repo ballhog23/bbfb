@@ -24,9 +24,9 @@ type RawLeagueMatchups = {
 
 export async function syncMatchups() {
     const matchups = await buildRegularSeasonLeagueMatchups();
-    // const results = await insertLeagueMatchups(matchups);
+    const results = await insertLeagueMatchups(matchups);
 
-    return matchups;
+    return results;
 }
 
 export async function buildAndInsertLeagueMatchupHistory() {
