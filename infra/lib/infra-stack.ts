@@ -4,7 +4,7 @@ import { FckNatInstanceProvider } from 'cdk-fck-nat';
 import { Construct } from 'constructs';
 
 // should look into splitting code into separate stacks for testing?
-export class InfraStack extends cdk.Stack {
+export class BBFBInfraStack extends cdk.Stack {
     private DB_PORT: number = 5432;
     private APP_PORT: number = 3000;
 
@@ -14,6 +14,11 @@ export class InfraStack extends cdk.Stack {
         // nat instance
         const natGatewayProvider = new FckNatInstanceProvider({
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
+        });
+
+        // rename the NAT instance via ASG tags
+        natGatewayProvider.autoScalingGroups.forEach(asg => {
+            cdk.Tags.of(asg).add('Name', `${this.stackName}/NatInstance`);
         });
 
         const vpc = new ec2.Vpc(this, 'bbfb-vpc', {
@@ -73,7 +78,9 @@ export class InfraStack extends cdk.Stack {
         const reverseProxy = new ec2.Instance(this, 'ReverseProxyInstance', {
             vpc,
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
-            machineImage: ec2.MachineImage.latestAmazonLinux2023(),
+            machineImage: ec2.MachineImage.latestAmazonLinux2023({
+                cpuType: ec2.AmazonLinuxCpuType.ARM_64
+            }),
             vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
             securityGroup: reverseProxySecurityGroup
         });
@@ -89,7 +96,9 @@ export class InfraStack extends cdk.Stack {
         const appInstance = new ec2.Instance(this, 'AppInstance', {
             vpc,
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
-            machineImage: ec2.MachineImage.latestAmazonLinux2023(),
+            machineImage: ec2.MachineImage.latestAmazonLinux2023({
+                cpuType: ec2.AmazonLinuxCpuType.ARM_64
+            }),
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
             securityGroup: appSecurityGroup
         });
@@ -101,7 +110,9 @@ export class InfraStack extends cdk.Stack {
         const dbInstance = new ec2.Instance(this, 'DbInstance', {
             vpc,
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
-            machineImage: ec2.MachineImage.latestAmazonLinux2023(),
+            machineImage: ec2.MachineImage.latestAmazonLinux2023({
+                cpuType: ec2.AmazonLinuxCpuType.ARM_64
+            }),
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
             securityGroup: dbSecurityGroup
         });
