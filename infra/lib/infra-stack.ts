@@ -133,5 +133,22 @@ export class BBFBInfraStack extends cdk.Stack {
         dbInstance.connections.allowFrom(
             appInstance, ec2.Port.tcp(this.DB_PORT), 'Allow Db and App communication'
         );
+
+        // EC2 Instance Connect Endpoint for accessing isolated instances
+        const eiceSecurityGroup = new ec2.SecurityGroup(this, 'EiceSecurityGroup', {
+            vpc,
+            description: 'Security group for EC2 Instance Connect Endpoint',
+            allowAllOutbound: true
+        });
+
+        const dbSubnet = vpc.isolatedSubnets[0];
+        // instance endpoint for isolated db instance
+        new ec2.CfnInstanceConnectEndpoint(this, 'InstanceConnectEndpoint', {
+            subnetId: dbSubnet.subnetId,
+            securityGroupIds: [eiceSecurityGroup.securityGroupId]
+        });
+
+        // Allow EICE to connect to DB instance
+        dbInstance.connections.allowFrom(eiceSecurityGroup, ec2.Port.tcp(22), 'Allow EC2 Instance Connect Endpoint SSH access');
     }
 }
