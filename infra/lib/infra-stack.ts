@@ -26,11 +26,6 @@ export class BBFBInfraStack extends cdk.Stack {
             enableSsm: true,
         });
 
-        // rename the NAT instance via ASG tags
-        natGatewayProvider.autoScalingGroups.forEach(asg => {
-            cdk.Tags.of(asg).add('Name', `${this.stackName}/NatInstance`);
-        });
-
         const vpc = new ec2.Vpc(this, 'bbfb-vpc', {
             vpcName: 'bbfb-vpc',
             ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/24'),
@@ -59,6 +54,11 @@ export class BBFBInfraStack extends cdk.Stack {
                 // VPC Total = 256
                 // subnet total = 64*3, account -5 ips per subnet 59*3
             ],
+        });
+
+        // rename the NAT instance via ASG tags
+        natGatewayProvider.autoScalingGroups.forEach(asg => {
+            cdk.Tags.of(asg).add('Name', `${this.stackName}/NatInstance`);
         });
 
         const appSubnet = vpc.privateSubnets[0];
