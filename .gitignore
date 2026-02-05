@@ -1,5 +1,6 @@
 .env
 players.json
+cdk.context.json
 *.css
 *.js
 .mcp.json
