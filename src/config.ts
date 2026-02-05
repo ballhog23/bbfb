@@ -15,7 +15,6 @@ type APIConfig = {
 
 type LeagueConfig = {
 	id: string;
-	season: string;
 };
 
 type DBConfig = {
@@ -39,7 +38,6 @@ export const config: Config = {
 	},
 	league: {
 		id: envOrThrow('LEAGUE_ID'),
-		season: envOrThrow('LEAGUE_SEASON'),
 	},
 	db: {
 		url: envOrThrow('DB_URL'),

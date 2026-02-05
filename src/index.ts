@@ -27,7 +27,10 @@ export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
 app.use(compression());
 app.use(express.json());
-app.use(express.static(join(__dirname, '../public')));
+app.use(express.static(join(__dirname, '../public'), {
+    maxAge: 2628000
+}));
+app.disable('x-powered-by');
 
 app.set("view engine", "pug");
 app.set("views", join(__dirname, "../views"));

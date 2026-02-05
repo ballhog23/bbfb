@@ -145,7 +145,7 @@ window.addEventListener("DOMContentLoaded", () => {
         standingsHTML: standingsContainer.innerHTML,
         isPlayoffs: initialWeek >= 15
     };
-    console.log(initialState);
+
     history.replaceState(initialState, "", location.href);
 });
 
@@ -218,7 +218,7 @@ seasonNavButtons.forEach(btn => {
             // Backend will clamp to displayWeek if season isn't that far yet
             week = 17;
         }
-        console.log(currentWeek, week);
+
         // Update active state
         seasonNavButtons.forEach(b => b.classList.remove("active"));
         (e.target as HTMLButtonElement).classList.add("active");

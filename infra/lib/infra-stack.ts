@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib/core';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as iam from "aws-cdk-lib/aws-iam";
 import { FckNatInstanceProvider } from 'cdk-fck-nat';
 import { Construct } from 'constructs';
 
@@ -11,9 +12,18 @@ export class BBFBInfraStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
+        // IAM role with SSM permissions for use on ec2 instances
+        const instanceRole = new iam.Role(this, 'InstanceRole', {
+            assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+            managedPolicies: [
+                iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
+            ]
+        });
+
         // nat instance
         const natGatewayProvider = new FckNatInstanceProvider({
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
+            enableSsm: true,
         });
 
         // rename the NAT instance via ASG tags
@@ -82,10 +92,11 @@ export class BBFBInfraStack extends cdk.Stack {
                 cpuType: ec2.AmazonLinuxCpuType.ARM_64
             }),
             vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
-            securityGroup: reverseProxySecurityGroup
+            securityGroup: reverseProxySecurityGroup,
+            role: instanceRole
         });
 
-        // allow http/s traffic incoming from internet
+        // allow http/s traffic incoming from internet on reverse proxy instance
         const httpPorts = [80, 443];
         httpPorts.forEach(
             port => reverseProxy.connections.allowFrom(
@@ -100,7 +111,8 @@ export class BBFBInfraStack extends cdk.Stack {
                 cpuType: ec2.AmazonLinuxCpuType.ARM_64
             }),
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
-            securityGroup: appSecurityGroup
+            securityGroup: appSecurityGroup,
+            role: instanceRole
         });
 
         appInstance.connections.allowFrom(
@@ -114,7 +126,8 @@ export class BBFBInfraStack extends cdk.Stack {
                 cpuType: ec2.AmazonLinuxCpuType.ARM_64
             }),
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
-            securityGroup: dbSecurityGroup
+            securityGroup: dbSecurityGroup,
+            role: instanceRole
         });
 
         dbInstance.connections.allowFrom(
