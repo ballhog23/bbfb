@@ -64,17 +64,17 @@ aws ec2-instance-connect ssh --instance-id <DB_INSTANCE_ID>
 
 **Create and run the setup scripts on the instance:**
 
-1. Update `infra/scripts/setup-db-instance.sh` locally — set `APP_PRIVATE_IP`, `DB_NAME`, and `DB_USER`.
-
-2. Update `infra/scripts/setup-db.sql` locally — replace `<USERNAME>`, `<DBNAME>`, and `<PASSWORD>` (escape single quotes as `''`). These must match the values in the setup script. **Save these credentials** — you'll need them for the app instance.
-
-3. Create the files on the instance — open vim, paste in the updated contents, and save:
+1. Create `~/setup-db-instance.sh` — paste the contents of `infra/scripts/setup-db-instance.sh`, then set `APP_PRIVATE_IP`, `DB_NAME`, and `DB_USER`:
    ```bash
    vim ~/setup-db-instance.sh
+   ```
+
+2. Create `~/setup-db.sql` — paste the contents of `infra/scripts/setup-db.sql`, then replace `<USERNAME>`, `<DBNAME>`, and `<PASSWORD>` (escape single quotes as `''`). These must match the values in the setup script. **Save these credentials** — you'll need them for the app instance.
+   ```bash
    vim ~/setup-db.sql
    ```
 
-4. Run the script:
+3. Run the script:
    ```bash
    chmod +x ~/setup-db-instance.sh
    ~/setup-db-instance.sh
@@ -91,32 +91,28 @@ aws ec2-instance-connect ssh --instance-id <APP_INSTANCE_ID>
 
 **Create and run the setup script on the instance:**
 
-1. Update `infra/scripts/setup-app-instance.sh` locally — set `DB_PRIVATE_IP` and `APP_NAME`.
-
-2. Create the file on the instance — open vim, paste in the updated contents, and save:
+1. Create `~/setup-app-instance.sh` — paste the contents of `infra/scripts/setup-app-instance.sh`, then set `DB_PRIVATE_IP` and `APP_NAME`:
    ```bash
    vim ~/setup-app-instance.sh
    ```
 
-3. Run the script:
+2. Run the script:
    ```bash
    chmod +x ~/setup-app-instance.sh
    ~/setup-app-instance.sh
    ```
 
-4. When the script pauses for code deployment, clone your repo in another terminal:
+3. When the script pauses for code deployment, clone your repo in another terminal:
    ```bash
    sudo git clone <YOUR_REPO_URL> /opt/<APP_NAME>
-   sudo rm -rf /opt/<APP_NAME>/infra /opt/<APP_NAME>/.git
-   sudo chown -R <APP_NAME>:<APP_NAME> /opt/<APP_NAME>
    ```
-   Then press Enter to continue.
+   Then press Enter to continue — the script handles cleanup and ownership.
 
-5. When the script pauses for `.env` configuration, edit the file and fill in the real values:
+4. When the script pauses for `.env` configuration, edit the file and fill in the real values:
    ```bash
    sudo vim /opt/<APP_NAME>/.env
    ```
-   Set `LEAGUE_ID`, and the `DB_URL` credentials (username, password, database name). Then press Enter to continue.
+   Set `LEAGUE_ID`, `LEAGUE_SEASON`, and the DB credentials. Then press Enter to continue.
 
 The script will:
 - Install Node.js 24
