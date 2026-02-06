@@ -11,7 +11,7 @@ Internet
     ↓
 [App Server] (Private Subnet with NAT)
     ↓
-[PostgreSQL DB] (Isolated Subnet)
+[PostgreSQL DB] (Private Subnet with NAT)
 ```
 
 ## Prerequisites
@@ -367,7 +367,7 @@ aws ec2 describe-instances --instance-ids <INSTANCE_ID> \
 ✅ **Network Security:**
 - Public subnet: Reverse proxy only
 - Private subnet with NAT: App server (internet access for updates)
-- Isolated subnet: Database (no internet access)
+- Private subnet with NAT: Database (egress for SSM and package installs, no inbound from internet)
 - Security groups restrict traffic between tiers
 
 ✅ **SSL/TLS:**

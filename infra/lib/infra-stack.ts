@@ -12,7 +12,7 @@ export class BBFBInfraStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
-        // IAM role with SSM permissions for use on ec2 instances
+        // IAM role with SSM permissions for all ec2 instances
         const instanceRole = new iam.Role(this, 'InstanceRole', {
             assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
             managedPolicies: [
@@ -46,8 +46,8 @@ export class BBFBInfraStack extends cdk.Stack {
                 },
                 {
                     cidrMask: 26,
-                    name: 'IsolatedSubnetDb',
-                    subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+                    name: 'PrivateSubnetDb',
+                    subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
                 },
                 // we are only using 256-(64*3) available ips
                 // aws also reserves 5ips per subnet "network, broadcast, vpc router, dns server, reserved"
@@ -61,13 +61,13 @@ export class BBFBInfraStack extends cdk.Stack {
             cdk.Tags.of(asg).add('Name', `${this.stackName}/NatInstance`);
         });
 
-        const appSubnet = vpc.privateSubnets[0];
-
-        // restricts nat instance to accept only traffic from the App Subnet
+        // restricts nat instance to accept only traffic from private subnets
         // further restricts comms to port 443-HTTPs only
-        natGatewayProvider.securityGroup.addIngressRule(
-            ec2.Peer.ipv4(appSubnet.ipv4CidrBlock), ec2.Port.HTTPS
-        );
+        vpc.privateSubnets.forEach(subnet => {
+            natGatewayProvider.securityGroup.addIngressRule(
+                ec2.Peer.ipv4(subnet.ipv4CidrBlock), ec2.Port.HTTPS
+            );
+        });
 
         // explicitly define security groups
         const appSecurityGroup = new ec2.SecurityGroup(this, 'AppSg', {
@@ -125,7 +125,7 @@ export class BBFBInfraStack extends cdk.Stack {
             machineImage: ec2.MachineImage.latestAmazonLinux2023({
                 cpuType: ec2.AmazonLinuxCpuType.ARM_64
             }),
-            vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+            vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
             securityGroup: dbSecurityGroup,
             role: instanceRole
         });
@@ -133,22 +133,5 @@ export class BBFBInfraStack extends cdk.Stack {
         dbInstance.connections.allowFrom(
             appInstance, ec2.Port.tcp(this.DB_PORT), 'Allow Db and App communication'
         );
-
-        // EC2 Instance Connect Endpoint for accessing isolated instances
-        const eiceSecurityGroup = new ec2.SecurityGroup(this, 'EiceSecurityGroup', {
-            vpc,
-            description: 'Security group for EC2 Instance Connect Endpoint',
-            allowAllOutbound: true
-        });
-
-        const dbSubnet = vpc.isolatedSubnets[0];
-        // instance endpoint for isolated db instance
-        new ec2.CfnInstanceConnectEndpoint(this, 'InstanceConnectEndpoint', {
-            subnetId: dbSubnet.subnetId,
-            securityGroupIds: [eiceSecurityGroup.securityGroupId]
-        });
-
-        // Allow EICE to connect to DB instance
-        dbInstance.connections.allowFrom(eiceSecurityGroup, ec2.Port.tcp(22), 'Allow EC2 Instance Connect Endpoint SSH access');
     }
 }
