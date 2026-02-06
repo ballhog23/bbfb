@@ -44,121 +44,79 @@ cdk deploy
 After CDK deployment completes, get instance IPs and IDs:
 
 ```bash
-# Reverse Proxy Public IP
+# All instance IDs and IPs in one query
 aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=*ReverseProxyInstance*" "Name=instance-state-name,Values=running" \
-  --query 'Reservations[0].Instances[0].PublicIpAddress' \
-  --output text
-
-# App Instance Private IP
-aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=*AppInstance*" "Name=instance-state-name,Values=running" \
-  --query 'Reservations[0].Instances[0].PrivateIpAddress' \
-  --output text
-
-# DB Instance Private IP
-aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=*DbInstance*" "Name=instance-state-name,Values=running" \
-  --query 'Reservations[0].Instances[0].PrivateIpAddress' \
-  --output text
-
-# Get Instance IDs (for SSM access)
-aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=*ReverseProxyInstance*" "Name=instance-state-name,Values=running" \
-  --query 'Reservations[0].Instances[0].InstanceId' \
-  --output text
-
-aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=*AppInstance*" "Name=instance-state-name,Values=running" \
-  --query 'Reservations[0].Instances[0].InstanceId' \
-  --output text
-
-aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=*DbInstance*" "Name=instance-state-name,Values=running" \
-  --query 'Reservations[0].Instances[0].InstanceId' \
-  --output text
+  --filters "Name=tag:Name,Values=BBFBInfraStack/*" "Name=instance-state-name,Values=running" \
+  --query 'Reservations[].Instances[].[Tags[?Key==`Name`].Value|[0],InstanceId,PrivateIpAddress,PublicIpAddress,Placement.AvailabilityZone]' \
+  --output table
 ```
 
 ### Step 3: Configure Database Instance
 
-**Connect via SSM:**
+**Temporarily allow outbound HTTPS on the DB security group:**
+
+The DB security group has all outbound traffic blocked by default. To install packages, temporarily add an outbound rule for TCP port 443 (HTTPS) to `0.0.0.0/0` via the AWS Console or CLI. **Remove this rule after setup is complete.**
+
+**Connect via EC2 Instance Connect Endpoint:**
 ```bash
-aws ssm start-session --target <DB_INSTANCE_ID>
+aws ec2-instance-connect ssh --instance-id <DB_INSTANCE_ID>
 ```
 
-**Update and run the setup script:**
+**Create and run the setup scripts on the instance:**
 
-1. Update `infra/scripts/setup-db-instance.sh` with the App instance private IP:
+1. Update `infra/scripts/setup-db-instance.sh` locally — set `APP_PRIVATE_IP`, `DB_NAME`, and `DB_USER`.
+
+2. Update `infra/scripts/setup-db.sql` locally — replace `<USERNAME>`, `<DBNAME>`, and `<PASSWORD>` (escape single quotes as `''`). These must match the values in the setup script. **Save these credentials** — you'll need them for the app instance.
+
+3. Create the files on the instance — open vim, paste in the updated contents, and save:
    ```bash
-   # Replace <APP_INSTANCE_PRIVATE_IP> with actual IP
+   vim ~/setup-db-instance.sh
+   vim ~/setup-db.sql
    ```
 
-2. Copy the script to the instance (or paste it):
+4. Run the script:
    ```bash
-   # Option 1: Paste script content directly in SSM session
+   chmod +x ~/setup-db-instance.sh
+   ~/setup-db-instance.sh
+   ```
 
-   # Option 2: Use S3 bucket to transfer
-   aws s3 cp infra/scripts/setup-db-instance.sh s3://your-bucket/
-   # Then on instance:
-   aws s3 cp s3://your-bucket/setup-db-instance.sh .
+5. **Remove the temporary outbound HTTPS rule** from the DB security group. The database does not need internet access during normal operation.
+
+### Step 4: Configure App Instance
+
+**Connect via EC2 Instance Connect Endpoint:**
+```bash
+aws ec2-instance-connect ssh --instance-id <APP_INSTANCE_ID>
+```
+
+**Create and run the setup script on the instance:**
+
+1. Update `infra/scripts/setup-app-instance.sh` locally — set `DB_PRIVATE_IP` and `APP_NAME`.
+
+2. Create the file on the instance — open vim, paste in the updated contents, and save:
+   ```bash
+   vim ~/setup-app-instance.sh
    ```
 
 3. Run the script:
    ```bash
-   chmod +x setup-db-instance.sh
-   ./setup-db-instance.sh
+   chmod +x ~/setup-app-instance.sh
+   ~/setup-app-instance.sh
    ```
 
-4. When prompted, enter:
-   - Database name (e.g., `bbfb`)
-   - Database username (e.g., `ballhog`)
-   - Database password (secure password)
-
-   **Save these credentials** - you'll need them for the app instance!
-
-### Step 4: Configure App Instance
-
-**Connect via SSM:**
-```bash
-aws ssm start-session --target <APP_INSTANCE_ID>
-```
-
-**Deploy your application code:**
-
-Choose one method:
-
-**Option A: Git Clone (if repo accessible)**
-```bash
-sudo -u bbfb git clone <YOUR_REPO_URL> /opt/bbfb
-```
-
-**Option B: S3 Transfer**
-```bash
-# On local machine:
-tar -czf bbfb.tar.gz --exclude=node_modules --exclude=dist --exclude=.git .
-aws s3 cp bbfb.tar.gz s3://your-bucket/
-
-# On instance:
-cd /opt/bbfb
-aws s3 cp s3://your-bucket/bbfb.tar.gz .
-sudo tar -xzf bbfb.tar.gz
-sudo chown -R bbfb:bbfb /opt/bbfb
-```
-
-**Update and run setup script:**
-
-1. Update `infra/scripts/setup-app-instance.sh` with DB instance private IP
-
-2. Transfer and run:
+4. When the script pauses for code deployment, clone your repo in another terminal:
    ```bash
-   chmod +x setup-app-instance.sh
-   ./setup-app-instance.sh
+   sudo git clone <YOUR_REPO_URL> /opt/<APP_NAME>
+   sudo rm -rf /opt/<APP_NAME>/infra /opt/<APP_NAME>/.git
+   sudo chown -R <APP_NAME>:<APP_NAME> /opt/<APP_NAME>
    ```
+   Then press Enter to continue.
 
-3. When prompted, enter the **same database credentials** from Step 3:
-   - Database username
-   - Database password
-   - Database name
+5. When the script pauses for `.env` configuration, edit the file and fill in the real values:
+   ```bash
+   sudo vim /opt/<APP_NAME>/.env
+   ```
+   Set `LEAGUE_ID`, and the `DB_URL` credentials (username, password, database name). Then press Enter to continue.
 
 The script will:
 - Install Node.js 24
@@ -166,19 +124,20 @@ The script will:
 - Build the application
 - Run database migrations
 - Create and start systemd service
+- Bootstrap the database with historical data
 
 **Verify app is running:**
 ```bash
-sudo systemctl status bbfb
-sudo journalctl -u bbfb -f  # View logs
+sudo systemctl status <APP_NAME>
+sudo journalctl -u <APP_NAME> -f  # View logs
 curl http://localhost:3000  # Test locally
 ```
 
 ### Step 5: Configure Reverse Proxy Instance
 
-**Connect via SSM:**
+**Connect via EC2 Instance Connect Endpoint:**
 ```bash
-aws ssm start-session --target <REVERSE_PROXY_INSTANCE_ID>
+aws ec2-instance-connect ssh --instance-id <REVERSE_PROXY_INSTANCE_ID>
 ```
 
 **Update and run setup script:**
@@ -256,7 +215,7 @@ sudo tail -f /var/log/nginx/access.log
 sudo tail -f /var/log/nginx/error.log
 
 # On app instance:
-sudo journalctl -u bbfb -f
+sudo journalctl -u <APP_NAME> -f
 
 # On db instance:
 sudo tail -f /var/lib/pgsql/data/log/postgresql-*.log
@@ -277,20 +236,20 @@ git push
 # Deploy code to app instance (via S3, git pull, etc.)
 
 # On app instance:
-cd /opt/bbfb
-sudo -u bbfb npm run migrate
-sudo systemctl restart bbfb
+cd /opt/<APP_NAME>
+sudo -u <APP_NAME> npm run migrate
+sudo systemctl restart <APP_NAME>
 ```
 
 ### Application Code Updates
 
 ```bash
-# Deploy new code to /opt/bbfb
+# Deploy new code to /opt/<APP_NAME>
 # Then:
-cd /opt/bbfb
-sudo -u bbfb npm ci --omit=dev
-sudo -u bbfb npm run build
-sudo systemctl restart bbfb
+cd /opt/<APP_NAME>
+sudo -u <APP_NAME> npm ci --omit=dev
+sudo -u <APP_NAME> npm run build
+sudo systemctl restart <APP_NAME>
 ```
 
 ## Troubleshooting
@@ -326,16 +285,27 @@ sudo tail -f /var/log/nginx/error.log
 ### App Not Accessible
 ```bash
 # Check app is running
-sudo systemctl status bbfb
+sudo systemctl status <APP_NAME>
 
 # Check app logs
-sudo journalctl -u bbfb -n 100
+sudo journalctl -u <APP_NAME> -n 100
 
 # Test locally on app instance
 curl http://localhost:3000
 
 # Verify security group allows traffic from reverse proxy to app on port 3000
 ```
+
+### Re-running Database Setup Script
+If you need to re-run the setup script from scratch, reset the data directory first:
+```bash
+sudo systemctl stop postgresql
+sudo rm -rf /var/lib/pgsql/data
+sudo mkdir /var/lib/pgsql/data
+sudo chown postgres:postgres /var/lib/pgsql/data
+sudo chmod 700 /var/lib/pgsql/data
+```
+Then re-run the setup script.
 
 ### Database Connection Issues
 ```bash
@@ -346,7 +316,7 @@ sudo systemctl status postgresql
 sudo cat /var/lib/pgsql/data/pg_hba.conf
 
 # Test connection from app instance
-PGPASSWORD='password' psql -h <DB_PRIVATE_IP> -U ballhog -d bbfb
+PGPASSWORD='<password>' psql -h <DB_PRIVATE_IP> -U <DB_USER> -d <DB_NAME>
 
 # Check PostgreSQL logs
 sudo tail -f /var/lib/pgsql/data/log/postgresql-*.log
@@ -354,12 +324,16 @@ sudo tail -f /var/lib/pgsql/data/log/postgresql-*.log
 
 ### Instance Access Issues
 ```bash
-# Verify SSM agent is running
-sudo systemctl status amazon-ssm-agent
+# Verify the EIC endpoint is in available state
+aws ec2 describe-instance-connect-endpoints \
+  --query 'InstanceConnectEndpoints[0].[State,SubnetId]' \
+  --output text
 
-# Check IAM instance profile has SSM permissions
-aws ec2 describe-instances --instance-ids <INSTANCE_ID> \
-  --query 'Reservations[0].Instances[0].IamInstanceProfile'
+# Test SSH connectivity via EIC endpoint
+aws ec2-instance-connect ssh --instance-id <INSTANCE_ID>
+
+# If connection fails, check the EIC endpoint security group allows
+# outbound SSH (port 22) to the target instance's security group
 ```
 
 ## Security Considerations
@@ -367,7 +341,7 @@ aws ec2 describe-instances --instance-ids <INSTANCE_ID> \
 ✅ **Network Security:**
 - Public subnet: Reverse proxy only
 - Private subnet with NAT: App server (internet access for updates)
-- Private subnet with NAT: Database (egress for SSM and package installs, no inbound from internet)
+- Private subnet with NAT: Database (all outbound blocked, no inbound from internet)
 - Security groups restrict traffic between tiers
 
 ✅ **SSL/TLS:**
@@ -377,8 +351,9 @@ aws ec2 describe-instances --instance-ids <INSTANCE_ID> \
 - HSTS headers enabled
 
 ✅ **Access Control:**
-- No SSH keys needed (SSM Session Manager)
-- IAM-based access control
+- No SSH keys needed (EC2 Instance Connect Endpoint)
+- IAM-based access control via EIC endpoint
+- No public SSH ports exposed - SSH tunneled through private EIC endpoint
 - Database credentials not in version control
 - File permissions (600) on .env files
 
@@ -404,8 +379,8 @@ sudo tail -f /var/log/nginx/error.log
 
 **Application logs:**
 ```bash
-sudo journalctl -u bbfb -f
-sudo journalctl -u bbfb --since "1 hour ago"
+sudo journalctl -u <APP_NAME> -f
+sudo journalctl -u <APP_NAME> --since "1 hour ago"
 ```
 
 **PostgreSQL logs:**

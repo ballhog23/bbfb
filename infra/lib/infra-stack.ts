@@ -12,14 +12,6 @@ export class BBFBInfraStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
-        // IAM role with SSM permissions for all ec2 instances
-        const instanceRole = new iam.Role(this, 'InstanceRole', {
-            assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-            managedPolicies: [
-                iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
-            ]
-        });
-
         // nat instance
         const natGatewayProvider = new FckNatInstanceProvider({
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
@@ -77,7 +69,7 @@ export class BBFBInfraStack extends cdk.Stack {
         const dbSecurityGroup = new ec2.SecurityGroup(this, 'DbSg', {
             vpc,
             description: 'Db instance security group',
-            allowAllOutbound: false
+            allowAllOutbound: false,
         });
         const reverseProxySecurityGroup = new ec2.SecurityGroup(this, 'ReverseProxySg', {
             vpc,
@@ -93,7 +85,6 @@ export class BBFBInfraStack extends cdk.Stack {
             }),
             vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
             securityGroup: reverseProxySecurityGroup,
-            role: instanceRole
         });
 
         // allow http/s traffic incoming from internet on reverse proxy instance
@@ -112,7 +103,6 @@ export class BBFBInfraStack extends cdk.Stack {
             }),
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
             securityGroup: appSecurityGroup,
-            role: instanceRole
         });
 
         appInstance.connections.allowFrom(
@@ -127,11 +117,30 @@ export class BBFBInfraStack extends cdk.Stack {
             }),
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
             securityGroup: dbSecurityGroup,
-            role: instanceRole
         });
 
         dbInstance.connections.allowFrom(
             appInstance, ec2.Port.tcp(this.DB_PORT), 'Allow Db and App communication'
         );
+
+        const instancesArray = [reverseProxy, appInstance, dbInstance];
+        // EC2 Instance Connect Endpoint for SSH into private instances
+        const eicSecurityGroup = new ec2.SecurityGroup(this, 'EicEndpointSg', {
+            vpc,
+            description: 'EC2 Instance Connect Endpoint security group',
+            allowAllOutbound: false,
+        });
+
+        const eicEndpoint = new ec2.CfnInstanceConnectEndpoint(this, 'EicEndpoint', {
+            subnetId: vpc.privateSubnets[0].subnetId,
+            securityGroupIds: [eicSecurityGroup.securityGroupId],
+        });
+
+        // Allow the EIC endpoint to reach instances on SSH
+        instancesArray.forEach(instance => {
+            instance.connections.allowFrom(
+                eicSecurityGroup, ec2.Port.SSH, 'Allow SSH from EIC Endpoint'
+            );
+        });
     }
 }
