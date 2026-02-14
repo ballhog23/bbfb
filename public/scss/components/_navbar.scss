@@ -36,28 +36,10 @@
     }
 
     .nav-links {
-        // visually hidden on mobile, shown on desktop
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        clip-path: inset(50%);
-        white-space: nowrap;
-        border: 0;
+        display: none;
         list-style: none;
 
         @media only screen and (min-width: $md-breakpoint-up) {
-            position: static;
-            width: auto;
-            height: auto;
-            margin: 0;
-            overflow: visible;
-            clip: auto;
-            clip-path: none;
-            white-space: normal;
             display: flex;
             justify-content: flex-end;
             gap: rem(24);
@@ -100,6 +82,11 @@
             cursor: pointer;
             display: flex;
             gap: .3125rem;
+
+            &:focus-visible {
+                outline: 1px solid $text-primary;
+                outline-offset: 2px;
+            }
 
             .menu-icon {
                 display: flex;
@@ -155,18 +142,13 @@
         background: none;
         cursor: pointer;
 
-        // visually hidden on desktop, only shown on mobile
+        &:focus-visible {
+            outline: 1px solid $text-primary;
+            outline-offset: 2px;
+        }
+
         @media only screen and (min-width: $md-breakpoint-up) {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            clip-path: inset(50%);
-            white-space: nowrap;
-            border: 0;
+            display: none;
         }
 
         span {
