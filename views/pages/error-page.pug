@@ -1,0 +1,12 @@
+extends ../layouts/base
+
+block head
+    link(rel="stylesheet" href="/css/pages/error-page.css")
+    script(type="module" src="/js/error-page.js")
+block content
+    main.error-page
+        h1= statusCode
+        h2= heading
+        p= message
+
+        a(href="/") Go back home

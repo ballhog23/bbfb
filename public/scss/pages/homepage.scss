@@ -1,0 +1,79 @@
+@use '../variables' as *;
+@use '../_base';
+@use '../components/_navbar';
+@use '../components/_nav-overlay';
+@use '../components/_footer';
+
+.page-header {
+    margin-bottom: 5rem;
+
+    h1 {
+        text-align: center;
+        margin: 0;
+    }
+
+}
+
+.previous-season-outcome {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    margin-bottom: 6.25rem;
+
+    @media only screen and (min-width: $sm-breakpoint-up) {
+        gap: 2rem;
+        flex-direction: row;
+    }
+
+    .winner,
+    .loser {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            width: calc((100% - 2rem) / 2);
+        }
+
+        img {
+            width: 13rem;
+            height: 14.5rem;
+        }
+
+        .card-body {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: $bg-surface;
+            border: 1px solid $border-default;
+            border-radius: 8px;
+            background-color: transparent;
+            backdrop-filter: blur(0.5rem);
+            border-color: $blue-primary;
+            box-shadow: $shadow-card;
+
+            p {
+                margin: 0;
+            }
+
+        }
+
+    }
+
+    .winner {
+        .card-body {
+            border-color: $win;
+            box-shadow: 0 10px 30px rgba($win, 0.4);
+        }
+    }
+
+    .loser {
+        .card-body {
+            border-color: $loss;
+            box-shadow: 0 10px 30px rgba($loss, 0.4);
+        }
+    }
+}
+
+.matchups-cta {
+    padding-block: 0 6.25rem;
+}

@@ -1,16 +1,12 @@
 meta(charset="utf-8")
 meta(name="viewport" content="width=device-width, initial-scale=1")
+meta(name="description" content= description)
+meta(name="theme-color" content="#111827")
 
 title #{title || "Bleed Blue Fantasy Football"}
-
-//- Conditional page-specific CSS
-if page === 'matchups'
-    link(rel="stylesheet" href="/css/matchups.css")
-else if page === 'homepage'
-    link(rel="stylesheet" href="/css/homepage.css")
-
-//- Conditional page-specific JS
-if page === 'matchups'
-    script(type="module" src="/js/matchups.js" defer)
-else if page === 'homepage'
-    script(type="module" src="/js/homepage.js" defer)
+link(rel="preload" href="/fonts/inter/inter-variable-normal.woff2" as="font" type="font/woff2" crossorigin)
+link(rel="preload" href="/fonts/orbitron/orbitron-variable.woff2" as="font" type="font/woff2" crossorigin)
+link(rel="preload" href="/fonts/doto/doto-variable.woff2" as="font" type="font/woff2" crossorigin)
+link(rel="dns-prefetch" href="https://sleepercdn.com")
+link(rel="preconnect" href="https://sleepercdn.com" crossorigin)
+link(rel="icon" type="image/png" href="/assets/favicon.png")

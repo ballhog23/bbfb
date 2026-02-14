@@ -1,20 +1,38 @@
 include ./player-list.pug
 mixin standingsRow(team)
     - const teamName = (t) => t.teamName ? t.teamName : t.ownerName;
+    - const isTwistedTitTeas = (t) => t.ownerName && t.ownerName.toLowerCase().includes('twistedtitteas');
+    - const imageURL = (t) => isTwistedTitTeas(t) ? t.ownerImage : (t.teamImage ?? t.ownerImage);
     - const displayTeamName = teamName(team);
     - const playersStarting = team.startingRoster;
     - const playersBench = team.benchRoster;
     - const playersIR = team.reserveRoster;
     tr
-        th(scope="row")= displayTeamName
+        th(scope="row")
+            a.standings-row-link(href="#" role="button")
+                img(
+                    src= imageURL(team) || "https://placehold.co/50",
+                    alt= displayTeamName + ' team logo'
+                    loading='lazy'
+                    decoding='async'
+                )
+                span= displayTeamName
         td= team.pointsFor
         td= team.pointsAgainst
         td #{team.wins} / #{team.losses}
-            td.roster-modal-cell
-                dialog.matchup-modal.rosters-modal
-                    button Close
-                    .players-wrapper
-                        h3= displayTeamName
-                        +playerList(playersStarting, 'Starting')
-                        +playerList(playersBench, 'Bench')
-                        +playerList(playersIR, 'Injured Reserve')
+        td.roster-modal-cell
+                dialog.rosters-modal
+                    button.btn Close
+                    section.players-wrapper
+                        header
+                            img(
+                                src= imageURL(team) || "https://placehold.co/50",
+                                alt= displayTeamName + ' team logo'
+                                loading='lazy'
+                                decoding='async'
+                            )
+                            h3= displayTeamName
+                        .roster
+                            +playerList(playersStarting, 'Starting')
+                            +playerList(playersBench, 'Bench')
+                            +playerList(playersIR, 'Injured Reserve')

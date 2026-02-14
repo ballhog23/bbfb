@@ -6,9 +6,11 @@ import {
 	UserForbiddenError,
 	NotFoundError,
 } from '../lib/errors.js';
-import { DrizzleError, DrizzleQueryError } from "drizzle-orm";
 
-export async function errorHandler(err: Error, _: Request, res: Response, __: NextFunction) {
+
+export async function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
+	if (!req.path.startsWith('/api/')) return next(err);
+
 	let message = 'There was an issue on our end.';
 	let statusCode = 500;
 
@@ -28,12 +30,6 @@ export async function errorHandler(err: Error, _: Request, res: Response, __: Ne
 		message = err.message;
 		statusCode = 404;
 
-	} else if (err instanceof DrizzleError || err instanceof DrizzleQueryError) {
-		message = `CAUSE: ${err.cause}`;
-
-	} else if (err instanceof AggregateError) {
-		message = err.message;
-		console.error(err.errors);
 	}
 
 	if (statusCode >= 500) {

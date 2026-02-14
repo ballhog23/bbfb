@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { assembleMatchupsPageData } from "../services/api/matchups-page-service.js";
+import { assembleMatchupsPageData } from "../services/web/matchups-page-service.js";
 
 export type MatchupsPageParams = {
     leagueId: string;

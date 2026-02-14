@@ -1,11 +1,10 @@
-import { sql, and, eq, desc, gte, isNotNull, isNull } from "drizzle-orm";
+import { sql, and, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../index.js";
 import {
     leagueUsersTable, matchupsTable,
     rostersTable, NFLPlayersTable,
     type StrictInsertMatchup,
     sleeperUsersTable,
-    SelectPlayoffMatchup
 } from "../schema.js";
 
 export async function insertMatchup(matchup: StrictInsertMatchup) {
@@ -40,7 +39,9 @@ export async function selectLeagueMatchups(leagueId: string) {
             week: matchupsTable.week,
             matchupId: matchupsTable.matchupId,
             team: leagueUsersTable.teamName,
+            teamImage: leagueUsersTable.avatarId,
             owner: sleeperUsersTable.displayName,
+            ownerImage: sleeperUsersTable.avatarId,
             pointsTotal: matchupsTable.points,
             players: sql
                 `
@@ -86,6 +87,8 @@ export async function selectLeagueMatchups(leagueId: string) {
             matchupsTable.season,
             matchupsTable.week,
             matchupsTable.matchupId,
+            leagueUsersTable.avatarId,
+            sleeperUsersTable.avatarId,
             leagueUsersTable.teamName,
             sleeperUsersTable.displayName,
             matchupsTable.points,
@@ -95,7 +98,6 @@ export async function selectLeagueMatchups(leagueId: string) {
     return result;
 }
 
-// includes null matchupIds aka bye weeks
 export async function selectLeagueMatchupsByWeek(leagueId: string, week: number) {
     const result = await db
         .select({
@@ -180,7 +182,11 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
             'position', ${NFLPlayersTable.position},
             'points', player_scoring.points,
-            'team', ${NFLPlayersTable.team}
+            'team', ${NFLPlayersTable.team},
+            'playerImage', CASE
+                WHEN ${NFLPlayersTable.position} = 'DEF' THEN 'https\://sleepercdn.com/images/team_logos/nfl/' || lower(nfl_players.team) || '.png'
+                ELSE 'https://sleepercdn.com/content/nfl/players/' || nfl_players.player_id || '.jpg'
+                END
         )
     `;
 
@@ -190,10 +196,12 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
             week: matchupsTable.week,
             matchupId: matchupsTable.matchupId,
             team: leagueUsersTable.teamName,
+            teamImage: leagueUsersTable.avatarId,
             owner: sleeperUsersTable.displayName,
+            ownerImage: sleeperUsersTable.avatarId,
             points: matchupsTable.points,
             startingRoster: sql<(typeof playerJson)[] | null>`
-                jsonb_agg(${playerJson})
+                jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
                 FILTER (
                     WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
                 )
@@ -248,6 +256,8 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
             matchupsTable.season,
             matchupsTable.week,
             matchupsTable.matchupId,
+            leagueUsersTable.avatarId,
+            sleeperUsersTable.avatarId,
             leagueUsersTable.teamName,
             sleeperUsersTable.displayName,
             matchupsTable.points

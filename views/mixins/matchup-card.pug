@@ -9,5 +9,6 @@ mixin matchupCard(match)
     - const hasTeamName = (t) => t.team ? t.team : t.owner;
 
     article.matchup-card
-        +matchupCardBody(match)
+        a.matchup-card-link(href="#" role="button")
+            +matchupCardBody(match)
         +matchupModal(match)

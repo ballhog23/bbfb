@@ -1,12 +1,12 @@
 extends ../layouts/base
 
 block head
-  title Page Not Found
-
+    link(rel="stylesheet" href="/css/pages/404.css")
+    script(type="module" src="/js/404.js")
 block content
-  main.error-page
-    h1 404
-    h2 Page Not Found
-    p The page you're looking for doesn't exist or was moved.
+    main.error-page
+        h1 404
+        h2 Page Not Found
+        p The page you're looking for doesn't exist or was moved.
 
-    a(href="/") Go back home
+        a(href="/") Go back home

@@ -32,8 +32,33 @@ $table-header-bg: #020617;
 $table-row-alt: #0a1a3f;
 
 $shadow-card: 0 10px 30px rgba($black, 0.4);
-$transition: 0.2s ease;
+$transition: 0.3s ease;
 
+@font-face {
+    font-family: 'Doto';
+    src: url('/fonts/doto/doto-variable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter/inter-variable-normal.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('/fonts/orbitron/orbitron-variable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
+}
+
+$font-body: 'Inter', sans-serif;
+$font-heading: 'Orbitron', sans-serif;
+$font-accent: 'Doto', sans-serif;
+$font-weight-thin: 200;
 $font-weight-normal: 400;
 $font-weight-medium: 500;
 $font-weight-semibold: 600;

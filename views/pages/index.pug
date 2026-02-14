@@ -1,16 +1,37 @@
 extends ../layouts/base
 block head
+    link(rel="stylesheet" href="/css/pages/homepage.css")
+    script(type="module" src="/js/homepage.js")
+    link(rel="preload" href="/assets/mascot.webp" as="image" fetchpriority= 'high')
+
 block content
     main
-        header.container
-            h1 Bleed Blue Fantasy Football
-        if leagueState.leg > 17
-            section.winner.container
-                h2 #{leagueState.season} Season Champ
-                p #{winner.teamName}
-            section.loser.container
-                h2 #{leagueState.season} Season BK Randy
-                p #{loser.teamName}
-        section.container
+        header.page-header.container
+            h1 Bleed Blue Fantasy Football #{leagueState.season}
+
+        section.previous-season-outcome.container
+            .winner
+                img(
+                    src= 'assets/mascot.webp',
+                    alt= 'fantasy football league winner',
+                    fetchpriority= 'high',
+                    loading= 'eager',
+                    decoding= 'sync'
+                )
+                .card-body
+                    h2 #{prevLeagueSeason} Season Champ
+                    p #{winner.teamName}
+            .loser
+                img(
+                    src= 'assets/sad-mascot.webp',
+                    alt= 'fantasy football league loser',
+                    fetchpriority= 'high',
+                    loading= 'eager',
+                    decoding= 'sync'
+                )
+                .card-body
+                    h2 #{prevLeagueSeason} Season Sacko
+                    p #{loser.teamName}      
+        section.matchups-cta.container
             h2 Check Out League Matchups
             a.btn(href="/matchups") League Matchups

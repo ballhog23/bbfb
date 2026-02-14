@@ -1,0 +1,76 @@
+@use '../_variables' as *;
+
+.player-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: $bg-card;
+    border: 1px solid $border-default;
+    border-radius: 0.5rem;
+    box-shadow: $shadow-card;
+    color: $text-primary;
+
+    .player-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 0.375rem;
+        object-fit: cover;
+    }
+
+    .player-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .player-name {
+        font-size: 0.95rem;
+        font-weight: $font-weight-semibold;
+        line-height: 1.2;
+    }
+
+    .player-meta {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: $text-muted;
+        align-items: center;
+    }
+
+    .player-position {
+        font-weight: $font-weight-bold;
+        letter-spacing: 0.04em;
+    }
+
+    .pos-qb {
+        color: rgb(252, 43, 109);
+    }
+
+    .pos-rb {
+        color: rgb(32, 206, 184);
+    }
+
+    .pos-wr {
+        color: rgb(89, 167, 255);
+    }
+
+    .pos-te {
+        color: rgb(254, 174, 88);
+    }
+
+    .pos-def {
+        color: rgb(191, 95, 64);
+    }
+
+    .player-team {
+        opacity: 0.8;
+    }
+
+    .player-stats {
+        display: flex;
+        justify-content: flex-end;
+        font-size: 0.8rem;
+    }
+}

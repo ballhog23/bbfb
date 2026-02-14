@@ -1,3 +1,6 @@
+// ! if i add tests in the future, good luck, with the env vars, config being used
+// ! within tests its gonna be a pain but we can figure it out
+
 process.loadEnvFile();
 
 export function envOrThrow(key: string) {
@@ -16,6 +19,8 @@ type APIConfig = {
 type LeagueConfig = {
 	id: string;
 	season: string;
+	prevId: string;
+	prevSeason: string;
 };
 
 type DBConfig = {
@@ -40,6 +45,8 @@ export const config: Config = {
 	league: {
 		id: envOrThrow('LEAGUE_ID'),
 		season: envOrThrow('LEAGUE_SEASON'),
+		prevId: envOrThrow('PREV_LEAGUE_ID'),
+		prevSeason: envOrThrow('PREV_LEAGUE_SEASON'),
 	},
 	db: {
 		url: envOrThrow('DB_URL'),

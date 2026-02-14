@@ -6,8 +6,8 @@ import {
 } from "../../lib/zod.js";
 import { selectPlayoffMatchups, type TempPlayoffMatchupRow } from "../../db/queries/matchups.js";
 import { undefinedToNullDeep } from "../../lib/helpers.js";
-import { SelectMatchup, SelectPlayoffMatchup, StrictInsertPlayoffMatchup } from "../../db/schema.js";
 import { insertPlayoffMatchup } from "../../db/queries/playoffs.js";
+import type { SelectPlayoffMatchup, StrictInsertPlayoffMatchup } from "../../db/schema.js";
 
 type WinnersBracket = 'winners_bracket';
 type LosersBracket = 'losers_bracket';
@@ -25,17 +25,27 @@ type RawBracketMap = {
 const bracketTypes: BracketTypesTuple = ['winners_bracket', 'losers_bracket'];
 const sleeper = new Sleeper();
 
+/**
+ * Syncs the current season's playoff bracket from Sleeper into the playoffsTable.
+ *
+ * When to run:
+ *  - First call: after week 14, once Sleeper has locked in the bracket structure.
+ *    Seeds the bracket skeleton (matchup slots, seeding, advancement edges).
+ *  - Subsequent calls: during/after weeks 15-17. Upserts updated results
+ *    (winnerId, loserId, place) as games complete.
+ *
+ * Prerequisite: the regular matchup sync must have already populated
+ * matchupsTable for playoff weeks, since we cross-reference those rows
+ * to link each bracket slot to its matchupId.
+ *
+ */
 export async function syncPlayoffMatchups() {
-    // const sleeper = new Sleeper();
-    // const rawBrackets: RawBracketMap[] = await Promise.all(
-    //     bracketTypes.map(
-    //         async bracket => ({
-    //             bracketType: bracket,
-    //             bracketMatchups: await sleeper.getLeaguePlayoffBracket(bracket)
-    //         })
-    //     ));
+    const leagueId = sleeper.leagueId;
+    const dbPlayoffMatchups = await selectPlayoffMatchups();
 
-    // return rawToNormalizedPlayoffBrackets(rawBrackets);
+    const rawBrackets = await buildBracketMapsForLeague(leagueId, dbPlayoffMatchups);
+    const normalized = rawToNormalizedPlayoffBracketMatchups(rawBrackets);
+    return insertPlayoffBracketMatchups(normalized);
 }
 
 async function insertPlayoffBracketMatchups(bracketMatchups: StrictInsertPlayoffMatchup[]) {
@@ -70,106 +80,135 @@ export async function getAllPlayoffBracketsHistory(): Promise<RawBracketMap[]> {
     const leagueIds = Array.from(new Set(playoffMatchups.map(m => m.leagueId)));
 
     const historicalBracketsRaw = await Promise.all(
-        leagueIds.map(async (leagueId) =>
-            Promise.all(
-                bracketTypes.map(async (bracketType) => {
-                    const bracketMatchups = await sleeper.getLeaguePlayoffBracket(bracketType, leagueId);
-
-                    // First, map head-to-heads and assign matchupId from DB
-                    const mappedMatchups: RawBracketWithMatchupId[] = bracketMatchups.map((matchup) => {
-                        const week = 14 + matchup.r;
-
-                        const dbRowsForWeek = playoffMatchups.filter(
-                            row => row.leagueId === leagueId && row.week === week && !row.isBye
-                        );
-
-                        // Find matchupId from DB for this API matchup
-                        const matchingMatchupIds = Array.from(
-                            new Set(
-                                dbRowsForWeek
-                                    .filter(
-                                        row =>
-                                            row.homeTeam === matchup.t1 ||
-                                            row.awayTeam === matchup.t1 ||
-                                            row.homeTeam === matchup.t2 ||
-                                            row.awayTeam === matchup.t2
-                                    )
-                                    .map(row => row.matchupId!)
-                            )
-                        );
-
-                        let matchupId: number | null = null;
-                        if (matchingMatchupIds.length === 1) {
-                            matchupId = matchingMatchupIds[0];
-                        } else if (matchingMatchupIds.length > 1) {
-                            console.warn("Multiple matchupIds found for matchup:", matchup, matchingMatchupIds);
-                            matchupId = matchingMatchupIds[0];
-                        }
-
-                        return {
-                            m: matchup.m,
-                            r: matchup.r,
-                            t1: matchup.t1 ?? null,
-                            t2: matchup.t2 ?? null,
-                            t1_from: matchup.t1_from ?? null,
-                            t2_from: matchup.t2_from ?? null,
-                            w: matchup.w ?? null,
-                            l: matchup.l ?? null,
-                            p: matchup.p ?? null,
-                            matchupId,
-                            week,
-                            isBye: false
-                        } satisfies RawBracketWithMatchupId;
-                    });
-
-                    // Now derive BYEs from round 2 (or any r>1)
-                    const byeMatchups: RawBracketWithMatchupId[] = [];
-                    const round2 = mappedMatchups.filter(m => m.r === 2);
-
-                    const existingRound1Teams = new Set(
-                        mappedMatchups
-                            .filter(m => m.r === 1)
-                            .flatMap(m => [m.t1, m.t2].filter(Boolean) as number[])
-                    );
-
-                    round2.forEach(m => {
-                        [m.t1, m.t2].forEach((team, idx) => {
-                            if (!team) return;
-                            const fromField = idx === 0 ? m.t1_from : m.t2_from;
-                            if (!fromField) {
-                                // team had no source matchup, so it had a BYE in round 1
-                                if (!existingRound1Teams.has(team)) {
-                                    byeMatchups.push({
-                                        m: -(byeMatchups.length + 1),
-                                        r: 1,
-                                        t1: team,
-                                        t2: null,
-                                        t1_from: null,
-                                        t2_from: null,
-                                        w: null,
-                                        l: null,
-                                        p: null,
-                                        matchupId: null,
-                                        week: 15,
-                                        isBye: true
-                                    });
-                                    existingRound1Teams.add(team); // avoid duplicate BYEs
-                                }
-                            }
-                        });
-                    });
-
-                    return {
-                        leagueId,
-                        bracketType,
-                        bracketMatchups: [...mappedMatchups, ...byeMatchups]
-                    } satisfies RawBracketMap;
-                })
-            )
-        )
+        leagueIds.map(async (leagueId) => buildBracketMapsForLeague(leagueId, playoffMatchups))
     );
 
-    return historicalBracketsRaw.flat().flat();
+    return historicalBracketsRaw.flat();
+}
+
+/**
+ * Builds RawBracketMaps for a single league by fetching both brackets from Sleeper,
+ * cross-referencing matchupIds from the DB, and deriving BYE entries.
+ *
+ * This is the core bracket-building logic shared by both:
+ *  - syncPlayoffMatchups (current season, single league)
+ *  - getAllPlayoffBracketsHistory (all historical leagues)
+ *
+ * Sleeper's bracket API provides `m` (the bracket slot ID), roster slots, rounds,
+ * advancement edges, and results — but NOT the matchupId from our matchupsTable
+ * that pairs two rosters together for a given week. We need to cross-reference
+ * against the matchupsTable to resolve that pairing ID, so that
+ * selectPlayoffMatchupsWithDetails can JOIN bracket rows to full matchup data
+ * (rosters, points, players).
+ *
+ * The cross-reference works by: for each bracket matchup, compute the week
+ * (round + 14), filter DB rows to that league+week, then find the row where
+ * either homeTeam or awayTeam matches t1 or t2. This gives us the matchupId.
+ *
+ * BYE derivation: top seeds skip round 1 and appear directly in round 2 with no
+ * t1_from/t2_from source. We detect these teams and synthesize placeholder round 1
+ * entries (negative bracketMatchupId, null matchupId) so the bracket structure
+ * is complete for rendering.
+ */
+async function buildBracketMapsForLeague(
+    leagueId: string,
+    dbPlayoffMatchups: TempPlayoffMatchupRow[]
+): Promise<RawBracketMap[]> {
+    return Promise.all(
+        bracketTypes.map(async (bracketType) => {
+            const bracketMatchups = await sleeper.getLeaguePlayoffBracket(bracketType, leagueId);
+
+            // Step 1: Map each Sleeper bracket matchup to our shape, resolving matchupId from DB
+            const mappedMatchups: RawBracketWithMatchupId[] = bracketMatchups.map((matchup) => {
+                const week = 14 + matchup.r;
+
+                const dbRowsForWeek = dbPlayoffMatchups.filter(
+                    row => row.leagueId === leagueId && row.week === week && !row.isBye
+                );
+
+                // Find the DB matchupId by matching roster IDs (t1/t2) against homeTeam/awayTeam
+                const matchingMatchupIds = Array.from(
+                    new Set(
+                        dbRowsForWeek
+                            .filter(
+                                row =>
+                                    row.homeTeam === matchup.t1 ||
+                                    row.awayTeam === matchup.t1 ||
+                                    row.homeTeam === matchup.t2 ||
+                                    row.awayTeam === matchup.t2
+                            )
+                            .map(row => row.matchupId!)
+                    )
+                );
+
+                let matchupId: number | null = null;
+                if (matchingMatchupIds.length === 1) {
+                    matchupId = matchingMatchupIds[0];
+                } else if (matchingMatchupIds.length > 1) {
+                    console.warn("Multiple matchupIds found for matchup:", matchup, matchingMatchupIds);
+                    matchupId = matchingMatchupIds[0];
+                }
+
+                return {
+                    m: matchup.m,
+                    r: matchup.r,
+                    t1: matchup.t1 ?? null,
+                    t2: matchup.t2 ?? null,
+                    t1_from: matchup.t1_from ?? null,
+                    t2_from: matchup.t2_from ?? null,
+                    w: matchup.w ?? null,
+                    l: matchup.l ?? null,
+                    p: matchup.p ?? null,
+                    matchupId,
+                    week,
+                    isBye: false
+                } satisfies RawBracketWithMatchupId;
+            });
+
+            // Step 2: Derive BYE entries for top seeds that skip round 1
+            const byeMatchups: RawBracketWithMatchupId[] = [];
+            const round2 = mappedMatchups.filter(m => m.r === 2);
+
+            const existingRound1Teams = new Set(
+                mappedMatchups
+                    .filter(m => m.r === 1)
+                    .flatMap(m => [m.t1, m.t2].filter(Boolean) as number[])
+            );
+
+            round2.forEach(m => {
+                [m.t1, m.t2].forEach((team, idx) => {
+                    if (!team) return;
+                    const fromField = idx === 0 ? m.t1_from : m.t2_from;
+                    if (!fromField) {
+                        // Team had no source matchup — they had a first-round BYE
+                        if (!existingRound1Teams.has(team)) {
+                            byeMatchups.push({
+                                m: -(byeMatchups.length + 1),
+                                r: 1,
+                                t1: team,
+                                t2: null,
+                                t1_from: null,
+                                t2_from: null,
+                                w: null,
+                                l: null,
+                                p: null,
+                                matchupId: null,
+                                week: 15,
+                                isBye: true
+                            });
+                            existingRound1Teams.add(team); // avoid duplicate BYEs
+                        }
+                    }
+                });
+            });
+
+            return {
+                leagueId,
+                bracketType,
+                bracketMatchups: [...mappedMatchups, ...byeMatchups]
+            } satisfies RawBracketMap;
+        })
+    );
 }
 
 function normalizePlayoffBracketMatchup(

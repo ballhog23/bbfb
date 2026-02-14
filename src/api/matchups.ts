@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
 import {
     selectLeagueMatchups, selectLeagueMatchupsByWeekWithoutByes,
-    selectLeagueMatchupsByWeek, selectSpecificLeagueMatchup
+    selectSpecificLeagueMatchup
 
 } from "../db/queries/matchups.js";
 import { BadRequestError } from "../lib/errors.js";

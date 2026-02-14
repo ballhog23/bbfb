@@ -7,10 +7,11 @@ export async function insertLeagueState(leagueState: StrictInsertLeagueState) {
         .insert(leagueStateTable)
         .values(leagueState)
         .onConflictDoUpdate({
-            target: leagueStateTable.season,
+            target: leagueStateTable.id,
             set: {
                 week: sql`EXCLUDED.week`,
                 leg: sql`EXCLUDED.leg`,
+                season: sql`EXCLUDED.season`,
                 seasonType: sql`EXCLUDED.season_type`,
                 previousSeason: sql`EXCLUDED.previous_season`,
                 displayWeek: sql`EXCLUDED.display_week`,

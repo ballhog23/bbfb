@@ -1,6 +1,6 @@
 import { foreignKey, pgEnum, primaryKey } from "drizzle-orm/pg-core";
 import { pgTable, timestamp, text, boolean, integer, unique, jsonb, numeric } from "drizzle-orm/pg-core";
-import type { NullableTeamFromMatchup } from "../lib/zod.js";
+import { sql } from "drizzle-orm";
 
 const timestamps = {
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -91,6 +91,7 @@ export const rostersTable = pgTable("rosters", {
     fpts: integer().notNull(),
     players: text().array().notNull(),
     reserve: text().array(),
+    division: integer().notNull(),
     streak: text(), // W or L streak e.g, '3W', could possibly be empty string week 1
     record: text(), // represented as a string WLLWL... etc, just an example. could be same as above ^
     ...timestamps
@@ -199,15 +200,18 @@ export type StrictInsertPlayoffMatchup = OmitTimestamps<SelectPlayoffMatchup>;
 
 export const seasonTypeEnum = pgEnum('season_type', ['regular', 'post', 'off']);
 export const leagueStateTable = pgTable("league_state", {
+    id: integer().primaryKey().default(1),
     week: integer().notNull(),
     leg: integer().notNull(),
-    season: text().notNull().unique('league_season'),
+    season: text().notNull(),
     seasonType: seasonTypeEnum().notNull(),
     previousSeason: text().notNull(),
     displayWeek: integer().notNull(),
     isLeagueActive: boolean().notNull(),
     ...timestamps
-});
+}, (t) => [
+    sql`CHECK (${t.id} = 1)`
+]);
 
 export type SelectLeagueState = typeof leagueStateTable.$inferSelect;
 export type StrictInsertLeagueState = OmitTimestamps<SelectLeagueState>;

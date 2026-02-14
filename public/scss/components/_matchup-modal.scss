@@ -1,0 +1,46 @@
+@use '../_variables' as *;
+
+.matchup-modal {
+    .matchups-dialog-wrapper {
+        flex-direction: column;
+    }
+
+    .matchup-card {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        background-color: transparent;
+        backdrop-filter: blur(0.5rem);
+        border-color: $blue-primary;
+        box-shadow: 0 4px 12px rgba($blue-highlight, 0.2);
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+        }
+    }
+
+    .rosters-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-block: 2rem 0;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            flex-direction: row;
+        }
+
+        .roster {
+            @media only screen and (min-width: $sm-breakpoint-up) {
+                width: calc((100% - 1rem) / 2);
+            }
+        }
+
+        .away-team-players {
+            h4 {
+                text-align: right;
+            }
+        }
+    }
+}

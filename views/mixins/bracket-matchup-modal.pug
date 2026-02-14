@@ -1,13 +1,13 @@
 include ./player-list.pug
 
 mixin bracketMatchupModal(matchup)
-    - const team1Starting = matchup.startingRoster1 || [];
-    - const team1Bench = matchup.benchRoster1 || [];
-    - const team2Starting = matchup.startingRoster2 || [];
-    - const team2Bench = matchup.benchRoster2 || [];
+    - const team1Starting = matchup.t1StartingRoster || [];
+    - const team1Bench = matchup.t1BenchRoster || [];
+    - const team2Starting = matchup.t2StartingRoster || [];
+    - const team2Bench = matchup.t2BenchRoster || [];
     
     dialog.matchup-modal
-        button Close
+        button.btn Close
         section.matchups-dialog-wrapper
             article.matchup-card
                 +bracketMatchupCardBody(matchup)

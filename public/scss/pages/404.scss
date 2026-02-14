@@ -1,0 +1,63 @@
+@use '../variables' as *;
+@use '../_base';
+@use '../components/_navbar';
+@use '../components/_nav-overlay';
+@use '../components/_footer';
+
+.error-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-block: 6.25rem;
+
+    h1 {
+        font-family: $font-accent;
+        font-weight: $font-weight-bold;
+        font-size: 6rem;
+        color: $accent-gold;
+        margin: 0;
+        line-height: 1;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            font-size: 8rem;
+        }
+
+        @media only screen and (min-width: $md-breakpoint-up) {
+            font-size: 10rem;
+        }
+    }
+
+    h2 {
+        font-family: $font-heading;
+        font-weight: $font-weight-semibold;
+        font-size: 1.25rem;
+        color: $text-primary;
+        margin: 1rem 0 0;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            font-size: 1.5rem;
+        }
+    }
+
+    p {
+        color: $text-secondary;
+        font-size: 1rem;
+        margin: 1rem 0 2rem;
+    }
+
+    a {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        background: $btn-primary-bg;
+        color: $text-primary;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: $font-weight-semibold;
+        transition: background $transition;
+
+        &:hover {
+            background: $btn-primary-hover;
+        }
+    }
+}

@@ -9,9 +9,13 @@ import { buildAndInsertLeagueMatchupHistory } from "../services/api/matchups-ser
 import { buildAndInsertLeagueMatchupOutcomes } from "../services/api/matchups-outcomes-service.js";
 import { buildAndInsertPlayoffBracketHistory } from "../services/api/playoffs-service.js";
 import { syncNFLPlayers } from "../services/api/players-service.js";
-import { syncLeagueState } from "../services/api/nfl-state-service.js";
+import { syncLeagueState } from "../services/api/league-state-service.js";
 
 export async function handlerHistoryBootstrap(_: Request, res: Response) {
+    console.log('POPULATING LEAGUE STATE TABLE...');
+    await syncLeagueState();
+    console.log('LEAGUE STATE TABLE POPULATED!');
+
     console.log('POPULATING LEAGUES TABLE...');
     await buildAndInsertLeagueHistory();
     console.log('LEAGUES TABLE POPULATED!');
@@ -43,12 +47,8 @@ export async function handlerHistoryBootstrap(_: Request, res: Response) {
     console.log('LEAGUE MATCHUPS TABLE POPULATED!');
 
     console.log('POPULATING NFL PLAYERS TABLE...');
-    // await syncNFLPlayers();
+    await syncNFLPlayers();
     console.log('NFL PLAYERS TABLE POPULATED!');
-
-    console.log('POPULATING LEAGUE STATE TABLE...');
-    await syncLeagueState();
-    console.log('LEAGUE STATE TABLE POPULATED!');
 
     respondWithJSON(res, 200, { message: "BOOTSTRAP COMPLETE!" });
 }

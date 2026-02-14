@@ -1,5 +1,5 @@
 {
-  "id": "f1d5ec11-97d1-4bcc-9481-a2cb4a54f6ba",
+  "id": "6ee2e447-0c57-442c-ad82-39db7a31aa9e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -95,6 +95,13 @@
       "name": "league_state",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "default": 1
+        },
         "week": {
           "name": "week",
           "type": "integer",
@@ -156,15 +163,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "league_season": {
-          "name": "league_season",
-          "nullsNotDistinct": false,
-          "columns": [
-            "season"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -798,6 +797,12 @@
           "type": "text[]",
           "primaryKey": false,
           "notNull": false
+        },
+        "division": {
+          "name": "division",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         },
         "streak": {
           "name": "streak",

@@ -5,9 +5,9 @@ import {
 } from "../../lib/zod.js";
 import { undefinedToNullDeep, normalizeString } from "../../lib/helpers.js";
 import { selectAllLeagues } from "../../db/queries/leagues.js";
-import { SelectRoster, StrictInsertRoster } from "../../db/schema.js";
 import { insertLeagueRoster } from "../../db/queries/rosters.js";
 import { config } from "../../config.js";
+import type { SelectRoster, StrictInsertRoster } from "../../db/schema.js";
 
 export type LeaguesMap = {
     leagueId: string,
@@ -59,7 +59,10 @@ async function buildCurrentLeagueRosters(): Promise<StrictInsertRoster[]> {
 }
 
 export async function buildLeagueHistoryMap(): Promise<LeaguesMap[]> {
-    return (await selectAllLeagues()).map(({ leagueId, season }) => ({ leagueId, season }));
+    return (
+        await selectAllLeagues()).map(
+            ({ leagueId, season }) => ({ leagueId, season })
+        );
 }
 
 async function buildLeagueRostersHistory(): Promise<StrictInsertRoster[]> {
@@ -94,10 +97,10 @@ function normalizeRoster(roster: NullableRawRoster, seasonYear: string): StrictR
     const starters = roster.starters ? roster.starters.map(playerId => normalizeString(playerId)) : [];
     const players = roster.players ? roster.players.map(playerId => normalizeString(playerId)) : [];
     const injuredReserve = roster.reserve ? roster.reserve.map(playerId => normalizeString(playerId)) : null;
-    // check for streak and record, my suspicion is that sleeper will send these as empty strings at start of season.
-    // that's the reason for the OR null expression. the column is nullable and we prefer null > empty string
-    const streak = roster.metadata?.streak ? normalizeString(roster.metadata.streak) || null : null;
-    const record = roster.metadata?.record ? normalizeString(roster.metadata.record) || null : null;
+    // check for streak and record, returns null when new season and no drafted players
+    const streak = roster.metadata?.streak ? normalizeString(roster.metadata.streak) : null;
+    const record = roster.metadata?.record ? normalizeString(roster.metadata.record) : null;
+    const fptsAgainst = roster.settings.fpts_against ?? 0;
 
     return {
         rosterOwnerId: normalizeString(roster.owner_id),
@@ -108,12 +111,13 @@ function normalizeRoster(roster: NullableRawRoster, seasonYear: string): StrictR
         wins: roster.settings.wins,
         ties: roster.settings.ties,
         losses: roster.settings.losses,
-        fptsAgainst: roster.settings.fpts_against,
+        fptsAgainst,
         fpts: roster.settings.fpts,
         players,
         reserve: injuredReserve,
         streak,
         record,
+        division: roster.settings.division
     } satisfies StrictRoster;
 
 }

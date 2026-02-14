@@ -1,4 +1,4 @@
-import { sql, eq, and, desc } from "drizzle-orm";
+import { sql, eq, and, desc, isNotNull } from "drizzle-orm";
 import { db } from "../index.js";
 import {
     leagueUsersTable, matchupsTable, sleeperUsersTable,
@@ -60,7 +60,7 @@ export async function selectPlayoffMatchupsPerSeason(leagueId: string) {
     return result;
 }
 
-// using!!!!!!!!!!
+// using for matchups page
 export async function selectPlayoffMatchupsWithDetails(
     leagueId: string
 ) {
@@ -68,13 +68,17 @@ export async function selectPlayoffMatchupsWithDetails(
         playerName: string;
         position: string;
         points: string | null;
-        team: string;
+        team: string | null;
     }>`
         jsonb_build_object(
             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
             'position', ${NFLPlayersTable.position},
             'points', player_scoring.points,
-            'team', ${NFLPlayersTable.team}
+            'team', ${NFLPlayersTable.team},
+            'playerImage', CASE
+                WHEN ${NFLPlayersTable.position} = 'DEF' THEN 'https\://sleepercdn.com/images/team_logos/nfl/' || lower(nfl_players.team) || '.png'
+                ELSE 'https://sleepercdn.com/content/nfl/players/' || nfl_players.player_id || '.jpg'
+                END
         )
     `;
 
@@ -87,10 +91,12 @@ export async function selectPlayoffMatchupsWithDetails(
                 week: matchupsTable.week,
                 season: matchupsTable.season,
                 team: leagueUsersTable.teamName,
+                teamImage: sql<string>`${leagueUsersTable.avatarId}`.as('t1_team_image'),
                 owner: sleeperUsersTable.displayName,
+                ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as('t1_owner_image'),
                 points: matchupsTable.points,
                 startingRoster: sql<(typeof playerJson)[] | null>`
-                    jsonb_agg(${playerJson})
+                    jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
                     FILTER (
                         WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
                     )
@@ -135,13 +141,18 @@ export async function selectPlayoffMatchupsWithDetails(
                 eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId)
             )
             .where(
-                eq(matchupsTable.leagueId, leagueId)
+                and(
+                    eq(matchupsTable.leagueId, leagueId),
+                    isNotNull(matchupsTable.matchupId)
+                )
             )
             .groupBy(
                 matchupsTable.rosterId,
                 matchupsTable.leagueId,
                 matchupsTable.week,
                 matchupsTable.season,
+                leagueUsersTable.avatarId,
+                sleeperUsersTable.avatarId,
                 leagueUsersTable.teamName,
                 sleeperUsersTable.displayName,
                 matchupsTable.points
@@ -156,10 +167,12 @@ export async function selectPlayoffMatchupsWithDetails(
                 week: matchupsTable.week,
                 season: matchupsTable.season,
                 team: leagueUsersTable.teamName,
+                teamImage: sql<string>`${leagueUsersTable.avatarId}`.as('t2_team_image'),
                 owner: sleeperUsersTable.displayName,
+                ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as('t2_owner_image'),
                 points: matchupsTable.points,
                 startingRoster: sql<(typeof playerJson)[] | null>`
-                    jsonb_agg(${playerJson})
+                    jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
                     FILTER (
                         WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
                     )
@@ -204,13 +217,18 @@ export async function selectPlayoffMatchupsWithDetails(
                 eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId)
             )
             .where(
-                eq(matchupsTable.leagueId, leagueId)
+                and(
+                    eq(matchupsTable.leagueId, leagueId),
+                    isNotNull(matchupsTable.matchupId)
+                )
             )
             .groupBy(
                 matchupsTable.rosterId,
                 matchupsTable.leagueId,
                 matchupsTable.week,
                 matchupsTable.season,
+                leagueUsersTable.avatarId,
+                sleeperUsersTable.avatarId,
                 leagueUsersTable.teamName,
                 sleeperUsersTable.displayName,
                 matchupsTable.points
@@ -244,6 +262,8 @@ export async function selectPlayoffMatchupsWithDetails(
             t1Season: t1Data.season,
             t1StartingRoster: t1Data.startingRoster,
             t1BenchRoster: t1Data.benchRoster,
+            t1TeamImage: t1Data.teamImage,
+            t1OwnerImage: t1Data.ownerImage,
 
             // Team 2 data
             t2RosterId: playoffsTable.t2,
@@ -253,6 +273,8 @@ export async function selectPlayoffMatchupsWithDetails(
             t2Season: t2Data.season,
             t2StartingRoster: t2Data.startingRoster,
             t2BenchRoster: t2Data.benchRoster,
+            t2TeamImage: t2Data.teamImage,
+            t2OwnerImage: t2Data.ownerImage,
         })
         .from(playoffsTable)
 
@@ -277,7 +299,10 @@ export async function selectPlayoffMatchupsWithDetails(
         )
 
         .where(
-            eq(playoffsTable.leagueId, leagueId)
+            and(
+                eq(playoffsTable.leagueId, leagueId),
+                isNotNull(playoffsTable.matchupId)
+            )
         )
 
         .orderBy(

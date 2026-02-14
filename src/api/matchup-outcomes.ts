@@ -1,9 +1,8 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { selectLeagueMatchups } from "../db/queries/matchups.js";
-import { BadRequestError, NotFoundError } from "../lib/errors.js";
+import { BadRequestError } from "../lib/errors.js";
 import {
-    selectLeagueSeasonMatchupOutcomes, selectWeeklyLeagueMatchupOutcomes,
+    selectWeeklyLeagueMatchupOutcomes,
     selectLeagueRegularSeasonStats
 } from "../db/queries/matchup-outcomes.js";
 
@@ -16,7 +15,7 @@ export async function handlerGetLeagueMatchupOutcomes(req: Request<MatchupOutcom
     const params = req.params;
     const { leagueId } = params;
     if (!leagueId)
-        throw new NotFoundError(`You must provide a League ID.`);
+        throw new BadRequestError(`You must provide a League ID.`);
 
     const regularSeasonStandings = await selectLeagueRegularSeasonStats(leagueId);
     const data = {
@@ -30,7 +29,7 @@ export async function handlerGetWeeklyMatchupOutcomes(req: Request<MatchupOutcom
     const params = req.params;
     const { leagueId } = params;
     if (!leagueId)
-        throw new NotFoundError(`You must provide a League ID.`);
+        throw new BadRequestError(`You must provide a League ID.`);
 
     const week = Number(params.week);
     if (isNaN(week) || !Number.isInteger(week) || week <= 0 || week > 17)

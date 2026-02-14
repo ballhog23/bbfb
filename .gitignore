@@ -1,5 +1,18 @@
 .env
+.env.*
 players.json
+cdk.context.json
+*.css
+*.js
+.mcp.json
+*.pem
+*.key
+seed.sql
+seed-playoffs.sql
+simulate-week16.sql
+simulate-week17.sql
+simulate-offseason.sql
+seed-league-state-2025-off.sql
 
 
 # Logs
@@ -27,3 +40,4 @@ dist-ssr
 *.sln
 *.sw?
 /test
+.claude

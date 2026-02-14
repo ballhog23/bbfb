@@ -137,18 +137,21 @@ export const rawRosterSchema = z.looseObject({
     roster_id: z.number(),
     starters: z.array(z.string()),
     settings: z.looseObject({
+        division: z.number(),
         wins: z.number(),
         ties: z.number(),
         losses: z.number(),
-        fpts_against: z.number(),
+        fpts_against: nullishNumber,
         fpts: z.number(),
     }),
     players: z.array(z.string()),
     reserve: nullishStringArray,
-    metadata: z.looseObject({
-        streak: nullishString,
-        record: nullishString,
-    }),
+    metadata: z.nullish(
+        z.looseObject({
+            streak: nullishString,
+            record: nullishString,
+        })
+    ),
 });
 export const strictRosterSchema = z.strictObject({
     rosterOwnerId: z.string(),
@@ -165,6 +168,7 @@ export const strictRosterSchema = z.strictObject({
     reserve: nullableStringArray,
     streak: nullableString,
     record: nullableString,
+    division: z.number(),
 });
 
 export type RawRoster = z.infer<typeof rawRosterSchema>;
@@ -174,17 +178,18 @@ export type NullableRawRoster = {
     roster_id: number;
     starters: string[];
     settings: {
+        division: number;
         wins: number;
         ties: number;
         losses: number;
-        fpts_against: number;
+        fpts_against: number | null;
         fpts: number;
     };
     players: string[];
     metadata: {
         record: string | null;
         streak: string | null;
-    };
+    } | null;
     reserve: string[] | null;
 };
 export type StrictRoster = z.infer<typeof strictRosterSchema>;
@@ -310,12 +315,13 @@ export const rawNFLStateSchema = z.looseObject({
     season_type: nflStateEnum, // pre, post, regular
     league_season: z.string(), // active season for leagues
     previous_season: z.string(),
-    season_start_date: z.string(), // regular season start
+    season_start_date: nullishString, // regular season start
     display_week: nullishNumber, // Which week to display in UI, can be different than week
     league_create_season: z.string(), // flips in December
     season_has_scores: z.boolean()
 });
 export const strictLeagueStateSchema = z.strictObject({
+    id: z.number(),
     week: z.number(),
     leg: z.number(),
     season: z.string(),

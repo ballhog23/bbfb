@@ -3,5 +3,6 @@ include ./bracket-matchup-modal.pug
 
 mixin bracketMatchupCard(matchup)
     article.matchup-card(data-matchup-id=matchup.bracketMatchupId data-week=matchup.week)
-        +bracketMatchupCardBody(matchup)
+        a.matchup-card-link(href="#" role="button")
+            +bracketMatchupCardBody(matchup)
         +bracketMatchupModal(matchup)

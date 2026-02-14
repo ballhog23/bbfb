@@ -25,6 +25,8 @@ export async function buildAndInsertLeagueHistory() {
     return result;
 }
 
+// the name is slightly misleading, it can also be used to insert/upsert a single season
+// by simply passing the single league as an array, used within sync function
 export async function insertSleeperLeagues(leagues: StrictInsertLeague[]) {
     const successfulLeagues: SelectLeague[] = [];
     // sequential insert is fine here, we only have a history of 5 leagues

@@ -1,0 +1,164 @@
+@use './_variables' as *;
+
+html,
+body {
+    all: unset;
+    background-color: $bg-card;
+    color: $text-primary;
+    font-size: 1rem;
+    line-height: 1;
+    font-family: $font-body;
+
+    // modern scrollbar (Firefox, Chrome 121+)
+    scrollbar-color: $text-disabled $bg-card;
+}
+
+// webkit scrollbar (Safari, older Chrome/Edge)
+::-webkit-scrollbar-track {
+    background: $bg-card;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $text-disabled;
+
+    &:hover {
+        background: $text-muted;
+    }
+}
+
+body:has(dialog[open]) {
+    overflow: hidden;
+}
+
+main {
+    margin-block: rem(81) 0;
+    padding-block: rem(100) 0;
+    background-color: $bg-page;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-block: 0 1.5rem;
+    font-family: $font-heading;
+    font-weight: $font-weight-normal;
+    letter-spacing: 1px;
+    line-height: 1.3;
+}
+
+h1 {
+    font-size: 2.5rem;
+
+    @media only screen and (min-width: $md-breakpoint-up) {
+        font-size: 3rem;
+    }
+}
+
+h2 {
+    font-size: 2rem;
+
+    @media only screen and (min-width: $md-breakpoint-up) {
+        font-size: 2.5rem;
+    }
+}
+
+h3 {
+    font-size: 1.25rem;
+
+    @media only screen and (min-width: $md-breakpoint-up) {
+        font-size: 2.25rem;
+    }
+}
+
+h4 {
+    font-size: 1.125rem;
+
+    @media only screen and (min-width: $md-breakpoint-up) {
+        font-size: 2.125rem
+    }
+}
+
+h5,
+h6 {
+    font-size: 1rem;
+
+    @media only screen and (min-width: $md-breakpoint-up) {
+        font-size: 2rem
+    }
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: $text-primary;
+    font-weight: $font-weight-normal;
+}
+
+ul,
+ol,
+li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+label {
+    color: $text-primary;
+    margin-block: 0 .625rem;
+}
+
+img {
+    width: 10rem;
+    display: block;
+    object-fit: cover;
+}
+
+.container {
+    max-width: 62.5rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+header {
+    margin-bottom: 2rem;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: color $transition;
+
+    &:not(.btn):hover {
+        color: $accent-gold;
+    }
+}
+
+.btn {
+    padding: 0.5rem 1.25rem;
+    border: 1px solid $border-default;
+    background: $btn-secondary-bg;
+    color: $text-secondary;
+    border-radius: 6px;
+    font-family: $font-body;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 2px;
+    display: block;
+    width: fit-content;
+
+    &:hover {
+        background: $bg-row-hover;
+        border-color: $border-strong;
+    }
+
+    &.active {
+        background: $blue-primary;
+        color: $text-primary;
+        border-color: $blue-primary;
+    }
+}

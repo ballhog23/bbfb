@@ -2,11 +2,28 @@ mixin matchupCardBody(match)
     - const homeTeam = match[0];
     - const awayTeam = match[1];
     - const hasTeamName = (t) => t.team ? t.team : t.owner;
+    - const resultClass = (t1, t2) => { const a = parseFloat(t1.points) || 0; const b = parseFloat(t2.points) || 0; return a > b ? 'winner' : a < b ? 'loser' : ''; };
+    - const isTwistedTitTeas = (t) => t.owner && t.owner.toLowerCase().includes('twistedtitteas');
+    - const imageURL = (t) => isTwistedTitTeas(t) ? t.ownerImage : (t.teamImage ?? t.ownerImage);
 
-    .home-team
-        h3= hasTeamName(homeTeam)
-        p= homeTeam.points
+    section.home-team(class=resultClass(homeTeam, awayTeam))
+        img(
+            src= imageURL(homeTeam) || "https://placehold.co/50",
+            alt= hasTeamName(homeTeam) + ' team logo'
+            loading='lazy'
+            decoding='async'
+        )
+        .team-details
+            h3= hasTeamName(homeTeam)
+            p= homeTeam.points
     span.vs vs
-    .away-team
-        h3= hasTeamName(awayTeam)
-        p= awayTeam.points
+    section.away-team(class=resultClass(awayTeam, homeTeam))
+        img(
+            src= imageURL(awayTeam) || "https://placehold.co/50",
+            alt= hasTeamName(awayTeam) + ' team logo'
+            loading='lazy'
+            decoding='async'
+        )
+        .team-details
+            h3= hasTeamName(awayTeam)
+            p= awayTeam.points

@@ -21,6 +21,7 @@ export async function insertLeagueRoster(leagueRosters: StrictInsertRoster) {
                 players: sql`EXCLUDED.players`,
                 streak: sql`EXCLUDED.streak`,
                 record: sql`EXCLUDED.record`,
+                division: sql`EXCLUDED.division`
             }
         })
         .returning();
@@ -107,30 +108,41 @@ export async function selectUserRosters(userId: string) {
     return result;
 }
 
-// per season
+// using on matchups page, for standings
 export async function selectLeagueRosters(leagueId: string) {
     const playerJson = sql<{
         playerName: string;
         position: string;
-        team: string;
+        team: string | null;
+        playerImage: string;
     }>`
         jsonb_build_object(
             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
             'position', ${NFLPlayersTable.position},
-            'team', ${NFLPlayersTable.team}
+            'team', ${NFLPlayersTable.team},
+            'playerImage', CASE
+                WHEN ${NFLPlayersTable.position} = 'DEF' THEN 'https://sleepercdn.com/images/team_logos/nfl/' || lower(nfl_players.team) || '.png'
+                ELSE 'https://sleepercdn.com/content/nfl/players/' || nfl_players.player_id || '.jpg'
+                END
         )
     `;
 
     const result = await db
         .select({
             ownerName: sleeperUsersTable.displayName,
+            ownerImage: sleeperUsersTable.avatarId,
             teamName: leagueUsersTable.teamName,
+            teamImage: leagueUsersTable.avatarId,
             pointsFor: rostersTable.fpts,
             pointsAgainst: rostersTable.fptsAgainst,
             wins: rostersTable.wins,
             losses: rostersTable.losses,
             startingRoster: sql<(typeof playerJson)[] | null>`
-                jsonb_agg(${playerJson})
+                jsonb_agg(
+                    ${playerJson}
+                    
+                    ORDER BY array_position(${rostersTable.starters}, ${NFLPlayersTable.playerId})
+                )
                 FILTER (WHERE ${NFLPlayersTable.playerId} = ANY(${rostersTable.starters}))
             `,
             reserveRoster: sql<(typeof playerJson)[] | null>`
@@ -168,7 +180,9 @@ export async function selectLeagueRosters(leagueId: string) {
         .where(eq(rostersTable.leagueId, leagueId))
         .groupBy(
             sleeperUsersTable.displayName,
+            sleeperUsersTable.avatarId,
             leagueUsersTable.teamName,
+            leagueUsersTable.avatarId,
             rostersTable.fpts,
             rostersTable.fptsAgainst,
             rostersTable.wins,

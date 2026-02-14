@@ -8,15 +8,23 @@ export async function handlerServeIndex(req: Request, res: Response) {
     if (!leagueState)
         return res.render('pages/404');
 
-    const queries = [];
+    // only use current league for winner/loser when it just finished (inactive + seasons match)
+    // during active season or when env vars are updated early, use previous league
+    const seasonJustFinished = !leagueState.isLeagueActive && leagueState.season === config.league.season;
+    const completedLeagueId = seasonJustFinished ? config.league.id : config.league.prevId;
+    const completedLeagueSeason = seasonJustFinished ? config.league.season : config.league.prevSeason;
 
-    if (leagueState.leg > 17)
-        queries.push(
-            selectLeagueWinner(config.league.id),
-            selectLeagueLoser(config.league.id)
-        );
+    const [winner, loser] = await Promise.all([
+        selectLeagueWinner(completedLeagueId),
+        selectLeagueLoser(completedLeagueId)
+    ]);
 
-    const results = await Promise.all(queries);
-    const [winner, loser] = results;
-    return res.render('pages/index', { leagueState, winner, loser, page: 'homepage' });
+    return res.render('pages/index', {
+        leagueState,
+        prevLeagueSeason: completedLeagueSeason,
+        winner,
+        loser,
+        page: 'homepage',
+        description: `Bleed Blue Fantasy Football League. 12 dudes shootin' the shit. Go Cowboys.`
+    });
 }

@@ -1,0 +1,237 @@
+@use '../_variables' as *;
+@use '../_base';
+@use '../components/_navbar';
+@use '../components/_nav-overlay';
+@use '../components/_footer';
+@use '../components/_matchup-card';
+@use '../components/_dialog-base';
+@use '../components/_matchup-modal';
+@use '../components/_roster-modal';
+@use '../components/_player-card';
+@use '../components/_table-base';
+
+.page-header {
+    text-align: center;
+
+    @media only screen and (min-width: $sm-breakpoint-up) {
+        text-align: left;
+    }
+}
+
+// filter elements, excluding week select and bracket tabs
+// week select and bracket tabs are rendered within #matchups-content
+.matchups-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+
+    h2 {
+        margin-bottom: 0;
+        text-transform: uppercase;
+        font-family: $font-accent;
+        text-align: center;
+        font-weight: $font-weight-bold;
+        color: $accent-gold;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            text-align: left;
+        }
+    }
+
+    .season-navigation {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .league-select-wrapper {
+        width: 100%;
+    }
+
+    @media only screen and (min-width: $sm-breakpoint-up) {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: start;
+
+        h2 {
+            grid-column: 1;
+            grid-row: 1 / -1;
+            align-self: self-end;
+        }
+
+        .league-select-wrapper {
+            order: unset;
+            grid-column: 2;
+            grid-row: 1;
+            justify-self: end;
+        }
+
+        .season-navigation {
+            grid-column: 2;
+            grid-row: 2;
+            justify-self: end;
+        }
+    }
+}
+
+// base styles for dropdown select elements
+.league-select-wrapper,
+.week-select-wrapper {
+    display: flex;
+    flex-direction: column;
+
+    @media only screen and (min-width: $sm-breakpoint-up) {
+        width: 15rem;
+    }
+
+    label {
+        font-size: 1rem;
+        font-weight: $font-weight-semibold;
+        color: $text-secondary;
+    }
+
+    #league-select,
+    #week-select {
+        padding: 0.625rem 1rem;
+        background: $bg-surface;
+        color: $text-primary;
+        border: 1px solid $border-default;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        font-weight: $font-weight-medium;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-width: 15rem;
+
+        &:hover {
+            border-color: $border-strong;
+            background: $bg-row-hover;
+        }
+
+        &:focus {
+            outline: none;
+            border-color: $blue-primary;
+            box-shadow: 0 0 0 3px rgba(0, 51, 160, 0.1);
+        }
+    }
+}
+
+#matchups-content {
+
+    // winners/losers brackets toggles
+    .bracket-tabs {
+        display: flex;
+        justify-content: flex-start;
+        gap: 1.25rem;
+    }
+
+    >section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 3rem;
+    }
+
+    .bracket-container {
+        display: none;
+
+        &.active {
+            display: block;
+        }
+
+        .bracket-rounds {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+
+            .round-container {
+                .round-header {
+                    text-align: center;
+
+                    h3 {
+                        font-size: 1rem;
+                        font-weight: $font-weight-bold;
+                        color: $blue-highlight;
+                        text-transform: uppercase;
+                    }
+                }
+
+                .round-matchups {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+            }
+        }
+    }
+}
+
+// matchup-modal specific styles
+.away-team-players {
+    .player-card {
+        flex-direction: row-reverse;
+    }
+
+    .player-info {
+        align-items: flex-end;
+
+        .player-name {
+            text-align: right;
+        }
+    }
+
+    .player-meta {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .player-stats {
+        justify-content: flex-start;
+    }
+}
+
+.lineup-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.standings-container {
+    padding-block: 6.25rem;
+
+    >header {
+        padding: 3rem;
+        border-radius: 0.5rem 0.5rem 0 0;
+        background-color: $table-header-bg;
+        margin: 0;
+
+        h2 {
+            text-transform: uppercase;
+            font-family: $font-accent;
+            font-weight: $font-weight-bold;
+            color: $accent-gold;
+            text-align: center;
+            margin: 0;
+        }
+    }
+
+    #standings-wrapper {
+        width: 100%;
+        overflow: scroll hidden;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            overflow: hidden hidden;
+        }
+
+        table {
+            tbody {
+                tr {
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+}

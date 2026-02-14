@@ -1,0 +1,85 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  id-token: write   # needed for OIDC token request
+  contents: read     # needed to checkout code
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+      - run: npm run build
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to AWS via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy via SSM
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "deploy from commit ${{ github.sha }}" \
+            --parameters 'commands=[
+              "set -e",
+              "cd /opt/${{ secrets.APP_NAME }}",
+              "sudo -u ${{ secrets.APP_NAME }} git pull origin master",
+              "sudo -u ${{ secrets.APP_NAME }} npm i",
+              "sudo -u ${{ secrets.APP_NAME }} npm run build",
+              "sudo -u ${{ secrets.APP_NAME }} npm run migrate",
+              "sudo -u ${{ secrets.APP_NAME }} npm prune --omit=dev",
+              "sudo systemctl restart ${{ secrets.APP_NAME }}"
+            ]' \
+            --query "Command.CommandId" \
+            --output text)
+
+          echo "SSM Command ID: $COMMAND_ID"
+
+          # wait for the command to finish and check status
+          for i in $(seq 1 30); do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+              --query "Status" \
+              --output text 2>/dev/null || echo "InProgress")
+
+            echo "Attempt $i: $STATUS"
+
+            if [ "$STATUS" = "Success" ]; then
+              echo "Deploy succeeded"
+              exit 0
+            elif [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Cancelled" ] || [ "$STATUS" = "TimedOut" ]; then
+              echo "Deploy failed with status: $STATUS"
+              aws ssm get-command-invocation \
+                --command-id "$COMMAND_ID" \
+                --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+                --query "StandardErrorContent" \
+                --output text
+              exit 1
+            fi
+
+            sleep 10
+          done
+
+          echo "Timed out waiting for deploy"
+          exit 1

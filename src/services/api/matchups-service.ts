@@ -9,8 +9,6 @@ import { insertMatchup } from "../../db/queries/matchups.js";
 import { SelectMatchup, StrictInsertMatchup } from "../../db/schema.js";
 import { config } from "../../config.js";
 
-// ! GOAL: WORK ON HISTORICAL PRESENTATION OF DATA BECAUSE ITS THE OFFSEASON, DATA SYNC WE WILL WORK ON NEXT
-// ! DATA SYNC WILL LOOK SOMETHING LIKE, KEEP TRACK OF NFL STATE (SLEEPER LEAGUE SEASON, WEEK) IN DB AND HYDRATE CONFIG FROM THERE
 type RawWeeklyMatchupRecord = {
     week: number,
     matchups: RawMatchup[];
@@ -22,11 +20,18 @@ type RawLeagueMatchups = {
     allMatchupsPerWeek: RawWeeklyMatchupRecord[];
 };
 
-export async function syncMatchups() {
-    const matchups = await buildRegularSeasonLeagueMatchups();
-    // const results = await insertLeagueMatchups(matchups);
+export async function syncPostSeasonMatchups() {
+    const matchups = await buildPostSeasonLeagueMatchups();
+    const results = await insertLeagueMatchups(matchups);
 
-    return matchups;
+    return results;
+}
+
+export async function syncRegularSeasonMatchups() {
+    const matchups = await buildRegularSeasonLeagueMatchups();
+    const results = await insertLeagueMatchups(matchups);
+
+    return results;
 }
 
 export async function buildAndInsertLeagueMatchupHistory() {
@@ -38,10 +43,10 @@ export async function buildAndInsertLeagueMatchupHistory() {
 
 export async function insertLeagueMatchups(matchups: StrictInsertMatchup[]) {
     const successfulMatchups: SelectMatchup[] = [];
-    const CHUNK_SIZE = 12;
-
-    // we chunk by 12 because there are 12 matchups per week (look into 15-17 and how we will manage playoffs)
-    // when building history we treat each seasons week as the batch insert
+    const CHUNK_SIZE = 6;
+    // we use promise.all because of the relationship chain:
+    // a league must exist, a sleeper user must exist, a league user, then a matchup of two league users
+    // if an operation fails we could have bad database rows
     for (let i = 0; i < matchups.length; i += CHUNK_SIZE) {
         const chunk = matchups.slice(i, i + CHUNK_SIZE);
         const currentInsert = chunk.map(matchup => insertMatchup(matchup));
@@ -52,17 +57,13 @@ export async function insertLeagueMatchups(matchups: StrictInsertMatchup[]) {
     return successfulMatchups;
 }
 
-// The issue we may face is that bye weeks are stored as NULL matchup id
-// if we store all weekly matchups 1-17 at the start of the season, we risk adding multiple rows throughout the season?
-// beacuse the composite key is leagueId, rosterId, week, it would add new rows not update exisiting rows
-// so the approach should more than likely be add 1-14, then when the playoff schedule is set, we can add 15-17
-// the implementation will be nearly identical to fetching all of the matchups in the history of the league
-// i think we will make an endpoint to get sleeper nfl state and store in db to hydrate config object instead of
-// hardcoding things like season and week, expose the sleeper data from our db as source of truth,
-// expose put endpoint for lamda to run refresh functions to maintain snapshots from sleeper
+// Bye-week rosters return NULL matchup_id from Sleeper. Since we can't
+// upsert rows without a stable matchup_id, we only insert weeks 1-14
+// (regular season) upfront. Weeks 15-17 are inserted once the playoff
+// bracket is finalized and all matchup_ids are populated.
 export async function buildRegularSeasonLeagueMatchups() {
     const sleeper = new Sleeper();
-    const weeks = Array.from({ length: 14 }, (v, i) => i + 1); // weeks 1-14 regular season, 15-17 postseason
+    const weeks = Array.from({ length: 14 }, (_, i) => i + 1); // weeks 1-14 regular season, 15-17 postseason
     const currentNFLState = await sleeper.getNFLState();
     const { season } = currentNFLState;
 
@@ -141,7 +142,8 @@ export function rawToNormalizedMatchups(
     matchups: RawMatchup[],
     season: string,
     week: number,
-    leagueId: string): StrictInsertMatchup[] {
+    leagueId: string
+): StrictInsertMatchup[] {
 
     return matchups
         .map(matchup => undefinedToNullDeep(matchup) as NullableRawMatchup)

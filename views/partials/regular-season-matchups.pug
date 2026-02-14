@@ -1,5 +1,6 @@
-.select-wrapper
-    include ../partials/league-select.pug
-    include ../partials/week-select.pug
-section#matchups-wrapper
-    include ../partials/matchups-section.pug
+include ../mixins/matchup-card.pug
+
+include ../partials/week-select.pug
+section.matchups-wrapper
+    each match in matchups
+        +matchupCard(match)
