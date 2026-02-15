@@ -1,0 +1,114 @@
+@use '../variables' as *;
+@use '../_base';
+@use '../components/_navbar';
+@use '../components/_nav-overlay';
+@use '../components/_footer';
+@use '../components/_stat-card';
+@use '../components/_sacko-card';
+
+// Sacko Hall page styles
+
+.page-header {
+	text-align: center;
+	padding-block: 0;
+	position: relative;
+	overflow: hidden;
+	margin-block: 0 6.25rem;
+
+	.hero-icon {
+		width: auto;
+		margin: 0 auto;
+		height: 14.5rem;
+
+		@media only screen and (min-width: $lg-breakpoint-up) {
+			height: 20rem;
+		}
+	}
+
+	h1 {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		margin-bottom: 0.75rem;
+
+		@media only screen and (max-width: 26.25rem) {
+			font-size: 2rem;
+		}
+
+		svg {
+			display: none;
+
+			@media only screen and (min-width: $lg-breakpoint-up) {
+				display: block;
+				width: 1.25rem;
+				height: 1.25rem;
+				color: $loss;
+			}
+		}
+
+		span {
+			color: rgba($loss, 0.8);
+			text-transform: uppercase;
+			letter-spacing: 0.3em;
+			font-weight: $font-weight-medium;
+		}
+	}
+
+	.hero-description {
+		color: $text-muted;
+		font-size: 1.125rem;
+		max-width: 28rem;
+		margin: 0 auto;
+	}
+}
+
+// Stats overview grid
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1rem;
+	margin-block: 0 3.125rem;
+
+	@media only screen and (min-width: $md-breakpoint-up) {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	.stat-card {
+		&:hover {
+			border-color: rgba($loss, 0.3);
+		}
+
+		&:nth-child(1) .stat-icon {
+			background: linear-gradient(to bottom right, $loss, #991b1b);
+		}
+
+		&:nth-child(2) .stat-icon {
+			background: linear-gradient(to bottom right, $accent-cyan, $blue-highlight);
+		}
+
+		&:nth-child(3) .stat-icon {
+			background: linear-gradient(to bottom right, $loss, #7f1d1d);
+		}
+
+		&:nth-child(4) .stat-icon {
+			background: linear-gradient(to bottom right, $accent-purple, #5b21b6);
+		}
+	}
+}
+
+// Sacko card grid
+.sackos-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 3.125rem 1.5rem;
+	padding-bottom: 6.25rem;
+
+	@media only screen and (min-width: 43.75rem) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	@media only screen and (min-width: $lg-breakpoint-up) {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}

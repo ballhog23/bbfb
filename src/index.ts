@@ -26,6 +26,7 @@ import { webMatchupsPageRoute } from "./routes/web/matchups.js";
 import { handlerServeNotFound } from "./web/not-found.js";
 import { webSitemapRoute } from "./routes/web/sitemap.js";
 import { webChampionsHallRoute } from "./routes/web/champions-hall.js";
+import { webSackoHallRoute } from "./routes/web/sacko-hall.js";
 import { webRivalryRoute } from "./routes/web/rivalry.js";
 import { webLeagueStatsRoute } from "./routes/web/league-stats.js";
 
@@ -47,6 +48,7 @@ app.use("/", webIndexRoute);
 app.use("/matchups", webMatchupsPageRoute);
 app.use("/sitemap.xml", webSitemapRoute);
 app.use("/champions-hall", webChampionsHallRoute);
+app.use("/sacko-hall", webSackoHallRoute);
 app.use("/rivalry", webRivalryRoute);
 app.use("/league-stats", webLeagueStatsRoute);
 
