@@ -1,0 +1,215 @@
+@use '../variables' as *;
+
+.champion-card {
+	position: relative;
+	background: $bg-row-hover;
+	border-radius: 1rem;
+	overflow: hidden;
+	border: 1px solid rgba($border-strong, 0.5);
+	transition: all 0.5s ease;
+
+	&:hover {
+		border-color: rgba($accent-emerald, 0.3);
+
+		.card-trophy-icon {
+			background: rgba($accent-emerald, 0.2);
+		}
+	}
+
+	// Reigning champion gets special treatment (first card)
+	&:first-child {
+		border-color: rgba($accent-emerald, 0.5);
+		box-shadow: 0 20px 40px rgba($accent-emerald, 0.1);
+
+		.card-trophy-icon {
+			background: linear-gradient(to bottom right, $accent-emerald, $accent-teal);
+
+			svg {
+				color: $text-primary;
+			}
+		}
+	}
+
+	.reigning-badge {
+		position: absolute;
+		top: -0.75rem;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 1;
+		display: inline-flex;
+		align-items: center;
+		background: linear-gradient(to right, $accent-emerald, $accent-teal);
+		color: $text-primary;
+		font-weight: $font-weight-semibold;
+		font-size: 0.75rem;
+		padding: 0.25rem 1rem;
+		border-radius: 0.375rem;
+		box-shadow: 0 4px 12px rgba($accent-emerald, 0.3);
+
+		svg {
+			width: 0.75rem;
+			height: 0.75rem;
+			margin-right: 0.25rem;
+		}
+	}
+
+	.card-accent-bar {
+		height: 0.25rem;
+		background: linear-gradient(to right, $accent-emerald, $accent-teal, $accent-emerald);
+	}
+
+	.card-body {
+		padding: 1.5rem;
+	}
+
+	.card-header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		margin-bottom: 1.5rem;
+
+		.card-season-label {
+			color: rgba($accent-emerald, 0.6);
+			font-size: 0.875rem;
+			font-weight: $font-weight-medium;
+			letter-spacing: 0.1em;
+			text-transform: uppercase;
+			margin-bottom: 0.25rem;
+		}
+
+		.card-season {
+			font-size: 1.875rem;
+			font-weight: $font-weight-bold;
+			color: $text-primary;
+			font-style: italic;
+			font-family: $font-heading;
+		}
+	}
+
+	.card-trophy-icon {
+		padding: 0.75rem;
+		border-radius: 0.75rem;
+		background: $bg-card;
+		transition: all $transition;
+
+		svg {
+			width: 1.5rem;
+			height: 1.5rem;
+			color: $accent-emerald;
+		}
+	}
+
+	.card-champion {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+
+		.card-avatar {
+			width: 4rem;
+			height: 4rem;
+			border-radius: 0.75rem;
+			background: linear-gradient(to bottom right, $border-strong, $bg-card);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			outline: 2px solid rgba($accent-emerald, 0.3);
+			flex-shrink: 0;
+
+			svg {
+				width: 2rem;
+				height: 2rem;
+				color: $text-disabled;
+			}
+		}
+
+		h3 {
+			font-size: 1.25rem;
+			font-weight: $font-weight-bold;
+			color: $text-primary;
+			margin-bottom: 0.25rem;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		p {
+			color: rgba($accent-emerald, 0.8);
+			font-weight: $font-weight-medium;
+			margin-bottom: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+
+	.card-stats {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.card-stat {
+		background: rgba($bg-card, 0.5);
+		border-radius: 0.75rem;
+		padding: 0.75rem;
+
+		.card-stat-label {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			color: $text-muted;
+			font-size: 0.75rem;
+			margin-bottom: 0.25rem;
+
+			svg {
+				width: 0.75rem;
+				height: 0.75rem;
+			}
+		}
+
+		.card-stat-value {
+			color: $text-primary;
+			font-weight: $font-weight-semibold;
+			font-size: 0.875rem;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+
+	.card-defeated {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+		color: $text-disabled;
+		border-top: 1px solid $border-default;
+		padding-top: 1rem;
+
+		svg {
+			width: 1rem;
+			height: 1rem;
+			color: $text-disabled;
+		}
+
+		span:last-child {
+			color: $text-muted;
+			font-weight: $font-weight-medium;
+		}
+	}
+
+	.card-quote {
+		margin-top: 1rem;
+		padding-top: 1rem;
+		border-top: 1px solid $border-default;
+
+		p {
+			font-size: 0.875rem;
+			color: $text-muted;
+			font-style: italic;
+			margin-bottom: 0;
+		}
+	}
+}

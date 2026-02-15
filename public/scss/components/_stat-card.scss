@@ -1,0 +1,71 @@
+@use '../variables' as *;
+
+.stat-card {
+	position: relative;
+	background: $bg-row-hover;
+	border-radius: 1rem;
+	padding: 1.25rem;
+	border: 1px solid rgba($border-strong, 0.5);
+	overflow: hidden;
+	transition: border-color $transition;
+
+	&:hover {
+		border-color: rgba($accent-emerald, 0.3);
+	}
+
+	.stat-icon {
+		display: inline-flex;
+		padding: 0.625rem;
+		border-radius: 0.75rem;
+		margin-bottom: 0.75rem;
+
+		svg {
+			width: 1.25rem;
+			height: 1.25rem;
+			color: $text-primary;
+		}
+	}
+
+	// Color variants via nth-child
+	&:nth-child(1) .stat-icon {
+		background: linear-gradient(to bottom right, $accent-emerald, $accent-teal);
+	}
+
+	&:nth-child(2) .stat-icon {
+		background: linear-gradient(to bottom right, $accent-cyan, $blue-highlight);
+	}
+
+	&:nth-child(3) .stat-icon {
+		background: linear-gradient(to bottom right, $accent-emerald, $accent-emerald-dark);
+	}
+
+	&:nth-child(4) .stat-icon {
+		background: linear-gradient(to bottom right, $accent-teal, $accent-cyan);
+	}
+
+	.stat-value {
+		font-size: 1.5rem;
+		font-weight: $font-weight-bold;
+		color: $text-primary;
+		margin-bottom: 0.25rem;
+
+		@media only screen and (min-width: $md-breakpoint-up) {
+			font-size: 1.875rem;
+		}
+	}
+
+	.stat-label {
+		font-size: 0.875rem;
+		font-weight: $font-weight-medium;
+		color: $text-secondary;
+		margin-bottom: 0.125rem;
+	}
+
+	.stat-sublabel {
+		font-size: 0.75rem;
+		color: $text-disabled;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}

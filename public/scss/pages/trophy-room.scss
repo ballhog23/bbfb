@@ -3,3 +3,90 @@
 @use '../components/_navbar';
 @use '../components/_nav-overlay';
 @use '../components/_footer';
+@use '../components/_stat-card';
+@use '../components/_champion-card';
+
+// Trophy Room page styles
+
+.page-header {
+	text-align: center;
+	padding-block: 0 3rem;
+	position: relative;
+	overflow: hidden;
+
+	.hero-icon {
+		width: auto;
+		margin: 0 auto;
+		height: 14.5rem;
+
+		@media only screen and (min-width: $lg-breakpoint-up) {
+			height: 20rem;
+		}
+	}
+
+	h1 {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		margin-bottom: 0.75rem;
+
+		@media only screen and (max-width: 26.25rem) {
+			font-size: 2rem;
+		}
+
+		svg {
+			display: none;
+
+			@media only screen and (min-width: $lg-breakpoint-up) {
+				display: block;
+				width: 1.25rem;
+				height: 1.25rem;
+				color: $accent-emerald;
+			}
+		}
+
+		span {
+			color: rgba($accent-emerald, 0.8);
+			text-transform: uppercase;
+			letter-spacing: 0.3em;
+			// font-size: 0.75rem;
+			font-weight: $font-weight-medium;
+		}
+	}
+
+	.hero-description {
+		color: $text-muted;
+		font-size: 1.125rem;
+		max-width: 28rem;
+		margin: 0 auto;
+	}
+}
+
+// Stats overview grid
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1rem;
+	margin-bottom: 3rem;
+
+	@media only screen and (min-width: $lg-breakpoint-up) {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+
+// Champions card grid
+.champions-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1.5rem;
+	padding-bottom: 5rem;
+
+	@media only screen and (min-width: $md-breakpoint-up) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	@media only screen and (min-width: $lg-breakpoint-up) {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
