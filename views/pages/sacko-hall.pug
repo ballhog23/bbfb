@@ -4,7 +4,7 @@ include ../mixins/stat-card.pug
 include ../mixins/sacko-card.pug
 
 block head
-	link(rel="prefetch" href="/assets/sacko.webp" as="image" type="image/webp")
+	link(rel="prefetch" href="/assets/sacko.webp" as="image" fetchpriority= 'high')
 	script(type="module" src="/js/sacko-hall.js")
 	link(rel="stylesheet" href="/css/pages/sacko-hall.css")
 

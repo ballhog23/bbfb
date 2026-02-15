@@ -4,7 +4,7 @@ include ../mixins/stat-card.pug
 include ../mixins/champion-card.pug
 
 block head
-	link(rel="prefetch" href="/assets/winner-mascot.webp" as="image" type="image/webp")
+	link(rel="prefetch" href="/assets/winner-mascot.webp" as="image" fetchpriority= 'high')
 	script(type="module" src="/js/champions-hall.js")
 	link(rel="stylesheet" href="/css/pages/champions-hall.css")
 
