@@ -3,7 +3,7 @@ import compression from "compression";
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { errorHandler } from './middleware/error-handler.js';
-import { handlerServeErrorPage } from './web/errorPage.js';
+import { handlerServeErrorPage } from './web/error-page.js';
 
 // json api
 import { apiLeaguesRoute } from "./routes/api/leagues-route.js";
@@ -23,11 +23,11 @@ import { apiPlayoffsRoute } from "./routes/api/playoffs.js";
 // web routes
 import { webIndexRoute } from "./routes/web/index.js";
 import { webMatchupsPageRoute } from "./routes/web/matchups.js";
-import { handlerServeNotFound } from "./web/notFound.js";
+import { handlerServeNotFound } from "./web/not-found.js";
 import { webSitemapRoute } from "./routes/web/sitemap.js";
-import { webTrophyRoomRoute } from "./routes/web/trophyRoom.js";
+import { webChampionsHallRoute } from "./routes/web/champions-hall.js";
 import { webRivalryRoute } from "./routes/web/rivalry.js";
-import { webLeagueStatsRoute } from "./routes/web/leagueStats.js";
+import { webLeagueStatsRoute } from "./routes/web/league-stats.js";
 
 const app = express();
 export const __filename = fileURLToPath(import.meta.url);
@@ -46,7 +46,7 @@ app.set("views", join(__dirname, "../views"));
 app.use("/", webIndexRoute);
 app.use("/matchups", webMatchupsPageRoute);
 app.use("/sitemap.xml", webSitemapRoute);
-app.use("/trophy-room", webTrophyRoomRoute);
+app.use("/champions-hall", webChampionsHallRoute);
 app.use("/rivalry", webRivalryRoute);
 app.use("/league-stats", webLeagueStatsRoute);
 

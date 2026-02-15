@@ -1,10 +1,21 @@
 import { NotFoundError } from "../../lib/errors.js";
 import { buildCompletedLeaguesIds } from "../../lib/helpers.js";
-import { selectChampionInfo, type ChampionInfo } from "../../db/queries/trophy-room.js";
-
+import {
+    selectChampionInfo, type ChampionInfo,
+    selectDistinctChamps,
+    selectWinningestChamp, type WinningestChamp,
+    selectHighestScoringChampionshipGame, type HighestScoringChampionshipGame
+} from "../../db/queries/champions-hall.js";
 
 export type ChampionData = ChampionInfo & {
     quote: string;
+};
+
+export type ChampionsHallStats = {
+    totalChampionships: number;
+    uniqueChampions: number;
+    dynastyLeader: WinningestChamp;
+    recordFinalsScore: HighestScoringChampionshipGame;
 };
 
 const championQuotes = [
@@ -23,18 +34,30 @@ const camelCaseTeams = new Set(['JerrysGloryHole.']);
 const formatTeamName = (name: string) =>
     camelCaseTeams.has(name) ? name.replace(/([a-z])([A-Z])/g, '$1 $2') : name;
 
-export async function assembleTrophyRoomPageData() {
+export async function assembleChampionsHallPageData() {
     const leagueIds = await buildCompletedLeaguesIds();
     if (leagueIds.length === 0)
         throw new NotFoundError('Could not retrieve League Ids.');
 
-    const championsPromise = leagueIds.map(selectChampionInfo);
-    const rawChampions = await Promise.all(championsPromise);
-    const champions = rawChampions.map((champ, i) => ({
+    const [rawChampions, distinctResult, dynastyLeader, recordFinalsScore] = await Promise.all([
+        Promise.all(leagueIds.map(selectChampionInfo)),
+        selectDistinctChamps(),
+        selectWinningestChamp(),
+        selectHighestScoringChampionshipGame()
+    ]);
+
+    const champions: ChampionData[] = rawChampions.map((champ, i) => ({
         ...champ,
         team: champ.team ? formatTeamName(champ.team) : champ.name,
         quote: championQuotes[i] ?? ''
     }));
 
-    return champions;
+    const stats: ChampionsHallStats = {
+        totalChampionships: leagueIds.length,
+        uniqueChampions: distinctResult.count,
+        dynastyLeader,
+        recordFinalsScore,
+    };
+
+    return { champions, stats };
 }

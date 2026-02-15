@@ -1,0 +1,35 @@
+extends ../layouts/base
+include ../mixins/icons.pug
+include ../mixins/stat-card.pug
+include ../mixins/champion-card.pug
+
+block head
+	link(rel="prefetch" href="/assets/winner-mascot.webp" as="image" type="image/webp")
+	script(type="module" src="/js/champions-hall.js")
+	link(rel="stylesheet" href="/css/pages/champions-hall.css")
+
+block content
+	-
+		const statCards = [
+			{ icon: 'trophy', value: stats.totalChampionships, label: 'Championships', sublabel: 'Total sleeper seasons' },
+			{ icon: 'users', value: stats.uniqueChampions, label: 'Unique Champions', sublabel: 'Different winners' },
+			{ icon: 'crown', value: stats.dynastyLeader.championships + 'x', label: 'Dynasty Leader', sublabel: stats.dynastyLeader.team || stats.dynastyLeader.displayName },
+			{ icon: 'trending-up', value: stats.recordFinalsScore.points, label: 'Record Finals Score', sublabel: stats.recordFinalsScore.team || stats.recordFinalsScore.displayName }
+		]
+
+	main
+		header.page-header.container
+			img.hero-icon(src="/assets/winner-mascot.webp" alt="League champion mascot" loading="eager" decoding="sync")
+			h1
+				+iconCrown()
+				span Hall of Champions
+				+iconCrown()
+			p.hero-description Celebrating #{stats.totalChampionships} seasons of glory and shit talking.
+
+		section.stats-grid.container
+			each stat in statCards
+				+statCard(stat)
+
+		section.champions-grid.container
+			each champ, i in champions
+				+championCard(champ, i === 0)

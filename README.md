@@ -5,7 +5,7 @@ A web application for the Bleed Blue fantasy football league that tracks histori
 ## Features
 
 - **Matchups** — Browse weekly matchups by season with scores, starters, and player-level scoring breakdowns. Toggle between regular season and playoff views.
-- **Trophy Room** — Historical league records and achievements.
+- **Champions Hall** — Historical league records and achievements.
 - **Automated Data Sync** — AWS Step Functions orchestrate Lambda functions to sync league, user, roster, and matchup data from Sleeper on a schedule during the NFL season.
 - **Historical Data** — Full league history is stored in a PostgreSQL database, independent of Sleeper API availability.
 

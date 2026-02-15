@@ -18,7 +18,7 @@ export async function handlerServeSitemap(_: Request, res: Response) {
     const staticUrls = [
         { loc: `${BASE_URL}/`, changefreq: 'weekly', priority: '0.8' },
         { loc: `${BASE_URL}/matchups`, changefreq: 'weekly', priority: '0.8' },
-        { loc: `${BASE_URL}/trophy-room`, changefreq: 'weekly', priority: '0.8' },
+        { loc: `${BASE_URL}/champions-hall`, changefreq: 'weekly', priority: '0.8' },
         { loc: `${BASE_URL}/rilvary`, changefreq: 'weekly', priority: '0.8' },
         { loc: `${BASE_URL}/league-stats`, changefreq: 'weekly', priority: '0.8' },
     ];
