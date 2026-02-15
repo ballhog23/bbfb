@@ -26,6 +26,8 @@ import { webMatchupsPageRoute } from "./routes/web/matchups.js";
 import { handlerServeNotFound } from "./web/notFound.js";
 import { webSitemapRoute } from "./routes/web/sitemap.js";
 import { webTrophyRoomRoute } from "./routes/web/trophyRoom.js";
+import { webRivalryRoute } from "./routes/web/rivalry.js";
+import { webLeagueStatsRoute } from "./routes/web/leagueStats.js";
 
 const app = express();
 export const __filename = fileURLToPath(import.meta.url);
@@ -45,6 +47,8 @@ app.use("/", webIndexRoute);
 app.use("/matchups", webMatchupsPageRoute);
 app.use("/sitemap.xml", webSitemapRoute);
 app.use("/trophy-room", webTrophyRoomRoute);
+app.use("/rivalry", webRivalryRoute);
+app.use("/league-stats", webLeagueStatsRoute);
 
 // json web api views
 app.use("/api/web/matchups-page", apiMatchupsPageRoute);

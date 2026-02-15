@@ -3,8 +3,6 @@ import { assembleMatchupsPageData } from "../services/web/matchups-page-service.
 import { selectLeagueState } from "../db/queries/league-state.js";
 import { config } from "../config.js";
 
-
-
 export type MatchupsPageParams = {
     leagueId: string;
     week: string;

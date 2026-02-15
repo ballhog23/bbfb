@@ -5,14 +5,14 @@ const dropdownNavButton = htmlElement.querySelector<HTMLButtonElement>('.league-
 const dropdownNav = htmlElement.querySelector<HTMLUListElement>('#league-info-menu')!;
 const MD_BREAKPOINT = 768;
 
-interface NavToggle {
+type NavToggle = {
     trigger: HTMLButtonElement;
     target: HTMLElement;
     open(): void;
     close(): void;
     isOpen(): boolean;
     shouldCloseOnResize(): boolean;
-}
+};
 
 const toggles: NavToggle[] = [];
 
