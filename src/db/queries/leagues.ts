@@ -33,6 +33,20 @@ export async function selectAllLeagues() {
     return rows;
 }
 
+export async function selectAllCompletedLeagues() {
+    const rows = await db
+        .select()
+        .from(leaguesTable)
+        .where(
+            eq(
+                leaguesTable.status, "complete"
+            )
+        )
+        .orderBy(desc(leaguesTable.season));
+
+    return rows;
+}
+
 export async function selectAllLeaguesIdsAndSeasons() {
     const rows = await db
         .select({
@@ -62,16 +76,3 @@ export async function selectCurrentLeague() {
 
     return result;
 }
-
-// export async function allLeaguesDropdown() {
-//     const result = await db
-//         .select({
-//             id: leaguesTable.leagueId,
-//             season: leaguesTable.season,
-//             leagueName: leaguesTable.leagueName
-//         })
-//         .from(leaguesTable)
-//         .orderBy(leaguesTable.season);
-
-//     return result;
-// }

@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction, RequestHandler } from "express";
-import { selectAllLeagues } from "../db/queries/leagues.js";
+import { selectAllLeagues, selectAllCompletedLeagues } from "../db/queries/leagues.js";
 import { selectLeagueMatchupsByWeekWithoutByes } from "../db/queries/matchups.js";
 
 export type AsyncRequestHandler<P = Record<string, any>> = (
@@ -60,6 +60,10 @@ type AvatarURLs = [ThumbURL, FullURL];
 
 export async function buildLeagueHistoryIds(): Promise<string[]> {
     return (await selectAllLeagues()).map(({ leagueId }) => leagueId);
+}
+
+export async function buildCompletedLeaguesIds(): Promise<string[]> {
+    return (await selectAllCompletedLeagues()).map(({ leagueId }) => leagueId);
 }
 
 export const weeks = Array.from({ length: 17 }, (v, i) => i + 1);

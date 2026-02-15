@@ -1,6 +1,7 @@
 include ./icons.pug
 
 mixin championCard(champ, isReigning)
+	- const hasTeamName = champ.team ? champ.team : champ.name
 	.champion-card-wrapper
 		if isReigning
 			.reigning-badge
@@ -25,7 +26,7 @@ mixin championCard(champ, isReigning)
 						.card-stat-label
 							+iconTarget()
 							span Record
-						.card-stat-value= champ.record
+						.card-stat-value= champ.wins + '/' + champ.losses
 					.card-stat
 						.card-stat-label
 							+iconZap()
