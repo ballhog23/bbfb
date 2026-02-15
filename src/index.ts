@@ -36,7 +36,7 @@ export const __dirname = dirname(__filename);
 app.use(compression());
 app.use(express.json());
 app.use(express.static(join(__dirname, '../public'), {
-    maxAge: process.env.NODE_ENV === 'production' ? 2628000 : 0
+    maxAge: process.env.NODE_ENV === 'production' ? 1000 * 60 * 60 * 24 * 30 : 0
 }));
 app.disable('x-powered-by');
 
