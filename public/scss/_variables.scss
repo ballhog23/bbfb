@@ -68,12 +68,14 @@ $font-weight-semibold: 600;
 $font-weight-bold: 700;
 
 
-// Breakpoints (Bootstrap 5 values)
+// Breakpoints
+$xs-breakpoint-up: 375px;
 $sm-breakpoint-up: 576px;
 $md-breakpoint-up: 768px;
 $lg-breakpoint-up: 992px;
 $xl-breakpoint-up: 1200px;
 $xxl-breakpoint-up: 1400px;
+
 
 @function rem($px) {
     @return calc($px / 16) * 1rem;

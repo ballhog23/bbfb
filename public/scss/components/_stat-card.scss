@@ -65,7 +65,7 @@
 		font-size: 1.5rem;
 		font-weight: $font-weight-bold;
 		color: $text-primary;
-		margin-bottom: 0.25rem;
+		margin-bottom: 0.5rem;
 
 		@media only screen and (min-width: $md-breakpoint-up) {
 			font-size: 1.875rem;
@@ -73,10 +73,12 @@
 	}
 
 	.stat-label {
+		font-family: $font-heading;
 		font-size: 0.875rem;
 		font-weight: $font-weight-medium;
 		color: $text-secondary;
 		margin-bottom: 0.125rem;
+		letter-spacing: 1px;
 	}
 
 	.stat-sublabel {

@@ -1,49 +1,49 @@
 include ./icons.pug
 
 mixin championCard(champ, isReigning)
-	.champion-card
+	.champion-card-wrapper
 		if isReigning
 			.reigning-badge
 				+iconStar()
 				span Reigning Champion
-		.card-accent-bar
-		.card-body
-			.card-header
-				div
-					.card-season-label Season
-					.card-season= champ.season
-				.card-trophy-icon
-					+iconTrophy()
-			.card-champion
-				.card-avatar
-					+iconUser()
-				div
-					h3= champ.name
-					p= champ.team
-			.card-stats
-				.card-stat
-					.card-stat-label
-						+iconTarget()
-						span Record
-					.card-stat-value= champ.record
-				.card-stat
-					.card-stat-label
-						+iconZap()
-						span Total Pts
-					.card-stat-value= champ.totalPts
-				.card-stat
-					.card-stat-label
+		.champion-card
+			.card-accent-bar
+			.card-body
+				.card-header
+					div
+						.card-season-label Season
+						.card-season= champ.season
+					.card-trophy-icon
 						+iconTrophy()
-						span Finals Score
-					.card-stat-value= champ.finalsScore
-				.card-stat
-					.card-stat-label
-						+iconMedal()
-						span MVP
-					.card-stat-value= champ.mvp
-			.card-defeated
-				+iconMedal()
-				span Defeated
-				span= champ.defeated
-			.card-quote
-				p= champ.quote
+				.card-champion
+					.card-avatar
+						+iconUser()
+					div
+						h3= champ.team
+				.card-stats
+					.card-stat
+						.card-stat-label
+							+iconTarget()
+							span Record
+						.card-stat-value= champ.record
+					.card-stat
+						.card-stat-label
+							+iconZap()
+							span Total Pts
+						.card-stat-value= champ.totalPts
+					.card-stat
+						.card-stat-label
+							+iconTrophy()
+							span Finals Score
+						.card-stat-value= champ.finalsScore
+					.card-stat
+						.card-stat-label
+							+iconMedal()
+							span MVP
+						.card-stat-value= champ.mvp
+				.card-defeated
+					+iconMedal()
+					span Defeated
+					span= champ.defeated
+				.card-quote
+					p= champ.quote
