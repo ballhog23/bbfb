@@ -9,8 +9,26 @@
 	overflow: hidden;
 	transition: border-color $transition;
 
+	&::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		right: -1.1875rem;
+		width: 6rem;
+		height: 6rem;
+		border-radius: 9999px;
+		background: linear-gradient(to bottom right, #2dd4bf, #06b6d4);
+		opacity: 0.05;
+		filter: blur(2.5rem);
+		transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
 	&:hover {
 		border-color: rgba($accent-emerald, 0.3);
+
+		&::after {
+			opacity: 0.1;
+		}
 	}
 
 	.stat-icon {

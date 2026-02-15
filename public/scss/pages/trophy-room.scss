@@ -10,9 +10,10 @@
 
 .page-header {
 	text-align: center;
-	padding-block: 0 3rem;
+	padding-block: 0;
 	position: relative;
 	overflow: hidden;
+	margin-block: 0 6.25rem;
 
 	.hero-icon {
 		width: auto;
@@ -68,7 +69,7 @@
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	gap: 1rem;
-	margin-bottom: 3rem;
+	margin-block: 0 3.125rem;
 
 	@media only screen and (min-width: $lg-breakpoint-up) {
 		grid-template-columns: repeat(4, 1fr);
@@ -79,8 +80,8 @@
 .champions-grid {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: 1.5rem;
-	padding-bottom: 5rem;
+	gap: 3.125rem 1.5rem;
+	padding-bottom: 6.25rem;
 
 	@media only screen and (min-width: $md-breakpoint-up) {
 		grid-template-columns: repeat(2, 1fr);
