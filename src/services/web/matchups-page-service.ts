@@ -6,7 +6,7 @@ import { selectLeagueRosters } from "../../db/queries/rosters.js";
 import { selectLeagueState } from "../../db/queries/league-state.js";
 import { config } from "../../config.js";
 import { SelectLeagueState } from "../../db/schema.js";
-import { NotFoundError } from "../../lib/errors.js";
+import { BadRequestError, NotFoundError } from "../../lib/errors.js";
 import { selectPlayoffMatchupsWithDetails } from "../../db/queries/playoffs.js";
 
 // handles excluding the newest league from the dropdown when env vars point ahead of league state
@@ -28,7 +28,12 @@ export async function assembleMatchupsPageData(
     const currentLeagueId = leagueIdParam ?? config.league.id;
     const isCurrentLeague = currentLeagueId === config.league.id;
     const parsedWeek = weekParam ? parseInt(weekParam, 10) : NaN;
-    const requestedWeek = isNaN(parsedWeek) ? leagueState.displayWeek : parsedWeek;
+    const weekNanCheck = isNaN(parsedWeek);
+
+    if (weekNanCheck || !Number.isInteger(parsedWeek) || parsedWeek <= 0 || parsedWeek > 17)
+        throw new BadRequestError('You must provide a valid week number. Ranging 1-17');
+
+    const requestedWeek = weekNanCheck ? leagueState.displayWeek : parsedWeek;
 
     // Current league: browse regular season weeks (1-14) freely,
     // but clamp playoff weeks (15+) to displayWeek
@@ -68,7 +73,8 @@ async function assemblePostSeasonMatchupsData(
     ]);
 
     const currentLeague = allLeagues.find(l => l.leagueId === currentLeagueId);
-    if (!currentLeague) throw new NotFoundError(`League ${currentLeagueId} not found`);
+    if (!currentLeague)
+        throw new NotFoundError(`League ${currentLeagueId} not found`);
 
     const currentLeagueSeason = currentLeague.season;
     const matchups = transformPlayoffDataForView(playoffResults);
