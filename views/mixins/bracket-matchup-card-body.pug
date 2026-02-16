@@ -1,14 +1,12 @@
 mixin bracketMatchupCardBody(matchup)
     - const hasTeamName = (team, owner) => team ? team : owner || 'TBD';
-    - const isTwistedTitTeas = (owner) => owner && owner.toLowerCase().includes('twistedtitteas');
-    - const imageURL = (teamImage, ownerImage, owner) => isTwistedTitTeas(owner) ? ownerImage : (teamImage ?? ownerImage);
     - const t1Pts = parseFloat(matchup.t1Points) || 0;
     - const t2Pts = parseFloat(matchup.t2Points) || 0;
     - const resultClass = (rosterId, myPts, oppPts) => matchup.winnerId != null ? (matchup.winnerId === rosterId ? 'winner' : 'loser') : myPts > oppPts ? 'winner' : myPts < oppPts ? 'loser' : '';
 
     section.home-team(class=resultClass(matchup.t1RosterId, t1Pts, t2Pts))
         img(
-            src= imageURL(matchup.t1TeamImage, matchup.t1OwnerImage, matchup.t1Owner) || "https://placehold.co/50",
+            src= avatarSrc(matchup.t1TeamImage, matchup.t1OwnerImage, matchup.t1Owner) || "https://placehold.co/50",
             alt= hasTeamName(matchup.t1Team, matchup.t1Owner) + ' team logo'
             loading='lazy'
             decoding='async'
@@ -21,7 +19,7 @@ mixin bracketMatchupCardBody(matchup)
 
     section.away-team(class=resultClass(matchup.t2RosterId, t2Pts, t1Pts))
         img(
-            src= imageURL(matchup.t2TeamImage, matchup.t2OwnerImage, matchup.t2Owner) || "https://placehold.co/50",
+            src= avatarSrc(matchup.t2TeamImage, matchup.t2OwnerImage, matchup.t2Owner) || "https://placehold.co/50",
             alt= hasTeamName(matchup.t2Team, matchup.t2Owner) + ' team logo'
             loading='lazy'
             decoding='async'

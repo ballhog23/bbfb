@@ -2,8 +2,7 @@ include ./icons.pug
 
 mixin sackoCard(sacko, isReigning)
 	- const hasTeamName = sacko.team ? sacko.team : sacko.name
-	- const isTwistedTitTeas = sacko.name && sacko.name.toLowerCase().includes('twistedtitteas')
-	- const avatarSrc = isTwistedTitTeas ? sacko.ownerImage : sacko.avatar ? sacko.avatar : sacko.ownerImage
+	- const sackoAvatarSrc = avatarSrc(sacko.avatar, sacko.ownerImage, sacko.name)
 	.sacko-card-wrapper
 		if isReigning
 			.reigning-badge
@@ -20,7 +19,7 @@ mixin sackoCard(sacko, isReigning)
 						+iconSkull()
 				.card-champion
 					.card-avatar
-						img(src=avatarSrc alt=`${hasTeamName} avatar image` loading="lazy" decoding="async")
+						img(src=sackoAvatarSrc alt=`${hasTeamName} avatar image` loading="lazy" decoding="async")
 					div
 						h2= sacko.team
 				.card-stats

@@ -20,7 +20,7 @@ export async function insertSleeperUser(user: StrictInsertSleeperUser) {
     return result;
 }
 
-// used in rivalry page
+// used in rivalry page dropdowns
 export async function selectAllSleeperUsersData() {
     const result = await db
         .select({
@@ -28,6 +28,20 @@ export async function selectAllSleeperUsersData() {
                 (
                     SELECT
                         lu.team_name
+                    FROM league_users lu
+                    INNER JOIN rosters r ON
+                        lu.user_id = r.roster_owner_id AND 
+                        lu.league_id = r.league_id
+                    WHERE
+                        lu.user_id = sleeper_users.user_id
+                    ORDER BY r.season DESC
+                    LIMIT 1
+                )
+            `,
+            teamAvatar: sql<string | null>`
+                (
+                    SELECT
+                        lu.avatar_id
                     FROM league_users lu
                     INNER JOIN rosters r ON
                         lu.user_id = r.roster_owner_id AND 

@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { readFileSync } from "node:fs";
 import { errorHandler } from './middleware/error-handler.js';
 import { handlerServeErrorPage } from './web/error-page.js';
+import { resolveAvatarSrc } from './lib/helpers.js';
 
 // json api
 import { apiMatchupsPageRoute } from "./routes/api/matchups-page-route.js";
@@ -50,6 +51,7 @@ try {
 }
 // persists images on locals global vars for all templates rendered using res.render()
 app.locals.images = imageManifest;
+app.locals.avatarSrc = resolveAvatarSrc;
 
 app.use(compression());
 app.use(express.json());

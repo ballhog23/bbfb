@@ -46,6 +46,11 @@ export function normalizeString(string: string) {
     return normalized;
 }
 
+export function resolveAvatarSrc(teamAvatar: string | null, userAvatar: string, owner: string): string {
+    const isTwistedTitTeas = owner && owner.toLowerCase().includes('twistedtitteas');
+    return isTwistedTitTeas ? userAvatar : teamAvatar ?? userAvatar;
+}
+
 export function buildUserAvatarURLs(avatarId: string): AvatarURLs {
     if (avatarId.length === 0) throw new Error('You must pass a valid string greater than 0 in length');
     return [

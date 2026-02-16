@@ -9,6 +9,5 @@ export async function handlerServeRivalry(_: Request, res: Response) {
         title: 'Rivalry',
         description: 'Bleed Blue Fantasy Football Rivalry',
         teams,
-
     });
 }

@@ -2,8 +2,7 @@ include ./icons.pug
 
 mixin championCard(champ, isReigning)
 	- const hasTeamName = champ.team ? champ.team : champ.name
-	- const isTwistedTitTeas = champ.name && champ.name.toLowerCase().includes('twistedtitteas')
-	- const avatarSrc = isTwistedTitTeas ? champ.ownerImage : champ.avatar ? champ.avatar : champ.ownerImage
+	- const champAvatarSrc = avatarSrc(champ.avatar, champ.ownerImage, champ.name)
 	.champion-card-wrapper
 		if isReigning
 			.reigning-badge
@@ -20,7 +19,7 @@ mixin championCard(champ, isReigning)
 						+iconTrophy()
 				.card-champion
 					.card-avatar
-						img(src=avatarSrc alt=`${hasTeamName} avatar image` loading="lazy" decoding="async")
+						img(src=champAvatarSrc alt=`${hasTeamName} avatar image` loading="lazy" decoding="async")
 					div
 						h2= champ.team
 				.card-stats

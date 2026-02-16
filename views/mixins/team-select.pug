@@ -20,7 +20,7 @@ mixin teamSelect(label, selectId, teams, placeholderAvatar)
 			)
 			each team in teams
 				img.team-avatar.team-avatar-option(
-					src=team.userAvatar
+					src=avatarSrc(team.teamAvatar, team.userAvatar, team.displayName)
 					alt=(team.teamName || team.displayName) + ' avatar'
 					data-user-id=team.userId
 					loading='lazy'
