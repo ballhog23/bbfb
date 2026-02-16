@@ -2,9 +2,10 @@ extends ../layouts/base
 include ../mixins/icons.pug
 include ../mixins/stat-card.pug
 include ../mixins/sacko-card.pug
+include ../mixins/responsive-image
 
 block head
-	link(rel="prefetch" href="/assets/sacko.webp" as="image" fetchpriority= 'high')
+	+preloadImage("sacko.webp")
 	script(type="module" src="/js/sacko-hall.js")
 	link(rel="stylesheet" href="/css/pages/sacko-hall.css")
 
@@ -19,7 +20,12 @@ block content
 
 	main
 		header.page-header.container
-			img.hero-icon(src="/assets/sacko.webp" alt="League sacko mascot" loading="eager" decoding="sync")
+			+responsiveImage(
+				"sacko.webp",
+				"eager", "sync", "high",
+				"bleed blue fantasy football sacko mascot",
+				"hero-image"
+				)
 			h1
 				+iconSkull()
 				span Sacko Hall

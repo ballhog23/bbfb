@@ -1,0 +1,37 @@
+mixin preloadImage(name, sizes)
+	- const image = images[name]
+	- if (image)
+		- const srcset = image.variants.map(v => `${v.path} ${v.width}w`).join(', ')
+		- const lastVariant = image.variants[image.variants.length - 1]
+		- const resolvedSizes = sizes || [...image.variants.slice(0, -1).map(v => `(max-width: ${v.width}px) ${v.width}px`), `${lastVariant.width}px`].join(', ')
+		link(rel="preload" as="image" imagesrcset=srcset imagesizes=resolvedSizes fetchpriority="high")
+
+mixin responsiveImage(name, loading, decoding, fetchpriority, alt, classString, sizes)
+	- const image = images[name]
+	- if (!image)
+		p Image not found
+	- else
+		-
+			const defaultSizes = (variants) => {
+				if (variants.length === 1) return `${variants[0].width}px`
+				const conditions = variants.slice(0, -1).map(v => `(max-width: ${v.width}px) ${v.width}px`)
+				const fallback = `${variants[variants.length - 1].width}px`
+				return [...conditions, fallback].join(', ')
+			}
+		- const srcset = image.variants.map(v => `${v.path} ${v.width}w`).join(', ')
+		- const firstVariant = image.variants[0]
+		- const lastVariant = image.variants[image.variants.length - 1]
+		- const resolvedSizes = sizes || defaultSizes(image.variants)
+
+		img(
+    		src=firstVariant.path
+    		srcset=srcset
+    		sizes=resolvedSizes
+    		width=firstVariant.width
+    		height=firstVariant.height
+    		alt=alt
+    		loading=loading
+    		decoding=decoding
+    		fetchpriority=fetchpriority
+    		class=classString
+		)

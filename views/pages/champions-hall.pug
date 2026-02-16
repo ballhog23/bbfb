@@ -2,9 +2,10 @@ extends ../layouts/base
 include ../mixins/icons.pug
 include ../mixins/stat-card.pug
 include ../mixins/champion-card.pug
+include ../mixins/responsive-image
 
 block head
-	link(rel="prefetch" href="/assets/winner-mascot.webp" as="image" fetchpriority= 'high')
+	+preloadImage("winner-mascot.webp")
 	script(type="module" src="/js/champions-hall.js")
 	link(rel="stylesheet" href="/css/pages/champions-hall.css")
 
@@ -19,7 +20,12 @@ block content
 
 	main
 		header.page-header.container
-			img.hero-icon(src="/assets/winner-mascot.webp" alt="League champion mascot" loading="eager" decoding="sync")
+			+responsiveImage(
+				"winner-mascot.webp",
+				"eager", "sync", "high",
+				"bleed blue fantasy football champion mascot",
+				"hero-image"
+				)
 			h1
 				+iconCrown()
 				span Hall of Champions
