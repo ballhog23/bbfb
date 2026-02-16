@@ -4,7 +4,7 @@ mixin preloadImage(name, sizes)
 		- const srcset = image.variants.map(v => `${v.path} ${v.width}w`).join(', ')
 		- const lastVariant = image.variants[image.variants.length - 1]
 		- const resolvedSizes = sizes || [...image.variants.slice(0, -1).map(v => `(max-width: ${v.width}px) ${v.width}px`), `${lastVariant.width}px`].join(', ')
-		link(rel="preload" as="image" imagesrcset=srcset imagesizes=resolvedSizes fetchpriority="high")
+		link(rel="preload" as="image" href=image.variants[0].path imagesrcset=srcset imagesizes=resolvedSizes fetchpriority="high")
 
 mixin responsiveImage(name, loading, decoding, fetchpriority, alt, classString, sizes)
 	- const image = images[name]
