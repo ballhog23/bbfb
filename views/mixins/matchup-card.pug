@@ -8,7 +8,7 @@ mixin matchupCard(match)
     - const awayTeamPlayers = awayTeam.rosterPlayers;
     - const hasTeamName = (t) => t.team ? t.team : t.owner;
 
-    article.matchup-card
+    div.matchup-card
         a.matchup-card-link(href="#" role="button")
             +matchupCardBody(match)
         +matchupModal(match)

@@ -422,12 +422,12 @@ function renderBracket(rounds: PlayoffRound[]): string {
 
 function renderPlayoffMatchupCard(matchup: PlayoffMatchup): string {
     return `
-        <article class="matchup-card" data-matchup-id="${matchup.bracketMatchupId}" data-week="${matchup.week}">
+        <div class="matchup-card" data-matchup-id="${matchup.bracketMatchupId}" data-week="${matchup.week}">
             <a class="matchup-card-link" href="#" role="button">
                 ${renderPlayoffMatchupCardBody(matchup)}
             </a>
             ${renderPlayoffMatchupModal(matchup)}
-        </article>
+        </div>
     `;
 }
 
@@ -474,9 +474,9 @@ function renderPlayoffMatchupModal(matchup: PlayoffMatchup): string {
         <dialog class="matchup-modal">
             <button class="btn">Close</button>
             <section class="matchups-dialog-wrapper">
-                <article class="matchup-card">
+                <div class="matchup-card">
                     ${renderPlayoffMatchupCardBody(matchup)}
-                </article>
+                </div>
                 <div class="rosters-wrapper">
                     <div class="roster home-team-players">
                         ${renderPlayerList(matchup.t1StartingRoster, "Starting")}
@@ -578,9 +578,9 @@ function renderMatchupModal([home, away]: MatchupTuple) {
     <dialog class="matchup-modal">
         <button class="btn">Close</button>
         <section class="matchups-dialog-wrapper">
-            <article class="matchup-card">
+            <div class="matchup-card">
                 ${renderMatchupCardBody([home, away])}
-            </article>
+            </div>
             <div class="rosters-wrapper">
                 <div class="roster home-team-players">
                     ${renderPlayerList(home.startingRoster, "Starting")}
@@ -600,12 +600,12 @@ function renderMatchupModal([home, away]: MatchupTuple) {
 
 function renderMatchupCard(match: MatchupTuple) {
     return `
-    <article class="matchup-card">
+    <div class="matchup-card">
         <a class="matchup-card-link" href="#" role="button">
             ${renderMatchupCardBody(match)}
         </a>
         ${renderMatchupModal(match)}
-    </article>
+    </div>
     `;
 }
 
