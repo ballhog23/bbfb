@@ -149,13 +149,13 @@ a {
 }
 
 .btn {
-    padding: 0.5rem 1.25rem;
+    padding: .625rem 1.25rem;
     border: 1px solid $border-default;
     background: $btn-secondary-bg;
     color: $text-secondary;
     border-radius: 6px;
     font-family: $font-body;
-    font-weight: 600;
+    font-weight: $font-weight-normal;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
