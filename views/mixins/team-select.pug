@@ -1,0 +1,12 @@
+include ./icons.pug
+
+mixin teamSelect(label, selectId, accentClass)
+	.team-select(class=accentClass)
+		span.team-select-label= label
+		.select-wrapper
+			select(id=selectId name=selectId)
+				option(value="" disabled selected) Select team...
+				- for (let i = 1; i <= 12; i++)
+					option(value=`team-${i}`) Team #{i}
+			+iconChevronDown()
+		img.team-avatar(src="https://sleepercdn.com/avatars/1c33f7b27a1c1db767f1e4a33c95b23f" alt="Team avatar")

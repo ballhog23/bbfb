@@ -43,13 +43,8 @@
         .card-body {
             text-align: center;
             padding: 2rem 1rem;
-            background: $bg-surface;
-            border: 1px solid $border-default;
-            border-radius: 8px;
-            background-color: transparent;
-            backdrop-filter: blur(0.5rem);
-            border-color: $blue-primary;
-            box-shadow: $shadow-card;
+            border: 1px solid;
+            border-radius: 0.75rem;
 
             h2 {
                 margin-block: 0 0.5rem;
@@ -73,13 +68,15 @@
 
     .winner {
         .card-body {
-            border-color: $win;
+            background: rgba($accent-emerald-dark, 0.1);
+            border-color: $accent-emerald;
             box-shadow: 0 10px 30px rgba($win, 0.4);
         }
     }
 
     .loser {
         .card-body {
+            background: rgba($loss, 0.1);
             border-color: $loss;
             box-shadow: 0 10px 30px rgba($loss, 0.4);
         }

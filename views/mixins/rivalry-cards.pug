@@ -1,0 +1,69 @@
+include ./icons.pug
+
+mixin rivalryBanner(text)
+	.rivalry-banner
+		p= text
+
+mixin rivalryScoreboard(leftWins, rightWins, totalGames, leftPct, rightPct)
+	- const leftLeading = leftWins > rightWins
+	- const rightLeading = rightWins > leftWins
+	.rivalry-scoreboard
+		.scoreboard-sides
+			.scoreboard-side
+				if leftLeading
+					+iconCrown()
+				.scoreboard-wins(class=leftLeading ? 'leading' : '')= leftWins
+				.scoreboard-label WINS
+			.scoreboard-divider
+				.scoreboard-dash -
+				.scoreboard-games #{totalGames} GAMES
+			.scoreboard-side
+				if rightLeading
+					+iconCrown()
+				.scoreboard-wins(class=rightLeading ? 'leading' : '')= rightWins
+				.scoreboard-label WINS
+		.scoreboard-bar
+			.scoreboard-bar-track
+				.scoreboard-bar-left(style=`width: ${leftPct}%` class=leftLeading ? 'bar-winner' : 'bar-loser')
+				.scoreboard-bar-right(style=`width: ${rightPct}%` class=rightLeading ? 'bar-winner' : 'bar-loser')
+
+mixin rivalryStatRow(leftValue, label, rightValue, leftLeads, rightLeads)
+	.rivalry-stat-row
+		.stat-left(class=leftLeads ? 'leading' : '')
+			span= leftValue
+		.stat-label
+			span= label
+		.stat-right(class=rightLeads ? 'leading' : '')
+			span= rightValue
+
+mixin rivalryHighlightCard(icon, label, value, description, detail, accentClass)
+	.highlight-card(class=accentClass)
+		+icon(icon)
+		.highlight-label= label
+		.highlight-value= value
+		.highlight-description= description
+		.highlight-detail= detail
+
+mixin rivalryQuoteCard(avatar, teamName, quote, accentClass)
+	.quote-card(class=accentClass)
+		.quote-card-inner
+			img.quote-avatar(src=avatar alt=teamName)
+			.quote-content
+				.quote-team= teamName
+				.quote-text= quote
+
+mixin rivalryMatchRow(season, week, leftScore, rightScore, leftAvatar, rightAvatar, result)
+	.match-row
+		.match-meta
+			.match-season= season
+			.match-week Wk #{week}
+		.match-scores
+			.match-score(class=result === 'W' ? 'winner' : '')
+				img.match-avatar(src=leftAvatar alt="")
+				span= leftScore
+			span.match-vs vs
+			.match-score(class=result === 'L' ? 'winner' : '')
+				span= rightScore
+				img.match-avatar(src=rightAvatar alt="")
+		.match-result
+			span(class=result === 'W' ? 'result-win' : 'result-loss')= result
