@@ -20,6 +20,37 @@ export async function insertSleeperUser(user: StrictInsertSleeperUser) {
     return result;
 }
 
+// used in rivalry page
+export async function selectAllSleeperUsersData() {
+    const result = await db
+        .select({
+            teamName: sql<string>`
+                (
+                    SELECT
+                        lu.team_name
+                    FROM league_users lu
+                    INNER JOIN rosters r ON
+                        lu.user_id = r.roster_owner_id AND 
+                        lu.league_id = r.league_id
+                    WHERE
+                        lu.user_id = sleeper_users.user_id
+                    ORDER BY r.season DESC
+                    LIMIT 1
+                )
+            `,
+            userId: sleeperUsersTable.userId,
+            displayName: sleeperUsersTable.displayName,
+            userAvatar: sleeperUsersTable.avatarId
+        })
+        .from(sleeperUsersTable);
+
+
+    return result;
+}
+
+export type SleeperUserData = Awaited<ReturnType<typeof selectAllSleeperUsersData>>;
+
+
 export async function selectAllSleeperUsers() {
     const result = await db
         .select()
@@ -35,8 +66,4 @@ export async function selectSleeperUser(userId: string) {
         .where(eq(sleeperUsersTable.userId, userId));
 
     return result;
-}
-
-export async function dropAllSleeperUsers() {
-    await db.delete(sleeperUsersTable);
 }

@@ -20,6 +20,18 @@
 	}
 }
 
+@keyframes glow {
+
+	0%,
+	100% {
+		filter: drop-shadow(0 0 6px rgba($accent-cyan, 0.2));
+	}
+
+	50% {
+		filter: drop-shadow(0 0 18px rgba($accent-cyan, 0.6));
+	}
+}
+
 .page-header {
 	text-align: center;
 	padding-block: 0;
@@ -29,14 +41,14 @@
 		svg {
 			width: 5rem;
 			height: 5rem;
-			color: $accent-emerald;
+			color: $accent-cyan;
 			margin: 0 auto 1rem;
-			animation: sway 3s ease-in-out infinite;
+			animation: sway 3s ease-in-out infinite, glow 6s ease-in-out infinite;
 		}
 	}
 
 	h1 {
-		color: rgba($accent-emerald, 0.8);
+		color: rgba($accent-cyan, 0.8);
 		text-transform: uppercase;
 		font-weight: $font-weight-medium;
 		margin-bottom: 0.75rem;
@@ -78,6 +90,37 @@
 	p {
 		font-size: 1.25rem;
 		color: $text-muted;
+	}
+}
+
+.battle-btn-wrapper {
+	text-align: center;
+	margin-bottom: 3rem;
+}
+
+.battle-btn {
+	font-family: $font-heading;
+	font-size: 1.25rem;
+	font-weight: $font-weight-bold;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: $text-primary;
+	background: linear-gradient(135deg, darken($accent-cyan, 15%), $accent-cyan);
+	border: 2px solid $accent-cyan;
+	border-radius: 0.5rem;
+	padding: 0.75rem 3rem;
+	cursor: pointer;
+	transition: opacity $transition, box-shadow $transition, border-color $transition, background $transition;
+	box-shadow: 0 0 20px rgba($accent-cyan, 0.3);
+
+	&:hover:not(:disabled) {
+		box-shadow: 0 0 35px rgba($accent-cyan, 0.6);
+	}
+
+	&:disabled {
+		opacity: 0.3;
+		cursor: not-allowed;
+		box-shadow: none;
 	}
 }
 

@@ -7,13 +7,16 @@ import { errorHandler } from './middleware/error-handler.js';
 import { handlerServeErrorPage } from './web/error-page.js';
 
 // json api
-import { apiLeaguesRoute } from "./routes/api/leagues-route.js";
-import { apiMatchupsRoute } from "./routes/api/matchups-route.js";
 import { apiMatchupsPageRoute } from "./routes/api/matchups-page-route.js";
-import { apiMatchupOutcomesRoute } from "./routes/api/matchup-outcomes.js";
+import { apiSyncRoute } from "./routes/api/sync-route.js";
 import { apiBootstrapRoute } from "./routes/api/bootstrap-route.js";
 import { apiBootstrapNewSeasonRoute } from "./routes/api/bootstrap-new-season-route.js";
-import { apiSyncRoute } from "./routes/api/sync-route.js";
+import { apiRivalryPageRoute } from "./routes/api/rilvary-page-route.js";
+
+// unused
+import { apiLeaguesRoute } from "./routes/api/leagues-route.js";
+import { apiMatchupsRoute } from "./routes/api/matchups-route.js";
+import { apiMatchupOutcomesRoute } from "./routes/api/matchup-outcomes.js";
 import { apiLeagueStateRoute } from "./routes/api/league-state-route.js";
 import { apiPlayersRoute } from "./routes/api/players-route.js";
 import { apiSleeperUsersRoute } from "./routes/api/sleeper-users-route.js";
@@ -69,6 +72,7 @@ app.use("/league-stats", webLeagueStatsRoute);
 
 // json web api views
 app.use("/api/web/matchups-page", apiMatchupsPageRoute);
+app.use("/api/web/rivalry-page", apiRivalryPageRoute);
 
 // json api
 app.use("/api/bootstrap-history", apiBootstrapRoute);

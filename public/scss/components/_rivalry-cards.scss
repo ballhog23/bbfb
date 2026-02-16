@@ -123,7 +123,6 @@ $accent-orange-dark: #9a3412;
 	h3 {
 		text-align: center;
 		font-size: 1.125rem;
-		color: $accent-cyan;
 		margin-bottom: 1.5rem;
 	}
 
@@ -224,24 +223,39 @@ $accent-orange-dark: #9a3412;
 		background: linear-gradient(to bottom right, rgba($accent-purple, 0.3), rgba($bg-row-hover, 0.5));
 		border-color: rgba($accent-purple, 0.3);
 
-		svg { color: $accent-purple; }
-		.highlight-label { color: rgba($accent-purple, 0.7); }
+		svg {
+			color: $accent-purple;
+		}
+
+		.highlight-label {
+			color: rgba($accent-purple, 0.7);
+		}
 	}
 
 	&.highlight-orange {
 		background: linear-gradient(to bottom right, rgba($accent-orange, 0.3), rgba($bg-row-hover, 0.5));
 		border-color: rgba($accent-orange, 0.3);
 
-		svg { color: $accent-orange; }
-		.highlight-label { color: rgba($accent-orange, 0.7); }
+		svg {
+			color: $accent-orange;
+		}
+
+		.highlight-label {
+			color: rgba($accent-orange, 0.7);
+		}
 	}
 
 	&.highlight-emerald {
 		background: linear-gradient(to bottom right, rgba($accent-emerald-dark, 0.3), rgba($bg-row-hover, 0.5));
 		border-color: rgba($accent-emerald, 0.3);
 
-		svg { color: $accent-emerald; }
-		.highlight-label { color: rgba($accent-emerald, 0.7); }
+		svg {
+			color: $accent-emerald;
+		}
+
+		.highlight-label {
+			color: rgba($accent-emerald, 0.7);
+		}
 	}
 }
 
@@ -333,7 +347,7 @@ $accent-orange-dark: #9a3412;
 	}
 
 	.battle-history-list {
-		.match-row + .match-row {
+		.match-row+.match-row {
 			border-top: 1px solid $border-default;
 		}
 	}

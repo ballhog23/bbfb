@@ -5,12 +5,44 @@
 	flex-direction: column;
 	align-items: center;
 
+	.avatar-container {
+		position: relative;
+		width: 7rem;
+		height: 7rem;
+		margin-top: 1rem;
+	}
+
 	.team-avatar {
 		width: 7rem;
 		height: 7rem;
 		border-radius: 50%;
-		margin-top: 1rem;
 		border: 4px solid $border-strong;
+		object-fit: cover;
+	}
+
+	.team-avatar-option {
+		opacity: 0;
+		position: absolute;
+		top: 0;
+		left: 0;
+		transition: opacity 0.3s ease;
+		pointer-events: none;
+
+		&.active {
+			opacity: 1;
+			position: static;
+			pointer-events: auto;
+		}
+	}
+
+	.placeholder-avatar {
+		transition: opacity 0.3s ease;
+
+		&.hidden {
+			opacity: 0;
+			position: absolute;
+			pointer-events: none;
+		}
 	}
 
 	&.challenger-select .team-avatar {
@@ -19,13 +51,14 @@
 	}
 
 	&.opponent-select .team-avatar {
-		border-color: $border-strong;
+		border-color: $loss;
+		box-shadow: 0 0 20px rgba($loss, 0.5);
 	}
 }
 
 .team-select-label {
 	display: block;
-	font-size: 0.75rem;
+	font-size: 1rem;
 	font-family: $font-heading;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;

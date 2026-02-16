@@ -1,12 +1,29 @@
 include ./icons.pug
+include ./responsive-image.pug
 
-mixin teamSelect(label, selectId, accentClass)
-	.team-select(class=accentClass)
-		span.team-select-label= label
+mixin teamSelect(label, selectId, teams, placeholderAvatar)
+	.team-select(class=selectId + '-select')
+		h2.team-select-label= label
 		.select-wrapper
+			label.sr-only(for=selectId)= label
 			select(id=selectId name=selectId)
-				option(value="" disabled selected) Select team...
-				- for (let i = 1; i <= 12; i++)
-					option(value=`team-${i}`) Team #{i}
+				option(value="select-team" disabled selected) Select team...
+				each team in teams
+					option(value=team.userId)= team.teamName || team.displayName
 			+iconChevronDown()
-		img.team-avatar(src="https://sleepercdn.com/avatars/1c33f7b27a1c1db767f1e4a33c95b23f" alt="Team avatar")
+		.avatar-container
+			+responsiveImage(
+				placeholderAvatar,
+				"lazy", "async", "lower",
+				"placeholder avatar",
+				"team-avatar placeholder-avatar"
+			)
+			each team in teams
+				img.team-avatar.team-avatar-option(
+					src=team.userAvatar
+					alt=(team.teamName || team.displayName) + ' avatar'
+					data-user-id=team.userId
+					loading='lazy'
+					decoding='async'
+					fetchpriority='low'
+				)

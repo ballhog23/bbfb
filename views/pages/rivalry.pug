@@ -5,6 +5,7 @@ include ../mixins/rivalry-cards.pug
 
 block head
 	link(rel="stylesheet" href="/css/pages/rivalry.css")
+	script(type="module" src="/js/rivalry.js")
 
 block content
 	-
@@ -24,8 +25,8 @@ block content
 			{ left: '40%', label: 'Win %', right: '60%', leftLeads: false, rightLeads: true }
 		]
 
-		const leftAvatar = 'https://sleepercdn.com/avatars/1c33f7b27a1c1db767f1e4a33c95b23f'
-		const rightAvatar = 'https://sleepercdn.com/uploads/bd81f2294a2a48c7aa9c46d7b6239526.jpg'
+		const leftAvatar = "mascot.webp"
+		const rightAvatar = "sacko.webp"
 
 	main
 		header.page-header.container
@@ -36,11 +37,14 @@ block content
 			p.hero-description Settle the score. Check the history. Talk your trash.
 
 		section.team-selectors.container
-			+teamSelect("Challenger", "challenger", "challenger-select")
+			+teamSelect("Challenger", "challenger", teams, leftAvatar)
 			.vs-divider VS
-			+teamSelect("Opponent", "opponent", "opponent-select")
+			+teamSelect("Opponent", "opponent", teams, rightAvatar)
 
-		section.rivalry-results.container
+		.battle-btn-wrapper.container
+			button#battle-btn.battle-btn(disabled title="You must select both teams to begin a battle") BATTLE
+
+		section.rivalry-results.container(style="display:none;")
 			+rivalryBanner("Rising from the ashes!")
 
 			+rivalryScoreboard(2, 3, 5, 40, 60)
