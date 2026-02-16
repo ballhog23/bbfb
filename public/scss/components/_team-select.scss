@@ -1,5 +1,15 @@
 @use '../variables' as *;
 
+@keyframes glow-emerald {
+	0%, 100% { box-shadow: 0 0 12px rgba($accent-emerald, 0.3); }
+	50% { box-shadow: 0 0 28px rgba($accent-emerald, 0.7); }
+}
+
+@keyframes glow-loss {
+	0%, 100% { box-shadow: 0 0 12px rgba($loss, 0.3); }
+	50% { box-shadow: 0 0 28px rgba($loss, 0.7); }
+}
+
 .team-select {
 	display: flex;
 	flex-direction: column;
@@ -7,9 +17,7 @@
 
 	.avatar-container {
 		position: relative;
-		width: 7rem;
-		height: 7rem;
-		margin-top: 1rem;
+		margin-top: 2rem;
 	}
 
 	.team-avatar {
@@ -47,18 +55,18 @@
 
 	&.challenger-select .team-avatar {
 		border-color: $accent-emerald;
-		box-shadow: 0 0 20px rgba($accent-emerald, 0.5);
+		animation: glow-emerald 3.5s ease-in-out infinite;
 	}
 
 	&.opponent-select .team-avatar {
 		border-color: $loss;
-		box-shadow: 0 0 20px rgba($loss, 0.5);
+		animation: glow-loss 5s ease-in-out 1.2s infinite;
 	}
 }
 
 .team-select-label {
 	display: block;
-	font-size: 1rem;
+	font-size: 1.3rem;
 	font-family: $font-heading;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
@@ -82,7 +90,7 @@
 		width: 100%;
 		padding: 0.5rem 2.5rem 0.5rem 0.75rem;
 		font-family: $font-body;
-		font-size: 0.875rem;
+		font-size: 1rem;
 		color: $text-primary;
 		background: $bg-row-hover;
 		border: 1px solid $border-strong;

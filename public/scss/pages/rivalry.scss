@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../variables' as *;
 @use '../_base';
 @use '../components/_navbar';
@@ -35,7 +36,7 @@
 .page-header {
 	text-align: center;
 	padding-block: 0;
-	margin-block: 0 3rem;
+	margin-block: 0 5rem;
 
 	.hero-icon {
 		svg {
@@ -66,7 +67,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 1.5rem;
+	gap: 2.5rem;
 	margin-bottom: 3rem;
 
 	@media only screen and (min-width: $md-breakpoint-up) {
@@ -105,7 +106,7 @@
 	letter-spacing: 0.2em;
 	text-transform: uppercase;
 	color: $text-primary;
-	background: linear-gradient(135deg, darken($accent-cyan, 15%), $accent-cyan);
+	background: linear-gradient(135deg, color.adjust($accent-cyan, $lightness: -15%), $accent-cyan);
 	border: 2px solid $accent-cyan;
 	border-radius: 0.5rem;
 	padding: 0.75rem 3rem;
@@ -124,6 +125,19 @@
 	}
 }
 
+@keyframes results-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(1rem);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 .rivalry-results {
 	padding-block: 0 6.25rem;
+	animation: results-fade-in 0.8s ease-out both;
 }

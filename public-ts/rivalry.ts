@@ -11,6 +11,11 @@ const selects = [challengerSelect, opponentSelect];
 selects.forEach(s => s.addEventListener('change', handleSelectChange));
 battleBtn.addEventListener('click', handleBattle);
 
+// Randomize avatar glow breathing delays so they don't pulse in sync
+document.querySelectorAll<HTMLElement>('.team-select .team-avatar').forEach(avatar => {
+    avatar.style.animationDelay = `${(Math.random() * 3).toFixed(2)}s`;
+});
+
 type MatchupRow = {
     week: number;
     season: string;
@@ -113,18 +118,49 @@ function node(tag: string, className?: string, text?: string): HTMLElement {
     return n;
 }
 
+// --- Battle flavor text ---
+
+const BATTLE_QUOTES = [
+    'Battle initiated. Pride at stake.',
+    'Prepare the excuses.',
+    'Oh, both these teams suck.',
+    'Behold! The Mid-Off of the Century!',
+    'Rivalry or charity event?',
+    'Two frauds, one scoreboard.',
+    'Mid recognizes mid.',
+    'Two teams enter. The league laughs.',
+    'Will we witness greatness? Absolutely not!',
+    'One will win. Neither will impress.',
+    'In this corner... disappointment! And in the other corner... also disappointment!',
+    'Only one can win. Neither deserves it.'
+];
+
+function randomQuote(): string {
+    return BATTLE_QUOTES[Math.floor(Math.random() * BATTLE_QUOTES.length)];
+}
+
 // --- Render: top-level ---
+
+function randomizeAnimationDelays(container: HTMLElement) {
+    // Randomize highlight card icon flicker delays so they don't sync
+    container.querySelectorAll<HTMLElement>('.highlight-card svg').forEach(svg => {
+        svg.style.animationDelay = `${(Math.random() * 4).toFixed(2)}s`;
+        svg.style.animationDuration = `${(3 + Math.random() * 3).toFixed(2)}s`;
+    });
+}
 
 function renderRivalryResults(data: RivalryData) {
     resultsContainer.innerHTML = '';
 
-    resultsContainer.appendChild(renderBanner('Scoreboard'));
+    resultsContainer.appendChild(renderBanner(`\u201C${randomQuote()}\u201D`));
     resultsContainer.appendChild(
         renderScoreboard(data.challengerWins, data.opponentWins, data.matchups.length, data.challengerWinAvg, data.opponentWinAvg)
     );
     resultsContainer.appendChild(renderBreakdown(data));
     resultsContainer.appendChild(renderHighlights(data));
     resultsContainer.appendChild(renderBattleHistory(data.matchups));
+
+    randomizeAnimationDelays(resultsContainer);
 }
 
 // --- Render: banner ---
@@ -172,7 +208,8 @@ function renderScoreboard(
     // Win % bar
     const bar = node('div', 'scoreboard-bar');
     const track = node('div', 'scoreboard-bar-track');
-    const barLeft = node('div', `scoreboard-bar-left ${leftLeading ? 'bar-winner' : 'bar-loser'}`);
+    const tied = leftWins === rightWins;
+    const barLeft = node('div', `scoreboard-bar-left ${leftLeading || tied ? 'bar-winner' : 'bar-loser'}`);
     barLeft.style.width = `${leftPct}%`;
     const barRight = node('div', `scoreboard-bar-right ${rightLeading ? 'bar-winner' : 'bar-loser'}`);
     barRight.style.width = `${rightPct}%`;
