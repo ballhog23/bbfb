@@ -225,14 +225,39 @@ $accent-orange-dark: #9a3412;
 }
 
 @keyframes icon-flicker {
-	0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px var(--icon-glow)); }
-	4% { opacity: 0.82; filter: drop-shadow(0 0 2px var(--icon-glow)); }
-	6% { opacity: 1; filter: drop-shadow(0 0 8px var(--icon-glow)); }
-	8% { opacity: 0.88; filter: drop-shadow(0 0 3px var(--icon-glow)); }
-	10% { opacity: 1; filter: drop-shadow(0 0 6px var(--icon-glow)); }
-	50% { opacity: 1; filter: drop-shadow(0 0 6px var(--icon-glow)); }
-	52% { opacity: 0.85; filter: drop-shadow(0 0 2px var(--icon-glow)); }
-	54% { opacity: 1; filter: drop-shadow(0 0 8px var(--icon-glow)); }
+
+	0%,
+	100% {
+		filter: saturate(1) drop-shadow(0 0 4px var(--icon-glow));
+	}
+
+	4% {
+		filter: saturate(1.8) drop-shadow(0 0 8px var(--icon-glow));
+	}
+
+	6% {
+		filter: saturate(1) drop-shadow(0 0 5px var(--icon-glow));
+	}
+
+	8% {
+		filter: saturate(1.6) drop-shadow(0 0 7px var(--icon-glow));
+	}
+
+	10% {
+		filter: saturate(1) drop-shadow(0 0 4px var(--icon-glow));
+	}
+
+	50% {
+		filter: saturate(1) drop-shadow(0 0 4px var(--icon-glow));
+	}
+
+	52% {
+		filter: saturate(1.8) drop-shadow(0 0 8px var(--icon-glow));
+	}
+
+	54% {
+		filter: saturate(1) drop-shadow(0 0 5px var(--icon-glow));
+	}
 }
 
 // Highlight cards
