@@ -1,33 +1,12 @@
 extends ../layouts/base
 include ../mixins/icons.pug
 include ../mixins/team-select.pug
-include ../mixins/rivalry-cards.pug
 
 block head
 	link(rel="stylesheet" href="/css/pages/rivalry.css")
 	script(type="module" src="/js/rivalry.js")
 
 block content
-	-
-		const matches = [
-			{ season: '2025', week: 10, leftScore: '148.90', rightScore: '156.20', result: 'L' },
-			{ season: '2025', week: 5, leftScore: '142.30', rightScore: '138.50', result: 'W' },
-			{ season: '2024', week: 8, leftScore: '145.60', rightScore: '132.10', result: 'W' },
-			{ season: '2024', week: 3, leftScore: '155.20', rightScore: '168.40', result: 'L' },
-			{ season: '2023', week: 6, leftScore: '129.80', rightScore: '141.50', result: 'L' }
-		]
-
-		const h2hStats = [
-			{ left: '721.8', label: 'Total Points', right: '736.7', leftLeads: false, rightLeads: true },
-			{ left: '144.4', label: 'Avg Points', right: '147.3', leftLeads: false, rightLeads: true },
-			{ left: '155.2', label: 'High Score', right: '168.4', leftLeads: false, rightLeads: true },
-			{ left: '129.8', label: 'Low Score', right: '132.1', leftLeads: true, rightLeads: false },
-			{ left: '40%', label: 'Win %', right: '60%', leftLeads: false, rightLeads: true }
-		]
-
-		const leftAvatar = "mascot.webp"
-		const rightAvatar = "sacko.webp"
-
 	main
 		header.page-header.container
 			.hero-icon
@@ -36,36 +15,11 @@ block content
 			p.hero-description Settle the score. Check the history. Talk your trash.
 
 		section.team-selectors.container
-			+teamSelect("Challenger", "challenger", teams, leftAvatar)
+			+teamSelect("Challenger", "challenger", teams, "mascot.webp")
 			.vs-divider VS
-			+teamSelect("Opponent", "opponent", teams, rightAvatar)
+			+teamSelect("Opponent", "opponent", teams, "sacko.webp")
 
 		.battle-btn-wrapper.container
 			button#battle-btn.battle-btn(disabled title="You must select both teams to begin a battle") BATTLE
 
-		section.rivalry-results.container
-			+rivalryBanner("Scoreboard")
-
-			+rivalryScoreboard(2, 3, 5, 40, 60)
-
-			.rivalry-breakdown
-				h3 Head-to-Head Breakdown
-				.breakdown-rows
-					each stat in h2hStats
-						+rivalryStatRow(stat.left, stat.label, stat.right, stat.leftLeads, stat.rightLeads)
-
-			.highlights-grid
-				+rivalryHighlightCard('skull', 'Biggest Blowout', '13.5 pts', 'Twisted TiT destroyed Jerrys Glory', '2024 Week 8', 'highlight-purple')
-				+rivalryHighlightCard('flame', 'Closest Nail-Biter', '3.80 pts', 'Twisted TiT squeaked by', '2025 Week 5', 'highlight-orange')
-				+rivalryHighlightCard('target', 'Combined Points', '1458.5', 'Across 5 epic battles', 'Avg: 291.7 per game', 'highlight-emerald')
-
-			.quotes-grid
-				+rivalryQuoteCard(leftAvatar, 'Twisted TiT', "Honk honk, here comes the clown car", 'quote-loss')
-				+rivalryQuoteCard(rightAvatar, 'Jerrys Glory', "Rent free in their head", 'quote-win')
-
-			.battle-history
-				.battle-history-header
-					h3 Battle History
-				.battle-history-list
-					each match in matches
-						+rivalryMatchRow(match.season, match.week, match.leftScore, match.rightScore, leftAvatar, rightAvatar, match.result)
+		section#rivalry-results.rivalry-results.container

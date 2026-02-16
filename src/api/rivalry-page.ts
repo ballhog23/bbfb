@@ -12,6 +12,6 @@ export async function handlerApiRivalryPage(req: Request<RilvaryPageParams>, res
         req.params.userId1,
         req.params.userId2
     );
-    console.log(data);
+
     respondWithJSON(res, 200, data);
 }
