@@ -1,3 +1,4 @@
+import { fetchJSON } from "./shared/lib.js";
 import "./shared/nav.ts";
 
 const challengerSelect = document.querySelector<HTMLSelectElement>('#challenger')!;
@@ -37,17 +38,13 @@ async function handleBattle() {
     const opponent = opponentSelect.value;
 
     battleBtn.disabled = true;
-    battleBtn.textContent = 'LOADING...';
 
     try {
-        const res = await fetch(`/api/web/rivalry-page/${challenger}/${opponent}`);
-        if (!res.ok) throw new Error(`${res.status}`);
-        const data = await res.json();
+        const data = await fetchJSON(`/api/web/rivalry-page/${challenger}/${opponent}`);
         console.log(data);
     } catch (err) {
         console.error('Battle fetch failed:', err);
     } finally {
         battleBtn.disabled = false;
-        battleBtn.textContent = 'BATTLE NOW!';
     }
 }

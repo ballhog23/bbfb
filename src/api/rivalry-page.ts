@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { respondWithJSON } from "../lib/json.js";
-import { assembleMatchupsPageData } from "../services/web/matchups-page-service.js";
+import { assembleRivalryPageData } from "../services/web/rivalry-service.js";
 
 export type RilvaryPageParams = {
     userId1: string;
@@ -8,10 +8,10 @@ export type RilvaryPageParams = {
 };
 
 export async function handlerApiRivalryPage(req: Request<RilvaryPageParams>, res: Response) {
-    const data = await assembleMatchupsPageData(
+    const data = await assembleRivalryPageData(
         req.params.userId1,
         req.params.userId2
     );
-
+    console.log(data);
     respondWithJSON(res, 200, data);
 }
