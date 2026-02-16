@@ -438,7 +438,7 @@ function renderPlayoffMatchupCardBody(matchup: PlayoffMatchup): string {
     const t2Pts = parseFloat(matchup.t2Points) || 0;
     const resultClass = (rosterId: number | null, myPts: number, oppPts: number) =>
         matchup.winnerId != null ? (matchup.winnerId === rosterId ? "winner" : "loser") :
-        myPts > oppPts ? "winner" : myPts < oppPts ? "loser" : "";
+            myPts > oppPts ? "winner" : myPts < oppPts ? "loser" : "";
 
     return `
         <section class="home-team ${resultClass(matchup.t1RosterId, t1Pts, t2Pts)}">
@@ -614,7 +614,7 @@ function renderStandingsSection(rosters: RostersRow[], season: string): string {
         <header>
             <h2>${escapeForHTML(season)} Regular Season Standings</h2>
         </header>
-        <section id="standings-wrapper">
+        <div id="standings-wrapper">
             <table>
                 <caption>*Standings are based on Regular Season Head-to-Heads</caption>
                 <thead>
@@ -629,7 +629,7 @@ function renderStandingsSection(rosters: RostersRow[], season: string): string {
                     ${rosters.map(renderStandingsRow).join("")}
                 </tbody>
             </table>
-        </section>
+        </div>
     `;
 }
 
