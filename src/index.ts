@@ -13,6 +13,7 @@ import { apiSyncRoute } from "./routes/api/sync-route.js";
 import { apiBootstrapRoute } from "./routes/api/bootstrap-route.js";
 import { apiBootstrapNewSeasonRoute } from "./routes/api/bootstrap-new-season-route.js";
 import { apiRivalryPageRoute } from "./routes/api/rilvary-page-route.js";
+import { apiStatsPageRoute } from "./routes/api/league-stats-page-route.js";
 
 // unused
 import { apiLeaguesRoute } from "./routes/api/leagues-route.js";
@@ -34,6 +35,7 @@ import { webChampionsHallRoute } from "./routes/web/champions-hall.js";
 import { webSackoHallRoute } from "./routes/web/sacko-hall.js";
 import { webRivalryRoute } from "./routes/web/rivalry.js";
 import { webLeagueStatsRoute } from "./routes/web/league-stats.js";
+
 
 const app = express();
 export const __filename = fileURLToPath(import.meta.url);
@@ -75,6 +77,7 @@ app.use("/league-stats", webLeagueStatsRoute);
 // json web api views
 app.use("/api/web/matchups-page", apiMatchupsPageRoute);
 app.use("/api/web/rivalry-page", apiRivalryPageRoute);
+app.use("/api/web/league-stats-page", apiStatsPageRoute);
 
 // json api
 app.use("/api/bootstrap-history", apiBootstrapRoute);

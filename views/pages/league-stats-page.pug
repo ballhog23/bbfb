@@ -1,0 +1,24 @@
+extends ../layouts/base
+include ../mixins/stats-card.pug
+
+block head
+	link(rel="stylesheet" href="/css/pages/stats.css")
+	script(type="module" src="/js/stats.js")
+
+block content
+	main
+		header.page-header.container
+			h1 Hall of Stats & Laughs
+			p.hero-description The numbers don't lie, but they sure know how to roast
+
+		.stats-tabs.container
+			button.stats-tab.active(data-tab="all-time") All-Time Glory
+			button.stats-tab(data-tab="season") Season Snapshot
+
+		#stats-content.container
+			each section in sections
+				section.stats-section
+					+sectionHeader(section.icon, section.title, section.subtitle)
+					.stats-grid(class=`stats-grid--${section.cols}`)
+						each card in section.cards
+							+statsCard(card)

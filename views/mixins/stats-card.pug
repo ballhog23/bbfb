@@ -1,0 +1,39 @@
+include ./icons.pug
+
+//- Enhanced stat card for the stats page
+//- @param {object} card
+//-   card.title    - card header label
+//-   card.icon     - icon name from icons.pug
+//-   card.value    - the big number
+//-   card.desc     - short description
+//-   card.roast    - italic joke / roast line
+//-   card.badge    - optional badge text (e.g. "Hot")
+//-   card.variant  - color variant: 'primary' | 'secondary' | 'destructive' | 'default'
+mixin statsCard(card)
+	.stats-card(class=`stats-card--${card.variant || 'default'}`)
+		.stats-card__header
+			span.stats-card__title= card.title
+			.stats-card__icon
+				+icon(card.icon)
+		.stats-card__body
+			.stats-card__value-row
+				span.stats-card__value= card.value
+				if card.badge
+					span.stats-card__badge
+						+iconTrendingUp()
+						= card.badge
+			p.stats-card__desc= card.desc
+			if card.roast
+				p.stats-card__roast= card.roast
+
+//- Section header with icon, title, and subtitle
+//- @param {string} iconName - icon name
+//- @param {string} title    - section title
+//- @param {string} subtitle - section subtitle
+mixin sectionHeader(iconName, title, subtitle)
+	.section-header
+		.section-header__icon
+			+icon(iconName)
+		.section-header__text
+			h2= title
+			p= subtitle

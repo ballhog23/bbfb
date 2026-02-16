@@ -1,0 +1,182 @@
+@use '../variables' as *;
+@use '../_base';
+@use '../components/_navbar';
+@use '../components/_nav-overlay';
+@use '../components/_footer';
+@use '../components/_stats-card';
+
+// ---------- page header ----------
+
+.page-header {
+	text-align: center;
+	padding-block: 0;
+	margin-block: 0 3rem;
+
+	h1 {
+		font-weight: $font-weight-bold;
+		background: linear-gradient(to right, $blue-highlight, $accent-cyan, $blue-highlight);
+		background-size: 200% auto;
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+		animation: gradient-shift 4s ease infinite;
+	}
+
+	.hero-description {
+		color: $text-muted;
+		font-size: 1.125rem;
+		max-width: 32rem;
+		margin: 0 auto;
+	}
+}
+
+@keyframes gradient-shift {
+	0% {
+		background-position: 0% center;
+	}
+
+	50% {
+		background-position: 100% center;
+	}
+
+	100% {
+		background-position: 0% center;
+	}
+}
+
+// ---------- tabs ----------
+
+.stats-tabs {
+	display: flex;
+	justify-content: center;
+	gap: 0;
+	margin-bottom: 3rem;
+}
+
+.stats-tab {
+	font-family: $font-body;
+	font-size: 0.875rem;
+	font-weight: $font-weight-medium;
+	color: $text-muted;
+	background: $bg-row-hover;
+	border: 1px solid $border-default;
+	padding: 0.5rem 1.5rem;
+	cursor: pointer;
+	transition:
+		background $transition,
+		color $transition,
+		border-color $transition;
+
+	&:first-child {
+		border-radius: 0.5rem 0 0 0.5rem;
+	}
+
+	&:last-child {
+		border-radius: 0 0.5rem 0.5rem 0;
+		border-left: none;
+	}
+
+	&:hover:not(.active) {
+		background: $bg-surface;
+		color: $text-secondary;
+	}
+
+	&.active {
+		background: $bg-card;
+		color: $text-primary;
+		border-color: $border-strong;
+	}
+
+	@media only screen and (min-width: $md-breakpoint-up) {
+		font-size: 1rem;
+		padding: 0.625rem 2rem;
+	}
+}
+
+// ---------- sections ----------
+
+.stats-section {
+	margin-bottom: 3rem;
+
+	@media only screen and (min-width: $md-breakpoint-up) {
+		margin-bottom: 4rem;
+	}
+}
+
+// ---------- section header ----------
+
+.section-header {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 1px solid $border-default;
+	margin-bottom: 1.5rem;
+
+	&__icon svg {
+		width: 1.5rem;
+		height: 1.5rem;
+		color: $accent-cyan;
+	}
+
+	&__text {
+		h2 {
+			font-size: 1.5rem;
+			font-weight: $font-weight-bold;
+			margin-bottom: 0.25rem;
+
+			@media only screen and (min-width: $md-breakpoint-up) {
+				font-size: 1.875rem;
+			}
+		}
+
+		p {
+			font-size: 0.875rem;
+			color: $text-muted;
+			margin: 0;
+		}
+	}
+}
+
+// ---------- grids ----------
+
+.stats-grid {
+	display: grid;
+	gap: 1rem;
+
+	@media only screen and (min-width: $md-breakpoint-up) {
+		gap: 1.5rem;
+	}
+
+	&--4 {
+		grid-template-columns: 1fr;
+
+		@media only screen and (min-width: $md-breakpoint-up) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@media only screen and (min-width: $lg-breakpoint-up) {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+
+	&--3 {
+		grid-template-columns: 1fr;
+
+		@media only screen and (min-width: $md-breakpoint-up) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@media only screen and (min-width: $lg-breakpoint-up) {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+
+	&--2 {
+		grid-template-columns: 1fr;
+
+		@media only screen and (min-width: $md-breakpoint-up) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+}
