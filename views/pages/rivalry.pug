@@ -33,7 +33,6 @@ block content
 			.hero-icon
 				+iconSwords()
 			h1 Rivalry
-			h2 UNDER CONSTRUCTION IDIOT
 			p.hero-description Settle the score. Check the history. Talk your trash.
 
 		section.team-selectors.container
@@ -44,8 +43,8 @@ block content
 		.battle-btn-wrapper.container
 			button#battle-btn.battle-btn(disabled title="You must select both teams to begin a battle") BATTLE
 
-		section.rivalry-results.container(style="display:none;")
-			+rivalryBanner("Rising from the ashes!")
+		section.rivalry-results.container
+			+rivalryBanner("Scoreboard")
 
 			+rivalryScoreboard(2, 3, 5, 40, 60)
 
