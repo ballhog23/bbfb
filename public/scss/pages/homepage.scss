@@ -51,10 +51,19 @@
             border-color: $blue-primary;
             box-shadow: $shadow-card;
 
+            h2 {
+                @media only screen and (min-width: $md-breakpoint-up) {
+                    font-size: 2rem;
+                }
+            }
+
             p {
                 margin: 0;
             }
 
+            .btn {
+                margin: 2rem auto 0 auto;
+            }
         }
 
     }

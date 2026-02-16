@@ -22,6 +22,7 @@ block content
                 .card-body
                     h2 #{prevLeagueSeason} Season Champ
                     p #{winner.teamName}
+                    a.btn(href="/champions-hall") Champions Hall  
             .loser
                 +responsiveImage(
                     "sad-mascot.webp",
@@ -31,7 +32,8 @@ block content
 				)
                 .card-body
                     h2 #{prevLeagueSeason} Season Sacko
-                    p #{loser.teamName}      
+                    p #{loser.teamName}
+                    a.btn(href="/sacko-hall") Sacko Hall    
         section.matchups-cta.container
             h2 Check Out League Matchups
             a.btn(href="/matchups") League Matchups
