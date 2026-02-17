@@ -31,8 +31,15 @@ export async function handlerServeSitemap(_: Request, res: Response) {
             priority: '0.5',
         }))
     );
+    const statsUrls = leagues.map(
+        ({ leagueId }) => ({
+            loc: `${BASE_URL}/league-stats/leagues/${leagueId}`,
+            changefreq: 'weekly',
+            priority: '0.5',
+        })
+    );
 
-    const urls = [...staticUrls, ...matchupUrls];
+    const urls = [...staticUrls, ...statsUrls, ...matchupUrls];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
