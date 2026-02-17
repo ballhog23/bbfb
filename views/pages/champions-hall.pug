@@ -5,7 +5,7 @@ include ../mixins/champion-card.pug
 include ../mixins/responsive-image
 
 block head
-	+preloadImage("winner-mascot.webp")
+	+preloadImage("winner-mascot.webp", '205px')
 	script(type="module" src="/js/champions-hall.js")
 	link(rel="stylesheet" href="/css/pages/champions-hall.css")
 
@@ -24,7 +24,8 @@ block content
 				"winner-mascot.webp",
 				"eager", "sync", "high",
 				"bleed blue fantasy football champion mascot",
-				"hero-image"
+				"hero-image",
+				'208px'
 				)
 			h1
 				+iconCrown()

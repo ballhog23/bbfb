@@ -5,7 +5,7 @@ include ../mixins/sacko-card.pug
 include ../mixins/responsive-image
 
 block head
-	+preloadImage("sacko.webp")
+	+preloadImage("sacko.webp","(max-width: 768px) 205px, 283px")
 	script(type="module" src="/js/sacko-hall.js")
 	link(rel="stylesheet" href="/css/pages/sacko-hall.css")
 
@@ -24,7 +24,8 @@ block content
 				"sacko.webp",
 				"eager", "sync", "high",
 				"bleed blue fantasy football sacko mascot",
-				"hero-image"
+				"hero-image",
+				"(max-width: 768px) 205px, 283px"
 				)
 			h1
 				+iconSkull()

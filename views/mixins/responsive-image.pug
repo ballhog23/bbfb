@@ -27,8 +27,8 @@ mixin responsiveImage(name, loading, decoding, fetchpriority, alt, classString, 
     		src=firstVariant.path
     		srcset=srcset
     		sizes=resolvedSizes
-    		width=firstVariant.width
-    		height=firstVariant.height
+			width=lastVariant.width
+			height=lastVariant.height
     		alt=alt
     		loading=loading
     		decoding=decoding
