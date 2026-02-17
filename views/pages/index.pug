@@ -1,5 +1,6 @@
 extends ../layouts/base
 include ../mixins/responsive-image
+include ../mixins/icons.pug
 
 block head
     link(rel="stylesheet" href="/css/pages/homepage.css")
@@ -12,28 +13,50 @@ block content
             h1 Bleed Blue Fantasy Football #{leagueState.season}
 
         section.previous-season-outcome.container
-            .winner
+            .outcome-card.outcome-card--winner
                 +responsiveImage(
                     "mascot.webp",
                     "eager", "sync", "high",
                     "bleed blue fantasy football mascot",
                     "hero-image"
-				)
-                .card-body
+                )
+                .outcome-card__body
+                    .outcome-card__icon
+                        +iconTrophy()
+                    span.outcome-card__badge King of the Gridiron
                     h2 #{prevLeagueSeason} Season Champ
-                    p #{winner.teamName}
-                    a.btn(href="/champions-hall") Champions Hall  
-            .loser
+                    p.outcome-card__team #{winner.teamName}
+                    p.outcome-card__tagline Dominated the league. Crushed dreams. No mercy.
+                    a.btn.btn--emerald(href="/champions-hall")
+                        +iconTrophy()
+                        | Champions Hall
+
+            .outcome-card.outcome-card--loser
                 +responsiveImage(
                     "sad-mascot.webp",
                     "eager", "sync", "high",
                     "bleed blue fantasy football sad mascot",
                     "hero-image"
-				)
-                .card-body
+                )
+                .outcome-card__body
+                    .outcome-card__icon
+                        +iconSkull()
+                    span.outcome-card__badge League's Bottom Feeder
                     h2 #{prevLeagueSeason} Season Sacko
-                    p #{loser.teamName}
-                    a.btn(href="/sacko-hall") Sacko Hall    
-        section.matchups-cta.container
-            h2 Check Out League Matchups
-            a.btn(href="/matchups") League Matchups
+                    p.outcome-card__team #{loser.teamName}
+                    p.outcome-card__tagline Someone had to be last. They volunteered.
+                    a.btn.btn--red(href="/sacko-hall")
+                        +iconSkull()
+                        | Sacko Hall
+        section.cta-cards.container
+            .cta-card.cta-card--navy
+                h2 SCOREBOARD
+                p See who's dominating, who's choking, and who forgot to set their lineup... again.
+                a.btn.btn--orange(href="/matchups") Matchups
+
+            .cta-card.cta-card--purple
+                .cta-card__icon
+                    +iconSwords()
+                h2 Enter the Battle Room
+                p See how you stack up head-to-head against your rivals. Bragging rights await.
+                a.btn.btn--purple(href="/rivalry") View Rivalries

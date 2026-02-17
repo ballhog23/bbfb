@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../variables' as *;
 @use '../_base';
 @use '../components/_navbar';
@@ -25,65 +26,348 @@
         gap: 2rem;
         flex-direction: row;
     }
+}
 
-    .winner,
-    .loser {
+.outcome-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @media only screen and (min-width: $sm-breakpoint-up) {
+        width: calc((100% - 2rem) / 2);
+    }
+
+    img {
+        width: 13rem;
+        height: 14.5rem;
+    }
+
+    &__body {
+        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
-
-        @media only screen and (min-width: $sm-breakpoint-up) {
-            width: calc((100% - 2rem) / 2);
-        }
-
-        img {
-            width: 13rem;
-            height: 14.5rem;
-        }
-
-        .card-body {
-            text-align: center;
-            padding: 2rem 1rem;
-            border: 1px solid;
-            border-radius: 0.75rem;
-
-            h2 {
-                margin-block: 0 0.5rem;
-
-                @media only screen and (min-width: $md-breakpoint-up) {
-                    font-size: 2rem;
-                }
-            }
-
-            p {
-                margin: 0;
-            }
-
-            .btn {
-                display: flex;
-                margin: 2rem auto 0 auto;
-            }
-        }
-
+        position: relative;
+        text-align: center;
+        padding: 2rem 1rem;
+        border: 2px solid;
+        border-radius: 0.75rem;
     }
 
-    .winner {
-        .card-body {
-            background: rgba($accent-emerald-dark, 0.1);
-            border-color: $accent-emerald;
-            box-shadow: 0 10px 30px rgba($win, 0.4);
+    &__icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+
+        svg {
+            width: 2rem;
+            height: 2rem;
         }
     }
 
-    .loser {
-        .card-body {
-            background: rgba($loss, 0.1);
-            border-color: $loss;
-            box-shadow: 0 10px 30px rgba($loss, 0.4);
+    &__badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: $font-weight-semibold;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        margin-bottom: 0.75rem;
+    }
+
+    h2 {
+        font-family: $font-heading;
+        font-weight: $font-weight-bold;
+        margin-block: 0 0.5rem;
+        max-width: 22.5rem;
+
+        @media only screen and (min-width: $md-breakpoint-up) {
+            font-size: 2rem;
+        }
+    }
+
+    &__team {
+        font-size: 1.15rem;
+        font-weight: $font-weight-bold;
+        margin: 0;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+
+        @media only screen and (min-width: $md-breakpoint-up) {
+            font-size: 1.35rem;
+        }
+    }
+
+    &__tagline {
+        color: $text-disabled;
+        font-size: 0.875rem;
+        margin: auto 0 0;
+        padding-top: 0.75rem;
+    }
+
+    .btn--emerald,
+    .btn--red {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        color: $text-primary;
+        font-weight: $font-weight-bold;
+        font-size: 0.95rem;
+        padding: 0.75rem 2rem;
+        border-radius: 0.75rem;
+        border: none;
+        transition: all $transition;
+
+        svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+
+    .btn--emerald {
+        background: linear-gradient(to right, $accent-emerald-dark, $accent-emerald);
+        box-shadow: 0 10px 20px rgba($accent-emerald, 0.3);
+
+        &:hover {
+            box-shadow: 0 10px 20px rgba($accent-emerald, 0.5);
+        }
+    }
+
+    .btn--red {
+        background: linear-gradient(to right, $loss, color.adjust($loss, $lightness: 8%));
+        box-shadow: 0 10px 20px rgba($loss, 0.3);
+
+        &:hover {
+            box-shadow: 0 10px 20px rgba($loss, 0.5);
+        }
+    }
+
+    &--winner {
+        .outcome-card__body {
+            background: linear-gradient(135deg, #0f1a2a, #0a1520);
+            border-color: rgba($accent-emerald, 0.5);
+            box-shadow: 0 20px 40px rgba($accent-emerald, 0.2);
+        }
+
+        .outcome-card__icon svg {
+            color: $accent-gold;
+        }
+
+        .outcome-card__badge {
+            background: rgba($accent-emerald, 0.2);
+            color: $accent-emerald;
+        }
+
+        .outcome-card__team {
+            background-image: linear-gradient(to right, $accent-emerald, $accent-cyan);
+        }
+    }
+
+    &--loser {
+        .outcome-card__body {
+            background: linear-gradient(135deg, #1a0f0f, #150a0a);
+            border-color: rgba($loss, 0.5);
+            box-shadow: 0 20px 40px rgba($loss, 0.2);
+        }
+
+        .outcome-card__icon svg {
+            color: $loss;
+        }
+
+        .outcome-card__badge {
+            background: rgba($loss, 0.2);
+            color: $loss;
+        }
+
+        .outcome-card__team {
+            background-image: linear-gradient(to right, $loss, $tie);
         }
     }
 }
 
-.matchups-cta {
+.cta-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
     padding-block: 0 6.25rem;
+}
+
+.cta-card {
+    flex: 1;
+    position: relative;
+    text-align: center;
+    padding: 2rem;
+    border: 1px solid rgba($blue-highlight, 0.3);
+    border-radius: 1.5rem;
+    overflow: hidden;
+
+    @media only screen and (min-width: $md-breakpoint-up) {
+        padding: 3rem;
+    }
+
+    // shimmer overlay
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    &__icon {
+        margin-bottom: 1rem;
+
+        svg {
+            width: 5rem;
+            height: 5rem;
+            animation: sway 3s ease-in-out infinite, glow 6s ease-in-out infinite;
+        }
+    }
+
+    h2 {
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin-block: 0 1rem;
+    }
+
+    p {
+        color: $text-muted;
+        font-size: 1rem;
+        margin-block: 0 2rem;
+        max-width: 36ch;
+        margin-inline: auto;
+
+        @media only screen and (min-width: $md-breakpoint-up) {
+            font-size: 1.125rem;
+        }
+    }
+
+    .btn--blue,
+    .btn--purple,
+    .btn--orange {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: $text-primary;
+        font-weight: $font-weight-bold;
+        padding: 1rem 2.5rem;
+        font-size: 1.125rem;
+        border-radius: 0.75rem;
+        border: none;
+        transition: all $transition;
+    }
+
+    .btn--blue {
+        background: hsla(217, 91%, 60%, 1);
+        background: linear-gradient(90deg, hsla(217, 91%, 60%, 1) 0%, hsla(194, 100%, 50%, 1) 100%);
+        background: -moz-linear-gradient(90deg, hsla(217, 91%, 60%, 1) 0%, hsla(194, 100%, 50%, 1) 100%);
+        background: -webkit-linear-gradient(90deg, hsla(217, 91%, 60%, 1) 0%, hsla(194, 100%, 50%, 1) 100%);
+        box-shadow: 0 20px 25px -5px rgba($blue-highlight, 0.3);
+
+        &:hover {
+            box-shadow: 0 20px 25px -5px rgba($blue-highlight, 0.2);
+        }
+    }
+
+    .btn--orange {
+        background: linear-gradient(135deg,
+                hsl(42, 95%, 45%) 0%,
+                hsl(32, 90%, 40%) 100%);
+
+        box-shadow: 0 10px 24px rgba($accent-gold, 0.35);
+        transition: box-shadow $transition;
+
+        &:hover {
+            box-shadow: 0 14px 32px rgba($accent-gold, 0.5);
+        }
+    }
+
+    .btn--purple {
+        background: linear-gradient(135deg,
+                hsl(262, 70%, 45%) 0%,
+                hsl(252, 65%, 38%) 100%);
+
+        box-shadow: 0 10px 22px rgba($accent-purple, 0.30);
+        transition: box-shadow $transition;
+
+        &:hover {
+            box-shadow: 0 10px 20px rgba($accent-purple, 0.45);
+        }
+    }
+
+    &--navy {
+        border-color: rgba($blue-highlight, 0.3);
+        backdrop-filter: blur(10px);
+
+        &::before {
+            background: linear-gradient(to right, rgba($bg-page, 0.05), rgba($blue-highlight, 0.05), rgba($blue-highlight, 0.05));
+        }
+
+        .cta-card__icon svg {
+            color: $blue-highlight;
+        }
+
+        h2 {
+            font-family: $font-accent;
+            letter-spacing: 5px;
+            font-weight: 600;
+            color: $accent-gold;
+
+            @media only screen and (min-width: $sm-breakpoint-up) {
+                font-size: 3.5rem;
+            }
+        }
+    }
+
+    &--purple {
+        backdrop-filter: blur(10px);
+
+        background: linear-gradient(145deg,
+                rgba(124, 58, 237, 0.18), // rich violet
+                rgba(88, 28, 135, 0.22) // deep royal purple
+            );
+
+        border: 1px solid rgba(168, 85, 247, 0.35);
+
+        &::before {
+            background: linear-gradient(to right,
+                    rgba(196, 181, 253, 0.12), // soft lilac shimmer
+                    rgba(168, 85, 247, 0.08),
+                    rgba(196, 181, 253, 0.12));
+        }
+
+        .cta-card__icon svg {
+            color: #c4b5fd;
+        }
+    }
+}
+
+@keyframes sway {
+
+    0%,
+    100% {
+        transform: rotate(-8deg);
+    }
+
+    50% {
+        transform: rotate(8deg);
+    }
+}
+
+@keyframes glow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 6px rgba($accent-cyan, 0.2));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 18px rgba($accent-cyan, 0.6));
+    }
 }
