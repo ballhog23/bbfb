@@ -149,7 +149,7 @@ function applyState(state: PageState) {
     });
 
     // Show/hide league select
-    leagueSelectWrapper.style.display = state.showLeagueSelect ? '' : 'none';
+    leagueSelectWrapper.classList.toggle('hidden', !state.showLeagueSelect);
 
     // Sync league select value
     if (state.leagueId && leagueSelect) {
