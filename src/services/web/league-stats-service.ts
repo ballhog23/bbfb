@@ -6,6 +6,12 @@ import {
     selectLeaderboard,
     selectStreaks,
     selectThatsGottaHurt,
+    selectSeasonBigNumbers,
+    selectSeasonScoringRecords,
+    selectSeasonPointMargins,
+    selectSeasonLeaderboard,
+    selectSeasonStreaks,
+    selectSeasonThatsGottaHurt,
 } from "../../db/queries/league-stats.js";
 
 type StatsCard = {
@@ -96,58 +102,68 @@ export async function assembleAllTimeStatsPageData() {
     return { sections: await getAllTimeStats() };
 }
 
-function getSeasonStats(season: string): StatsSection[] {
+async function getSeasonStats(leagueId: string, season: string): Promise<StatsSection[]> {
+    const [bigNumbers, scoringRecords, pointMargins, leaderboard, streaks, thatsGottaHurt] =
+        await Promise.all([
+            selectSeasonBigNumbers(leagueId),
+            selectSeasonScoringRecords(leagueId),
+            selectSeasonPointMargins(leagueId),
+            selectSeasonLeaderboard(leagueId),
+            selectSeasonStreaks(leagueId),
+            selectSeasonThatsGottaHurt(leagueId),
+        ]);
+
     return [
         {
             icon: 'trophy', title: 'The Big Numbers', subtitle: `The ${season} season by the numbers`, cols: 3,
             cards: [
-                { title: 'Total Points Scored', icon: 'target', value: 0, desc: `Every point scored in the ${season} season`, roast: 'The collective output of one season of questionable decisions', variant: 'primary' },
-                { title: 'Games Played', icon: 'trophy', value: 0, desc: `Total matchups this season`, roast: 'Another season in the books', variant: 'default' },
-                { title: 'Season Avg PPG', icon: 'trending-up', value: '0.0', desc: `The ${season} scoring baseline`, roast: 'Where did this season stack up?', variant: 'secondary' },
+                { title: 'Total Points Scored', icon: 'target', value: Number(bigNumbers.totalPts).toLocaleString(), desc: `Every point scored in the ${season} season`, roast: 'The collective output of one season of questionable decisions', variant: 'primary' },
+                { title: 'Games Played', icon: 'trophy', value: bigNumbers.totalGames, desc: `Total matchups this season`, roast: 'Another season in the books', variant: 'default' },
+                { title: 'Season Avg PPG', icon: 'trending-up', value: Number(bigNumbers.avgPts).toFixed(1), desc: `The ${season} scoring baseline`, roast: 'Where did this season stack up?', variant: 'secondary' },
             ],
         },
         {
             icon: 'flame', title: 'Scoring Records', subtitle: `The highs and lows of the ${season} season`, cols: 3,
             cards: [
-                { title: 'Most Points in a Game', icon: 'trending-up', value: 0, desc: `The best single week of ${season}`, roast: 'They woke up and chose violence', variant: 'primary' },
-                { title: 'Fewest Points in a Game', icon: 'trending-down', value: 0, desc: `The worst single week of ${season}`, roast: 'Did they even set a lineup?', variant: 'destructive' },
-                { title: 'Most Points in a Loss', icon: 'skull', value: 0, desc: `The cruelest loss of the ${season} season`, roast: 'Wrong place, wrong time', variant: 'destructive' },
-                { title: 'Fewest Points in a Win', icon: 'crown', value: 0, desc: `The luckiest win of ${season}`, roast: 'Lucky to be alive', variant: 'secondary' },
-                { title: 'Highest Combined Matchup', icon: 'zap', value: 0, desc: `The ${season} shootout of the year`, roast: 'Both teams chose violence', variant: 'primary' },
-                { title: 'Lowest Combined Matchup', icon: 'target', value: 0, desc: `The worst combined showing of ${season}`, roast: 'Nobody showed up that week', variant: 'default' },
+                { title: 'Most Points in a Game', icon: 'trending-up', value: scoringRecords.mostPtsValue, desc: `${scoringRecords.mostPtsTeamName} — Week ${scoringRecords.mostPtsWeek}`, roast: 'They woke up and chose violence', variant: 'primary' },
+                { title: 'Fewest Points in a Game', icon: 'trending-down', value: scoringRecords.fewestPtsValue ?? 0, desc: `${scoringRecords.fewestPtsTeamName} — Week ${scoringRecords.fewestPtsWeek}`, roast: 'Did they even set a lineup?', variant: 'destructive' },
+                { title: 'Most Points in a Loss', icon: 'skull', value: scoringRecords.mostPtsInLossValue ?? 0, desc: `${scoringRecords.mostPtsInLossTeamName} — Week ${scoringRecords.mostPtsInLossWeek}`, roast: 'Wrong place, wrong time', variant: 'destructive' },
+                { title: 'Fewest Points in a Win', icon: 'crown', value: scoringRecords.fewestPtsInWinValue ?? 0, desc: `${scoringRecords.fewestPtsInWinTeamName} — Week ${scoringRecords.fewestPtsInWinWeek}`, roast: 'Lucky to be alive', variant: 'secondary' },
+                { title: 'Highest Combined Matchup', icon: 'zap', value: scoringRecords.highestCombinedValue, desc: `Week ${scoringRecords.highestCombinedWeek}`, roast: 'Both teams chose violence', variant: 'primary' },
+                { title: 'Lowest Combined Matchup', icon: 'target', value: scoringRecords.lowestCombinedValue, desc: `Week ${scoringRecords.lowestCombinedWeek}`, roast: 'Nobody showed up that week', variant: 'default' },
             ],
         },
         {
             icon: 'zap', title: 'Point Margins', subtitle: `Blowouts and nail-biters of the ${season} season`, cols: 3,
             cards: [
-                { title: 'Largest Margin of Victory', icon: 'zap', value: 0, desc: `The most dominant win of ${season}`, roast: "That's a blowout!", variant: 'primary' },
-                { title: 'Smallest Margin of Victory', icon: 'target', value: 0, desc: `The closest game of ${season}`, roast: 'Heart attack material', variant: 'secondary' },
-                { title: 'Games Decided by < 1 pt', icon: 'flame', value: 0, desc: `Decimal point drama this season`, roast: 'Monday night nightmares', variant: 'destructive' },
-                { title: 'Avg Margin of Victory', icon: 'trending-up', value: '0.0', desc: `Average margin this season`, roast: 'Comfort zone, quantified', variant: 'primary' },
-                { title: 'Blowout Rate (20+ pts)', icon: 'zap', value: '0%', desc: `Season annihilation rate`, roast: 'Mercy rule should exist', variant: 'default' },
+                { title: 'Largest Margin of Victory', icon: 'zap', value: pointMargins.largestMarginValue, desc: `${pointMargins.largestMarginT1Name} vs ${pointMargins.largestMarginT2Name} — Week ${pointMargins.largestMarginWeek}`, roast: "That's a blowout!", variant: 'primary' },
+                { title: 'Smallest Margin of Victory', icon: 'target', value: pointMargins.smallestMarginValue, desc: `${pointMargins.smallestMarginT1Name} vs ${pointMargins.smallestMarginT2Name} — Week ${pointMargins.smallestMarginWeek}`, roast: 'Heart attack material', variant: 'secondary' },
+                { title: 'Games Decided by < 1 pt', icon: 'flame', value: pointMargins.gamesUnder1pt, desc: `Decimal point drama this season`, roast: 'Monday night nightmares', variant: 'destructive' },
+                { title: 'Avg Margin of Victory', icon: 'trending-up', value: pointMargins.avgMargin, desc: `Average margin this season`, roast: 'Comfort zone, quantified', variant: 'primary' },
+                { title: 'Blowout Rate (20+ pts)', icon: 'zap', value: `${pointMargins.blowoutRate}%`, desc: `Season annihilation rate`, roast: 'Mercy rule should exist', variant: 'default' },
             ],
         },
         {
             icon: 'flame', title: 'The Streaks', subtitle: `The longest runs of the ${season} season`, cols: 2,
             cards: [
-                { title: 'Longest Winning Streak', icon: 'trending-up', value: 0, desc: `The hottest stretch of ${season}`, roast: 'Riding high!', variant: 'secondary' },
-                { title: 'Longest Losing Streak', icon: 'trending-down', value: 0, desc: `The coldest stretch of ${season}`, roast: 'Character-building moments', variant: 'destructive' },
+                { title: 'Longest Winning Streak', icon: 'trending-up', value: `${streaks.winStreakLength}W`, desc: `${streaks.winStreakTeamName}`, roast: 'Riding high!', variant: 'secondary' },
+                { title: 'Longest Losing Streak', icon: 'trending-down', value: `${streaks.lossStreakLength}L`, desc: `${streaks.lossStreakTeamName}`, roast: 'Character-building moments', variant: 'destructive' },
             ],
         },
         {
             icon: 'star', title: 'Season Leaderboard', subtitle: `Who ran the ${season} season`, cols: 3,
             cards: [
-                { title: 'Season Points Leader', icon: 'crown', value: 0, desc: `The top scorer of ${season}`, roast: 'Volume over everything this season', variant: 'primary' },
-                { title: 'Winningest Manager', icon: 'trophy', value: 0, desc: `Most wins in the ${season} season`, roast: 'They owned this season', variant: 'secondary' },
-                { title: 'Most Losses', icon: 'skull', value: 0, desc: `Most losses in the ${season} season`, roast: 'Better luck next year', variant: 'destructive' },
+                { title: 'Season Points Leader', icon: 'crown', value: Number(leaderboard.ptsLeaderValue).toLocaleString(), desc: `${leaderboard.ptsLeaderName}`, roast: 'Volume over everything this season', variant: 'primary' },
+                { title: 'Winningest Manager', icon: 'trophy', value: leaderboard.mostWinsValue, desc: `${leaderboard.mostWinsName}`, roast: 'They owned this season', variant: 'secondary' },
+                { title: 'Most Losses', icon: 'skull', value: leaderboard.mostLossesValue, desc: `${leaderboard.mostLossesName}`, roast: 'Better luck next year', variant: 'destructive' },
             ],
         },
         {
             icon: 'skull', title: "That's Gotta Hurt", subtitle: `The ${season} season was not kind to everyone`, cols: 3,
             cards: [
-                { title: 'Most Points Faced', icon: 'target', value: 0, desc: `Schedule from hell in ${season}`, roast: 'The universe had a vendetta this season', variant: 'destructive' },
-                { title: 'Most Weekly Top Scores', icon: 'crown', value: 0, desc: `Most weeks as the top scorer in ${season}`, roast: 'King of the week', variant: 'primary' },
-                { title: 'Most Weekly Last Places', icon: 'skull', value: 0, desc: `Most weeks in the basement in ${season}`, roast: 'Somebody had to hold the floor down', variant: 'destructive' },
+                { title: 'Most Points Faced', icon: 'target', value: Number(thatsGottaHurt.mostPointsFacedValue).toLocaleString(), desc: `${thatsGottaHurt.mostPointsFacedName}`, roast: 'The universe had a vendetta this season', variant: 'destructive' },
+                { title: 'Most Weekly Top Scores', icon: 'crown', value: thatsGottaHurt.mostTopScoresValue, desc: `${thatsGottaHurt.mostTopScoresName}`, roast: 'King of the week', variant: 'primary' },
+                { title: 'Most Weekly Last Places', icon: 'skull', value: thatsGottaHurt.mostLastPlacesValue, desc: `${thatsGottaHurt.mostLastPlacesName}`, roast: 'Somebody had to hold the floor down', variant: 'destructive' },
             ],
         },
     ];
@@ -159,7 +175,7 @@ export async function assembleLeagueStatsPageData(leagueId: string) {
     const season = league?.season ?? 'Unknown';
 
     return {
-        sections: getSeasonStats(season),
+        sections: await getSeasonStats(leagueId, season),
         allLeagues,
         currentLeagueId: leagueId,
         currentSeason: season,
