@@ -235,41 +235,18 @@
 
 .stats-grid {
 	display: grid;
+	grid-template-columns: 1fr;
 	gap: 1rem;
+
+	@media only screen and (min-width: $sm-breakpoint-up) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	@media only screen and (min-width: 875px) {
+		grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+	}
 
 	@media only screen and (min-width: $md-breakpoint-up) {
 		gap: 1.5rem;
-	}
-
-	&--4 {
-		grid-template-columns: 1fr;
-
-		@media only screen and (min-width: $sm-breakpoint-up) {
-			grid-template-columns: repeat(2, 1fr);
-		}
-
-		@media only screen and (min-width: 875px) {
-			grid-template-columns: repeat(4, 1fr);
-		}
-	}
-
-	&--3 {
-		grid-template-columns: 1fr;
-
-		@media only screen and (min-width: $sm-breakpoint-up) {
-			grid-template-columns: repeat(2, 1fr);
-		}
-
-		@media only screen and (min-width: 875px) {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-
-	&--2 {
-		grid-template-columns: 1fr;
-
-		@media only screen and (min-width: $sm-breakpoint-up) {
-			grid-template-columns: repeat(2, 1fr);
-		}
 	}
 }

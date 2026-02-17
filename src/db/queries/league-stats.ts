@@ -1,4 +1,4 @@
-import { sql, eq, desc, sum, count, avg, and, lt } from "drizzle-orm";
+import { sql, eq, desc, sum, count, and, lt } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "../index.js";
 import { matchupOutcomesTable, leagueUsersTable, sleeperUsersTable, rostersTable } from "../schema.js";
@@ -84,7 +84,7 @@ const allPointsScoredCTE = db.$with('points_total_cte').as(
         .select({
             totalPts: sum(matchupPointsCTE.totalPts).as('total_pts'),
             totalGames: count().as('total_games'),
-            avgPts: avg(matchupPointsCTE.totalPts).as('avg_pts'),
+            avgPts: sql<string>`ROUND(AVG(${matchupPointsCTE.totalPts}::numeric), 1)`.as('avg_pts'),
         })
         .from(matchupPointsCTE)
 );
@@ -182,7 +182,10 @@ const highestCombined = db
         season: matchupPointsCTE.season,
         week: matchupPointsCTE.week,
         matchupId: matchupPointsCTE.matchupId,
-        totalPts: matchupPointsCTE.totalPts
+        leagueId: matchupPointsCTE.leagueId,
+        totalPts: matchupPointsCTE.totalPts,
+        t1RosterOwnerId: matchupPointsCTE.t1RosterOwnerId,
+        t2RosterOwnerId: matchupPointsCTE.t2RosterOwnerId,
     })
     .from(matchupPointsCTE)
     .orderBy(desc(matchupPointsCTE.totalPts))
@@ -194,7 +197,10 @@ const lowestCombined = db
         season: matchupPointsCTE.season,
         week: matchupPointsCTE.week,
         matchupId: matchupPointsCTE.matchupId,
-        totalPts: matchupPointsCTE.totalPts
+        leagueId: matchupPointsCTE.leagueId,
+        totalPts: matchupPointsCTE.totalPts,
+        t1RosterOwnerId: matchupPointsCTE.t1RosterOwnerId,
+        t2RosterOwnerId: matchupPointsCTE.t2RosterOwnerId,
     })
     .from(matchupPointsCTE)
     .orderBy(matchupPointsCTE.totalPts)
@@ -227,11 +233,39 @@ export async function selectScoringRecords() {
             highestCombinedWeek: highestCombined.week,
             highestCombinedMatchupId: highestCombined.matchupId,
             highestCombinedValue: sql<string>`"highest_combined"."total_pts"`,
+            highestCombinedT1Name: sql<string>`(
+                SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
+                FROM league_users
+                INNER JOIN sleeper_users ON league_users.user_id = sleeper_users.user_id
+                WHERE league_users.user_id = "highest_combined"."t1_roster_owner_id"
+                AND league_users.league_id = "highest_combined"."league_id"
+            )`,
+            highestCombinedT2Name: sql<string>`(
+                SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
+                FROM league_users
+                INNER JOIN sleeper_users ON league_users.user_id = sleeper_users.user_id
+                WHERE league_users.user_id = "highest_combined"."t2_roster_owner_id"
+                AND league_users.league_id = "highest_combined"."league_id"
+            )`,
 
             lowestCombinedSeason: lowestCombined.season,
             lowestCombinedWeek: lowestCombined.week,
             lowestCombinedMatchupId: lowestCombined.matchupId,
             lowestCombinedValue: sql<string>`"lowest_combined"."total_pts"`,
+            lowestCombinedT1Name: sql<string>`(
+                SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
+                FROM league_users
+                INNER JOIN sleeper_users ON league_users.user_id = sleeper_users.user_id
+                WHERE league_users.user_id = "lowest_combined"."t1_roster_owner_id"
+                AND league_users.league_id = "lowest_combined"."league_id"
+            )`,
+            lowestCombinedT2Name: sql<string>`(
+                SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
+                FROM league_users
+                INNER JOIN sleeper_users ON league_users.user_id = sleeper_users.user_id
+                WHERE league_users.user_id = "lowest_combined"."t2_roster_owner_id"
+                AND league_users.league_id = "lowest_combined"."league_id"
+            )`,
         })
         .from(mostPts)
         .leftJoin(fewestPts, sql`true`)
@@ -696,10 +730,12 @@ export async function selectSeasonScoringRecords(leagueId: string) {
 
     const sHighestCombined = db.select({
         season: cte.season, week: cte.week, matchupId: cte.matchupId, totalPts: cte.totalPts,
+        t1RosterOwnerId: cte.t1RosterOwnerId, t2RosterOwnerId: cte.t2RosterOwnerId,
     }).from(cte).orderBy(desc(cte.totalPts)).limit(1).as('highest_combined');
 
     const sLowestCombined = db.select({
         season: cte.season, week: cte.week, matchupId: cte.matchupId, totalPts: cte.totalPts,
+        t1RosterOwnerId: cte.t1RosterOwnerId, t2RosterOwnerId: cte.t2RosterOwnerId,
     }).from(cte).orderBy(cte.totalPts).limit(1).as('lowest_combined');
 
     const [result] = await db
@@ -723,10 +759,38 @@ export async function selectSeasonScoringRecords(leagueId: string) {
             highestCombinedSeason: sHighestCombined.season,
             highestCombinedWeek: sHighestCombined.week,
             highestCombinedValue: sql<string>`"highest_combined"."total_pts"`,
+            highestCombinedT1Name: sql<string>`(
+                SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
+                FROM league_users
+                INNER JOIN sleeper_users ON league_users.user_id = sleeper_users.user_id
+                WHERE league_users.user_id = "highest_combined"."t1_roster_owner_id"
+                AND league_users.league_id = ${leagueId}
+            )`,
+            highestCombinedT2Name: sql<string>`(
+                SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
+                FROM league_users
+                INNER JOIN sleeper_users ON league_users.user_id = sleeper_users.user_id
+                WHERE league_users.user_id = "highest_combined"."t2_roster_owner_id"
+                AND league_users.league_id = ${leagueId}
+            )`,
 
             lowestCombinedSeason: sLowestCombined.season,
             lowestCombinedWeek: sLowestCombined.week,
             lowestCombinedValue: sql<string>`"lowest_combined"."total_pts"`,
+            lowestCombinedT1Name: sql<string>`(
+                SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
+                FROM league_users
+                INNER JOIN sleeper_users ON league_users.user_id = sleeper_users.user_id
+                WHERE league_users.user_id = "lowest_combined"."t1_roster_owner_id"
+                AND league_users.league_id = ${leagueId}
+            )`,
+            lowestCombinedT2Name: sql<string>`(
+                SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
+                FROM league_users
+                INNER JOIN sleeper_users ON league_users.user_id = sleeper_users.user_id
+                WHERE league_users.user_id = "lowest_combined"."t2_roster_owner_id"
+                AND league_users.league_id = ${leagueId}
+            )`,
         })
         .from(sMostPts)
         .leftJoin(sFewestPts, sql`true`)

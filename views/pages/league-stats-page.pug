@@ -3,7 +3,7 @@ include ../mixins/stats-card.pug
 
 block head
 	link(rel="stylesheet" href="/css/pages/stats.css")
-	script(type="module" src="/js/stats.js")
+	script(type="module" src="/js/league-stats.js")
 
 block content
 	main
@@ -33,9 +33,228 @@ block content
 			data-current-league-id=currentLeagueId || ''
 			data-is-season-view=isSeasonView ? 'true' : 'false'
 		)
-			each section in sections
-				section.stats-section
-					+sectionHeader(section.icon, section.title, section.subtitle)
-					.stats-grid(class=`stats-grid--${section.cols}`)
-						each card in section.cards
-							+statsCard(card)
+			//- The Big Numbers
+			section.stats-section
+				+sectionHeader('trophy', 'The Big Numbers', isSeasonView ? `The ${currentSeason} season by the numbers` : 'The all-time ledger of fantasy dominance')
+				.stats-grid
+					+statsCard({
+						title: 'Total Points Scored',
+						icon: 'target',
+						value: stats.bigNumbers.totalPts,
+						desc: isSeasonView ? `Every point scored in the ${currentSeason} season` : 'Every point, every season, every heartbreak',
+						roast: isSeasonView ? 'The collective output of one season of questionable decisions' : 'The collective output of years of questionable decisions',
+						variant: 'primary'
+					})
+					+statsCard({
+						title: isSeasonView ? 'Games Played' : 'Total Games Played',
+						icon: 'trophy',
+						value: stats.bigNumbers.totalGames,
+						desc: isSeasonView ? 'Total matchups this season' : 'Across every season in league history',
+						roast: isSeasonView ? 'Another season in the books' : "That's a lot of Sundays sacrificed",
+						variant: 'default'
+					})
+					+statsCard({
+						title: isSeasonView ? 'Season Avg PPG' : 'All-Time Avg PPG',
+						icon: 'trending-up',
+						value: stats.bigNumbers.avgPts,
+						desc: isSeasonView ? `The ${currentSeason} scoring baseline` : 'The historical baseline for fantasy output',
+						roast: isSeasonView ? 'Where did this season stack up?' : 'The number that separates contenders from pretenders',
+						variant: 'secondary'
+					})
+
+			//- Scoring Records
+			- const sr = stats.scoringRecords
+			section.stats-section
+				+sectionHeader(
+					'flame',
+					'Scoring Records',
+					isSeasonView ? `The highs and lows of the ${currentSeason} season` : 'The all-time highs, lows, and "how did that happen?" moments'
+				)
+				.stats-grid
+					+statsCard({
+						title: 'Most Points in a Game',
+						icon: 'trending-up',
+						value: sr.mostPtsValue,
+						desc: `${sr.mostPtsTeamName} — Week ${sr.mostPtsWeek}${sr.mostPtsSeason ? ', ' + sr.mostPtsSeason : ''}`,
+						roast: 'They woke up and chose violence',
+						variant: 'primary'
+					})
+					+statsCard({
+						title: 'Fewest Points in a Game',
+						icon: 'trending-down',
+						value: sr.fewestPtsValue,
+						desc: `${sr.fewestPtsTeamName} — Week ${sr.fewestPtsWeek}${sr.fewestPtsSeason ? ', ' + sr.fewestPtsSeason : ''}`,
+						roast: 'Did they even set a lineup?',
+						variant: 'destructive'
+					})
+					+statsCard({
+						title: 'Fewest Points in a Win',
+						icon: 'crown',
+						value: sr.fewestPtsInWinValue,
+						desc: `${sr.fewestPtsInWinTeamName} — Week ${sr.fewestPtsInWinWeek}${sr.fewestPtsInWinSeason ? ', ' + sr.fewestPtsInWinSeason : ''}`,
+						roast: 'Lucky to be alive',
+						variant: 'secondary'
+					})
+					+statsCard({
+						title: 'Highest Combined Matchup',
+						icon: 'zap',
+						value: sr.highestCombinedValue,
+						desc: `${sr.highestCombinedT1Name} vs ${sr.highestCombinedT2Name} — Week ${sr.highestCombinedWeek}${sr.highestCombinedSeason ? ', ' + sr.highestCombinedSeason : ''}`,
+						roast: 'Both teams chose violence',
+						variant: 'primary'
+					})
+					+statsCard({
+						title: 'Lowest Combined Matchup',
+						icon: 'target',
+						value: sr.lowestCombinedValue,
+						desc: `${sr.lowestCombinedT1Name} vs ${sr.lowestCombinedT2Name} — Week ${sr.lowestCombinedWeek}${sr.lowestCombinedSeason ? ', ' + sr.lowestCombinedSeason : ''}`,
+						roast: isSeasonView ? 'Nobody showed up that week' : 'Nobody showed up. Across all of history, this was the worst.',
+						variant: 'default'
+					})
+
+
+			//- Point Margins
+			- const pm = stats.pointMargins
+			section.stats-section
+				+sectionHeader('zap', 'Point Margins', isSeasonView ? `Blowouts and nail-biters of the ${currentSeason} season` : 'Every blowout and nail-biter across league history')
+				.stats-grid
+					+statsCard({
+						title: 'Largest Margin of Victory',
+						icon: 'zap',
+						value: pm.largestMarginValue,
+						desc: `${pm.largestMarginT1Name} vs ${pm.largestMarginT2Name} — Week ${pm.largestMarginWeek}${pm.largestMarginSeason ? ', ' + pm.largestMarginSeason : ''}`,
+						roast: isSeasonView ? "That's a blowout!" : "That's a blowout for the ages",
+						variant: 'primary'
+					})
+					+statsCard({
+						title: 'Smallest Margin of Victory',
+						icon: 'target',
+						value: pm.smallestMarginValue,
+						desc: `${pm.smallestMarginT1Name} vs ${pm.smallestMarginT2Name} — Week ${pm.smallestMarginWeek}${pm.smallestMarginSeason ? ', ' + pm.smallestMarginSeason : ''}`,
+						roast: isSeasonView ? 'Heart attack material' : 'Monday night nightmares are made of margins like this',
+						variant: 'secondary'
+					})
+					+statsCard({
+						title: 'Games Decided by < 1 pt',
+						icon: 'flame',
+						value: pm.gamesUnder1pt,
+						desc: isSeasonView ? 'Decimal point drama this season' : 'Decimal point drama across all seasons',
+						roast: isSeasonView ? 'Monday night nightmares' : 'Every one of these caused a Monday morning meltdown',
+						variant: 'destructive'
+					})
+					+statsCard({
+						title: 'Avg Margin of Victory',
+						icon: 'trending-up',
+						value: pm.avgMargin,
+						desc: isSeasonView ? 'Average margin this season' : 'Average margin across all games in league history',
+						roast: isSeasonView ? 'Comfort zone, quantified' : 'The comfort zone of victory, quantified for all time',
+						variant: 'primary'
+					})
+					+statsCard({
+						title: 'Blowout Rate (20+ pts)',
+						icon: 'zap',
+						value: `${pm.blowoutRate}%`,
+						desc: isSeasonView ? 'Season annihilation rate' : 'All-time annihilation rate',
+						roast: isSeasonView ? 'Mercy rule should exist' : 'The percentage of games where mercy should have been shown',
+						variant: 'default'
+					})
+
+			//- The Streaks
+			- const st = stats.streaks
+			section.stats-section
+				+sectionHeader('flame', 'The Streaks', isSeasonView ? `The longest runs of the ${currentSeason} season` : 'The longest runs of glory and despair in league history')
+				.stats-grid
+					+statsCard({
+						title: 'Longest Winning Streak',
+						icon: 'trending-up',
+						value: `${st.winStreakLength}W`,
+						desc: `${st.winStreakTeamName}${st.winStreakSeason ? ' — ' + st.winStreakSeason : ''}`,
+						roast: isSeasonView ? 'Riding high!' : 'Riding high across seasons',
+						variant: 'secondary'
+					})
+					+statsCard({
+						title: 'Longest Losing Streak',
+						icon: 'trending-down',
+						value: `${st.lossStreakLength}L`,
+						desc: `${st.lossStreakTeamName}${st.lossStreakSeason ? ' — ' + st.lossStreakSeason : ''}`,
+						roast: isSeasonView ? 'Character-building moments' : 'We learn from these... right?',
+						variant: 'destructive'
+					})
+
+			//- Leaderboard
+			- const lb = stats.leaderboard
+			section.stats-section
+				+sectionHeader('star', isSeasonView ? 'Season Leaderboard' : 'All-Time Leaderboard', isSeasonView ? `Who ran the ${currentSeason} season` : 'The legends atop the all-time mountain')
+				.stats-grid
+					+statsCard({
+						title: isSeasonView ? 'Season Points Leader' : 'All-Time Points Leader',
+						icon: 'crown',
+						value: lb.ptsLeaderValue,
+						desc: lb.ptsLeaderName,
+						roast: isSeasonView ? 'Volume over everything this season' : 'Volume over everything',
+						variant: 'primary'
+					})
+					+statsCard({
+						title: isSeasonView ? 'Winningest Manager' : 'Most All-Time Wins',
+						icon: 'trophy',
+						value: lb.mostWinsValue,
+						desc: lb.mostWinsName,
+						roast: isSeasonView ? 'They owned this season' : 'Stacking Ws across eras',
+						variant: 'secondary'
+					})
+					+statsCard({
+						title: 'Most Losses',
+						icon: 'skull',
+						value: lb.mostLossesValue,
+						desc: lb.mostLossesName,
+						roast: isSeasonView ? 'Better luck next year' : 'Longevity has its downsides',
+						variant: 'destructive'
+					})
+					if isSeasonView
+						+statsCard({
+							title: 'Most Weekly Top Scores',
+							icon: 'crown',
+							value: stats.thatsGottaHurt.mostTopScoresValue,
+							desc: stats.thatsGottaHurt.mostTopScoresName,
+							roast: 'King of the week',
+							variant: 'primary'
+						})
+					else
+						+statsCard({
+							title: 'Most Weekly Top Scores',
+							icon: 'crown',
+							value: lb.mostTopScoresValue,
+							desc: lb.mostTopScoresName,
+							roast: 'Consistency is king',
+							variant: 'primary'
+						})
+
+			//- That's Gotta Hurt
+			- const tgh = stats.thatsGottaHurt
+			section.stats-section
+				+sectionHeader('skull', "That's Gotta Hurt", isSeasonView ? `The ${currentSeason} season was not kind to everyone` : 'The universe has had a sick sense of humor since day one')
+				.stats-grid
+					+statsCard({
+						title: 'Most Points in a Loss',
+						icon: 'skull',
+						value: tgh.mostPtsInLossValue,
+						desc: `${tgh.mostPtsInLossTeamName} — Week ${tgh.mostPtsInLossWeek}${tgh.mostPtsInLossSeason ? ', ' + tgh.mostPtsInLossSeason : ''}`,
+						roast: 'Wrong place, wrong time',
+						variant: 'destructive'
+					})
+					+statsCard({
+						title: isSeasonView ? 'Most Points Faced' : 'Most Points Faced (All-Time)',
+						icon: 'target',
+						value: tgh.mostPointsFacedValue,
+						desc: tgh.mostPointsFacedName,
+						roast: isSeasonView ? 'The universe had a vendetta this season' : 'Schedule from hell, lifetime edition',
+						variant: 'destructive'
+					})
+					+statsCard({
+						title: 'Most Weekly Last Places',
+						icon: 'skull',
+						value: tgh.mostLastPlacesValue,
+						desc: tgh.mostLastPlacesName,
+						roast: 'Somebody has to hold the floor down',
+						variant: 'destructive'
+					})
