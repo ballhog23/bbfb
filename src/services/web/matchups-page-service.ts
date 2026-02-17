@@ -10,7 +10,7 @@ import { BadRequestError, NotFoundError } from "../../lib/errors.js";
 import { selectPlayoffMatchupsWithDetails } from "../../db/queries/playoffs.js";
 
 // handles excluding the newest league from the dropdown when env vars point ahead of league state
-async function getLeaguesForDropdown(leagueState: SelectLeagueState) {
+export async function getLeaguesForDropdown(leagueState: SelectLeagueState) {
     const allLeagues = await selectAllLeaguesIdsAndSeasons();
     const envUpdatedAhead = !leagueState.isLeagueActive && leagueState.season !== config.league.season;
     return envUpdatedAhead

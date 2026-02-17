@@ -152,12 +152,11 @@
 
 // ---------- sections ----------
 
-.stats-section {
-	margin-bottom: 3rem;
-
-	@media only screen and (min-width: $md-breakpoint-up) {
-		margin-bottom: 4rem;
-	}
+#stats-content {
+	padding-block: 0 6.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 6rem;
 }
 
 // ---------- section header ----------
@@ -208,11 +207,11 @@
 	&--4 {
 		grid-template-columns: 1fr;
 
-		@media only screen and (min-width: $md-breakpoint-up) {
+		@media only screen and (min-width: $sm-breakpoint-up) {
 			grid-template-columns: repeat(2, 1fr);
 		}
 
-		@media only screen and (min-width: $lg-breakpoint-up) {
+		@media only screen and (min-width: 875px) {
 			grid-template-columns: repeat(4, 1fr);
 		}
 	}
@@ -220,11 +219,11 @@
 	&--3 {
 		grid-template-columns: 1fr;
 
-		@media only screen and (min-width: $md-breakpoint-up) {
+		@media only screen and (min-width: $sm-breakpoint-up) {
 			grid-template-columns: repeat(2, 1fr);
 		}
 
-		@media only screen and (min-width: $lg-breakpoint-up) {
+		@media only screen and (min-width: 875px) {
 			grid-template-columns: repeat(3, 1fr);
 		}
 	}
@@ -232,7 +231,7 @@
 	&--2 {
 		grid-template-columns: 1fr;
 
-		@media only screen and (min-width: $md-breakpoint-up) {
+		@media only screen and (min-width: $sm-breakpoint-up) {
 			grid-template-columns: repeat(2, 1fr);
 		}
 	}

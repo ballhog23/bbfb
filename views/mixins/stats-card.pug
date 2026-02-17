@@ -7,7 +7,6 @@ include ./icons.pug
 //-   card.value    - the big number
 //-   card.desc     - short description
 //-   card.roast    - italic joke / roast line
-//-   card.badge    - optional badge text (e.g. "Hot")
 //-   card.variant  - color variant: 'primary' | 'secondary' | 'destructive' | 'default'
 mixin statsCard(card)
 	.stats-card(class=`stats-card--${card.variant || 'default'}`)
@@ -16,12 +15,7 @@ mixin statsCard(card)
 			.stats-card__icon
 				+icon(card.icon)
 		.stats-card__body
-			.stats-card__value-row
-				span.stats-card__value= card.value
-				if card.badge
-					span.stats-card__badge
-						+iconTrendingUp()
-						= card.badge
+			span.stats-card__value= card.value
 			p.stats-card__desc= card.desc
 			if card.roast
 				p.stats-card__roast= card.roast

@@ -143,13 +143,13 @@
 
 	&__value {
 		font-size: 2rem;
-		font-weight: 900;
+		font-weight: $font-weight-normal;
 		color: $text-primary;
-		letter-spacing: -0.025em;
 		line-height: 1;
+		font-family: $font-heading;
 
 		@media only screen and (min-width: $md-breakpoint-up) {
-			font-size: 2.5rem;
+			font-size: 2.125rem;
 		}
 	}
 

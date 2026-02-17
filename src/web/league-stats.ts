@@ -1,10 +1,16 @@
 import type { Request, Response } from "express";
 import { getAllTimeStats, assembleLeagueStatsPageData } from "../services/web/league-stats-service.js";
-import { selectAllLeaguesIdsAndSeasons } from "../db/queries/leagues.js";
+import { getLeaguesForDropdown } from "../services/web/matchups-page-service.js";
+import { selectLeagueState } from "../db/queries/league-state.js";
+import { NotFoundError } from "../lib/errors.js";
 
 export async function handlerServeLeagueStats(_: Request, res: Response) {
-    const allLeagues = await selectAllLeaguesIdsAndSeasons();
-    const sections = getAllTimeStats();
+    const leagueState = await selectLeagueState();
+    if (!leagueState) throw new NotFoundError("League state not found");
+
+    const allLeagues = await getLeaguesForDropdown(leagueState);
+
+    const sections = await getAllTimeStats();
 
     return res.render('pages/league-stats-page', {
         page: 'league-stats',
