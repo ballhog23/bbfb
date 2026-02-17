@@ -16,7 +16,7 @@ block content
 				button.stats-tab(data-tab="all-time" class=!isSeasonView ? 'active' : '') All-Time Glory
 				button.stats-tab(data-tab="season" class=isSeasonView ? 'active' : '') Season Snapshot
 
-			.league-select-wrapper(style=isSeasonView ? '' : 'display:none')
+			.league-select-wrapper(class=!isSeasonView ? 'hidden' : '')
 				label.league-select-label(for="stats-league-select") Select Season
 				.select-wrapper
 					select#stats-league-select(name="select-league")
