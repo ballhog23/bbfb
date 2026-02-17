@@ -11,11 +11,24 @@ block content
 			h1 Hall of Stats & Laughs
 			p.hero-description The numbers don't lie, but they sure know how to roast
 
-		.stats-tabs.container
-			button.stats-tab.active(data-tab="all-time") All-Time Glory
-			button.stats-tab(data-tab="season") Season Snapshot
+		.stats-header.container
+			.stats-tabs
+				button.stats-tab(data-tab="all-time" class=!isSeasonView ? 'active' : '') All-Time Glory
+				button.stats-tab(data-tab="season" class=isSeasonView ? 'active' : '') Season Snapshot
 
-		#stats-content.container
+			.league-select-wrapper(style=isSeasonView ? '' : 'display:none')
+				label(for="stats-league-select") Select Season:
+				select#stats-league-select(name="select-league")
+					each league in allLeagues
+						option(
+							value=league.leagueId
+							selected=league.leagueId===currentLeagueId
+						)= league.season
+
+		#stats-content.container(
+			data-current-league-id=currentLeagueId || ''
+			data-is-season-view=isSeasonView ? 'true' : 'false'
+		)
 			each section in sections
 				section.stats-section
 					+sectionHeader(section.icon, section.title, section.subtitle)

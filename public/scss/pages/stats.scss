@@ -44,13 +44,70 @@
 	}
 }
 
+// ---------- stats header (tabs + league select) ----------
+
+.stats-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 3rem;
+
+	@media only screen and (min-width: $sm-breakpoint-up) {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+}
+
+// ---------- league select ----------
+
+.league-select-wrapper {
+	display: flex;
+	flex-direction: column;
+
+	@media only screen and (min-width: $sm-breakpoint-up) {
+		width: 15rem;
+	}
+
+	label {
+		font-size: 1rem;
+		font-weight: $font-weight-semibold;
+		color: $text-secondary;
+	}
+
+	#stats-league-select {
+		padding: 0.625rem 1rem;
+		background: $bg-surface;
+		color: $text-primary;
+		border: 1px solid $border-default;
+		border-radius: 6px;
+		font-size: 0.95rem;
+		font-weight: $font-weight-medium;
+		cursor: pointer;
+		transition: all 0.2s;
+		min-width: 15rem;
+
+		&:hover {
+			border-color: $border-strong;
+			background: $bg-row-hover;
+		}
+
+		&:focus {
+			outline: none;
+			border-color: $blue-primary;
+			box-shadow: 0 0 0 3px rgba(0, 51, 160, 0.1);
+		}
+	}
+}
+
 // ---------- tabs ----------
 
 .stats-tabs {
 	display: flex;
 	justify-content: center;
 	gap: 0;
-	margin-bottom: 3rem;
+	margin-bottom: 0;
 }
 
 .stats-tab {

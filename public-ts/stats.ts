@@ -3,12 +3,8 @@ import "./shared/nav.ts";
 
 const tabs = document.querySelectorAll<HTMLButtonElement>('.stats-tab');
 const content = document.querySelector<HTMLElement>('#stats-content')!;
-
-let activeTab = 'all-time';
-
-tabs.forEach(tab => {
-    tab.addEventListener('click', () => handleTabChange(tab));
-});
+const leagueSelect = document.querySelector<HTMLSelectElement>('#stats-league-select')!;
+const leagueSelectWrapper = document.querySelector<HTMLElement>('.league-select-wrapper')!;
 
 type StatsCard = {
     title: string;
@@ -28,26 +24,142 @@ type StatsSection = {
     cards: StatsCard[];
 };
 
-type StatsPageData = {
+type AllTimeResponse = {
     sections: StatsSection[];
 };
 
-async function handleTabChange(tab: HTMLButtonElement) {
-    const newTab = tab.dataset.tab!;
-    if (newTab === activeTab) return;
+type SeasonResponse = {
+    sections: StatsSection[];
+    allLeagues: { leagueId: string; season: string }[];
+    currentLeagueId: string;
+    currentSeason: string;
+};
 
-    activeTab = newTab;
+type PageState = {
+    activeTab: 'all-time' | 'season';
+    leagueId: string;
+    contentHTML: string;
+    showLeagueSelect: boolean;
+};
+
+// ── Initialize state from SSR ──
+const isSeasonView = content.dataset.isSeasonView === 'true';
+const initialLeagueId = content.dataset.currentLeagueId || '';
+
+const initialState: PageState = {
+    activeTab: isSeasonView ? 'season' : 'all-time',
+    leagueId: initialLeagueId,
+    contentHTML: content.innerHTML,
+    showLeagueSelect: isSeasonView,
+};
+
+window.addEventListener("DOMContentLoaded", () => {
+    history.replaceState(initialState, "", location.href);
+});
+
+window.addEventListener("popstate", (event) => {
+    const state = event.state as PageState | null;
+    if (!state) return;
+    applyState(state);
+});
+
+// ── Tab switching ──
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => handleTabChange(tab));
+});
+
+async function handleTabChange(tab: HTMLButtonElement) {
+    const newTab = tab.dataset.tab as 'all-time' | 'season';
+    const currentState = history.state as PageState | null;
+    if (newTab === currentState?.activeTab) return;
+
     tabs.forEach(t => t.classList.toggle('active', t === tab));
 
+    if (newTab === 'all-time') {
+        await loadAllTimeStats();
+    } else {
+        // Default to first league in dropdown
+        const leagueId = leagueSelect.value;
+        if (leagueId) {
+            await loadSeasonStats(leagueId);
+        }
+    }
+}
+
+// ── League select ──
+leagueSelect?.addEventListener("change", async () => {
+    const leagueId = leagueSelect.value;
+    if (leagueId) {
+        await loadSeasonStats(leagueId);
+    }
+});
+
+// ── Data loading ──
+async function loadAllTimeStats() {
     try {
-        const data = await fetchJSON<StatsPageData>(
-            `/api/web/league-stats-page/${newTab}`
+        const data = await fetchJSON<AllTimeResponse>(
+            '/api/web/league-stats-page/all-time'
         );
-        renderStats(data.sections);
+        const pageURL = '/league-stats';
+
+        const state: PageState = {
+            activeTab: 'all-time',
+            leagueId: '',
+            contentHTML: renderStats(data.sections),
+            showLeagueSelect: false,
+        };
+
+        history.pushState(state, "", pageURL);
+        applyState(state);
     } catch (err) {
-        console.error('Failed to load stats:', err);
+        console.error('Failed to load all-time stats:', err);
         content.innerHTML = '<p class="stats-error">Failed to load stats data.</p>';
     }
+}
+
+async function loadSeasonStats(leagueId: string) {
+    try {
+        const data = await fetchJSON<SeasonResponse>(
+            `/api/web/league-stats-page/leagues/${leagueId}`
+        );
+        const pageURL = `/league-stats/leagues/${leagueId}`;
+
+        const state: PageState = {
+            activeTab: 'season',
+            leagueId: data.currentLeagueId,
+            contentHTML: renderStats(data.sections),
+            showLeagueSelect: true,
+        };
+
+        history.pushState(state, "", pageURL);
+        applyState(state);
+    } catch (err) {
+        console.error('Failed to load season stats:', err);
+        content.innerHTML = '<p class="stats-error">Failed to load season stats.</p>';
+    }
+}
+
+// ── State management ──
+function applyState(state: PageState) {
+    content.innerHTML = state.contentHTML;
+
+    // Update tab active states
+    tabs.forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === state.activeTab);
+    });
+
+    // Show/hide league select
+    leagueSelectWrapper.style.display = state.showLeagueSelect ? '' : 'none';
+
+    // Sync league select value
+    if (state.leagueId && leagueSelect) {
+        leagueSelect.value = state.leagueId;
+    }
+
+    // Update page title
+    document.title = state.activeTab === 'all-time'
+        ? 'Hall of Stats & Laughs'
+        : `Stats - Season Snapshot`;
 }
 
 // ---------- rendering helpers ----------
@@ -122,6 +234,6 @@ function renderSection(section: StatsSection): string {
         </section>`;
 }
 
-function renderStats(sections: StatsSection[]) {
-    content.innerHTML = sections.map(renderSection).join('');
+function renderStats(sections: StatsSection[]): string {
+    return sections.map(renderSection).join('');
 }
