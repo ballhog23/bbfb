@@ -9,9 +9,34 @@
     margin-bottom: 5rem;
 
     h1 {
+        font-weight: $font-weight-normal;
         text-align: center;
         margin: 0 auto;
         max-width: 15ch;
+
+        span {
+            background: linear-gradient(to right, $blue-highlight, $accent-cyan, $blue-highlight);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 8s ease infinite;
+            font-weight: $font-weight-bold;
+        }
+    }
+
+    @keyframes gradient-shift {
+        0% {
+            background-position: 0% center;
+        }
+
+        50% {
+            background-position: 100% center;
+        }
+
+        100% {
+            background-position: 0% center;
+        }
     }
 
 }
