@@ -17,13 +17,15 @@ block content
 				button.stats-tab(data-tab="season" class=isSeasonView ? 'active' : '') Season Snapshot
 
 			.league-select-wrapper(style=isSeasonView ? '' : 'display:none')
-				label(for="stats-league-select") Select Season:
-				select#stats-league-select(name="select-league")
-					each league in allLeagues
-						option(
-							value=league.leagueId
-							selected=league.leagueId===currentLeagueId
-						)= league.season
+				label.league-select-label(for="stats-league-select") Select Season
+				.select-wrapper
+					select#stats-league-select(name="select-league")
+						each league in allLeagues
+							option(
+								value=league.leagueId
+								selected=league.leagueId===currentLeagueId
+							)= league.season
+					+iconChevronDown()
 
 		#stats-content.container(
 			data-current-league-id=currentLeagueId || ''

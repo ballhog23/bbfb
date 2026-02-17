@@ -1,10 +1,14 @@
+include ../mixins/icons.pug
+
 .league-select-wrapper
-    label(for="league-select") Select League:
-    select#league-select(name="select-league")
-        each league in allLeagues
-            - const leagueId = league.leagueId
-            - const season = league.season
-            option(
-                value=leagueId
-                selected=leagueId===currentLeagueId
-                )= season
+    label.league-select-label(for="league-select") Select League
+    .select-wrapper
+        select#league-select(name="select-league")
+            each league in allLeagues
+                - const leagueId = league.leagueId
+                - const season = league.season
+                option(
+                    value=leagueId
+                    selected=leagueId===currentLeagueId
+                    )= season
+        +iconChevronDown()
