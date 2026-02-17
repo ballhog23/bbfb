@@ -77,6 +77,7 @@ export async function getSeasonStats(leagueId: string) {
 export async function assembleLeagueStatsPageData(leagueId: string) {
     const allLeagues = await selectAllLeaguesIdsAndSeasons();
     const league = allLeagues.find(l => l.leagueId === leagueId);
+
     if (!league)
         throw new NotFoundError(`League ${leagueId} not found`);
 
