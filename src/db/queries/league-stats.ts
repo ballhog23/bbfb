@@ -217,12 +217,6 @@ export async function selectScoringRecords() {
             fewestPtsTeamName: sql<string>`"fewest_pts"."team_name"`,
             fewestPtsValue: fewestPts.pointsFor,
 
-            mostPtsInLossSeason: mostPtsInLoss.season,
-            mostPtsInLossWeek: mostPtsInLoss.week,
-            mostPtsInLossOwnerId: mostPtsInLoss.rosterOwnerId,
-            mostPtsInLossTeamName: sql<string>`"most_pts_in_loss"."team_name"`,
-            mostPtsInLossValue: mostPtsInLoss.pointsFor,
-
             fewestPtsInWinSeason: fewestPtsInWin.season,
             fewestPtsInWinWeek: fewestPtsInWin.week,
             fewestPtsInWinOwnerId: fewestPtsInWin.rosterOwnerId,
@@ -241,7 +235,6 @@ export async function selectScoringRecords() {
         })
         .from(mostPts)
         .leftJoin(fewestPts, sql`true`)
-        .leftJoin(mostPtsInLoss, sql`true`)
         .leftJoin(fewestPtsInWin, sql`true`)
         .leftJoin(highestCombined, sql`true`)
         .leftJoin(lowestCombined, sql`true`);
@@ -585,6 +578,11 @@ const mostWeeklyLastPlaces = db
 export async function selectThatsGottaHurt() {
     const [result] = await db
         .select({
+            mostPtsInLossSeason: mostPtsInLoss.season,
+            mostPtsInLossWeek: mostPtsInLoss.week,
+            mostPtsInLossTeamName: sql<string>`"most_pts_in_loss"."team_name"`,
+            mostPtsInLossValue: mostPtsInLoss.pointsFor,
+
             mostPointsFacedOwnerId: mostPointsFaced.rosterOwnerId,
             mostPointsFacedName: sql<string>`(
                 SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
@@ -609,7 +607,8 @@ export async function selectThatsGottaHurt() {
             )`,
             mostLastPlacesValue: sql<string>`"most_weekly_last_places"."last_place_count"`,
         })
-        .from(mostPointsFaced)
+        .from(mostPtsInLoss)
+        .leftJoin(mostPointsFaced, sql`true`)
         .leftJoin(mostWeeklyLastPlaces, sql`true`);
 
     return result;
@@ -685,16 +684,6 @@ export async function selectSeasonScoringRecords(leagueId: string) {
         .where(eq(mo.leagueId, leagueId))
         .orderBy(mo.pointsFor).limit(1).as('fewest_pts');
 
-    const sMostPtsInLoss = db.select({
-        season: mo.season, week: mo.week, rosterOwnerId: mo.rosterOwnerId,
-        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
-        pointsFor: mo.pointsFor,
-    }).from(mo)
-        .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
-        .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
-        .where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, 'L')))
-        .orderBy(desc(mo.pointsFor)).limit(1).as('most_pts_in_loss');
-
     const sFewestPtsInWin = db.select({
         season: mo.season, week: mo.week, rosterOwnerId: mo.rosterOwnerId,
         teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
@@ -726,11 +715,6 @@ export async function selectSeasonScoringRecords(leagueId: string) {
             fewestPtsTeamName: sql<string>`"fewest_pts"."team_name"`,
             fewestPtsValue: sFewestPts.pointsFor,
 
-            mostPtsInLossSeason: sMostPtsInLoss.season,
-            mostPtsInLossWeek: sMostPtsInLoss.week,
-            mostPtsInLossTeamName: sql<string>`"most_pts_in_loss"."team_name"`,
-            mostPtsInLossValue: sMostPtsInLoss.pointsFor,
-
             fewestPtsInWinSeason: sFewestPtsInWin.season,
             fewestPtsInWinWeek: sFewestPtsInWin.week,
             fewestPtsInWinTeamName: sql<string>`"fewest_pts_in_win"."team_name"`,
@@ -746,7 +730,6 @@ export async function selectSeasonScoringRecords(leagueId: string) {
         })
         .from(sMostPts)
         .leftJoin(sFewestPts, sql`true`)
-        .leftJoin(sMostPtsInLoss, sql`true`)
         .leftJoin(sFewestPtsInWin, sql`true`)
         .leftJoin(sHighestCombined, sql`true`)
         .leftJoin(sLowestCombined, sql`true`);
@@ -932,6 +915,16 @@ export async function selectSeasonLeaderboard(leagueId: string) {
 }
 
 export async function selectSeasonThatsGottaHurt(leagueId: string) {
+    const sMostPtsInLoss = db.select({
+        season: mo.season, week: mo.week, rosterOwnerId: mo.rosterOwnerId,
+        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
+        pointsFor: mo.pointsFor,
+    }).from(mo)
+        .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
+        .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
+        .where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, 'L')))
+        .orderBy(desc(mo.pointsFor)).limit(1).as('most_pts_in_loss');
+
     const sMostPointsFaced = db.select({
         rosterOwnerId: mo.rosterOwnerId,
         totalPointsFaced: sql<string>`SUM(${mo.pointsAgainst}::numeric)`.as('total_points_faced'),
@@ -971,6 +964,10 @@ export async function selectSeasonThatsGottaHurt(leagueId: string) {
 
     const [result] = await db
         .select({
+            mostPtsInLossWeek: sMostPtsInLoss.week,
+            mostPtsInLossTeamName: sql<string>`"most_pts_in_loss"."team_name"`,
+            mostPtsInLossValue: sMostPtsInLoss.pointsFor,
+
             mostPointsFacedName: sql<string>`(
                 SELECT COALESCE(league_users.team_name, sleeper_users.display_name)
                 FROM league_users
@@ -998,7 +995,8 @@ export async function selectSeasonThatsGottaHurt(leagueId: string) {
             )`,
             mostLastPlacesValue: sql<string>`"most_weekly_last_places"."last_place_count"`,
         })
-        .from(sMostPointsFaced)
+        .from(sMostPtsInLoss)
+        .leftJoin(sMostPointsFaced, sql`true`)
         .leftJoin(sMostTopScores, sql`true`)
         .leftJoin(sMostLastPlaces, sql`true`);
 

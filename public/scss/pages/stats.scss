@@ -12,6 +12,16 @@
 	padding-block: 0;
 	margin-block: 0 6.25rem;
 
+	.hero-icon {
+		svg {
+			width: 5rem;
+			height: 5rem;
+			color: $accent-cyan;
+			margin: 0 auto 1rem;
+			animation: glow 6s ease-in-out infinite;
+		}
+	}
+
 	h1 {
 		font-weight: $font-weight-bold;
 		background: linear-gradient(to right, $blue-highlight, $accent-cyan, $blue-highlight);
@@ -41,6 +51,17 @@
 
 	100% {
 		background-position: 0% center;
+	}
+}
+
+@keyframes glow {
+	0%,
+	100% {
+		filter: drop-shadow(0 0 6px rgba($accent-cyan, 0.2));
+	}
+
+	50% {
+		filter: drop-shadow(0 0 18px rgba($accent-cyan, 0.6));
 	}
 }
 

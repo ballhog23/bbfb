@@ -56,7 +56,6 @@ export async function getAllTimeStats() {
             cards: [
                 { title: 'Most Points in a Game', icon: 'trending-up', value: scoringRecords.mostPtsValue, desc: `${scoringRecords.mostPtsTeamName} — Week ${scoringRecords.mostPtsWeek}, ${scoringRecords.mostPtsSeason}`, roast: 'They woke up and chose violence', variant: 'primary' },
                 { title: 'Fewest Points in a Game', icon: 'trending-down', value: scoringRecords.fewestPtsValue, desc: `${scoringRecords.fewestPtsTeamName} — Week ${scoringRecords.fewestPtsWeek}, ${scoringRecords.fewestPtsSeason}`, roast: 'Did they even set a lineup?', variant: 'destructive' },
-                { title: 'Most Points in a Loss', icon: 'skull', value: scoringRecords.mostPtsInLossValue, desc: `${scoringRecords.mostPtsInLossTeamName} — Week ${scoringRecords.mostPtsInLossWeek}, ${scoringRecords.mostPtsInLossSeason}`, roast: 'Wrong place, wrong time', variant: 'destructive' },
                 { title: 'Fewest Points in a Win', icon: 'crown', value: scoringRecords.fewestPtsInWinValue, desc: `${scoringRecords.fewestPtsInWinTeamName} — Week ${scoringRecords.fewestPtsInWinWeek}, ${scoringRecords.fewestPtsInWinSeason}`, roast: 'Lucky to be alive', variant: 'secondary' },
                 { title: 'Highest Combined Matchup', icon: 'zap', value: scoringRecords.highestCombinedValue, desc: `Week ${scoringRecords.highestCombinedWeek}, ${scoringRecords.highestCombinedSeason}`, roast: 'Both teams chose violence', variant: 'primary' },
                 { title: 'Lowest Combined Matchup', icon: 'target', value: scoringRecords.lowestCombinedValue, desc: `Week ${scoringRecords.lowestCombinedWeek}, ${scoringRecords.lowestCombinedSeason}`, roast: 'Nobody showed up. Across all of history, this was the worst.', variant: 'default' },
@@ -89,8 +88,9 @@ export async function getAllTimeStats() {
             ],
         },
         {
-            icon: 'skull', title: "That's Gotta Hurt", subtitle: 'The universe has had a sick sense of humor since day one', cols: 2,
+            icon: 'skull', title: "That's Gotta Hurt", subtitle: 'The universe has had a sick sense of humor since day one', cols: 3,
             cards: [
+                { title: 'Most Points in a Loss', icon: 'skull', value: thatsGottaHurt.mostPtsInLossValue, desc: `${thatsGottaHurt.mostPtsInLossTeamName} — Week ${thatsGottaHurt.mostPtsInLossWeek}, ${thatsGottaHurt.mostPtsInLossSeason}`, roast: 'Wrong place, wrong time', variant: 'destructive' },
                 { title: 'Most Points Faced (All-Time)', icon: 'target', value: Number(thatsGottaHurt.mostPointsFacedValue).toLocaleString(), desc: `${thatsGottaHurt.mostPointsFacedName}`, roast: 'Schedule from hell, lifetime edition', variant: 'destructive' },
                 { title: 'Most Weekly Last Places', icon: 'skull', value: thatsGottaHurt.mostLastPlacesValue, desc: `${thatsGottaHurt.mostLastPlacesName}`, roast: 'Somebody has to hold the floor down', variant: 'destructive' },
             ],
@@ -117,7 +117,14 @@ async function getSeasonStats(leagueId: string, season: string): Promise<StatsSe
         {
             icon: 'trophy', title: 'The Big Numbers', subtitle: `The ${season} season by the numbers`, cols: 3,
             cards: [
-                { title: 'Total Points Scored', icon: 'target', value: Number(bigNumbers.totalPts).toLocaleString(), desc: `Every point scored in the ${season} season`, roast: 'The collective output of one season of questionable decisions', variant: 'primary' },
+                {
+                    title: 'Total Points Scored',
+                    icon: 'target',
+                    value: Number(bigNumbers.totalPts).toLocaleString(),
+                    desc: `Every point scored in the ${season} season`,
+                    roast: 'The collective output of one season of questionable decisions',
+                    variant: 'primary'
+                },
                 { title: 'Games Played', icon: 'trophy', value: bigNumbers.totalGames, desc: `Total matchups this season`, roast: 'Another season in the books', variant: 'default' },
                 { title: 'Season Avg PPG', icon: 'trending-up', value: Number(bigNumbers.avgPts).toFixed(1), desc: `The ${season} scoring baseline`, roast: 'Where did this season stack up?', variant: 'secondary' },
             ],
@@ -127,7 +134,6 @@ async function getSeasonStats(leagueId: string, season: string): Promise<StatsSe
             cards: [
                 { title: 'Most Points in a Game', icon: 'trending-up', value: scoringRecords.mostPtsValue, desc: `${scoringRecords.mostPtsTeamName} — Week ${scoringRecords.mostPtsWeek}`, roast: 'They woke up and chose violence', variant: 'primary' },
                 { title: 'Fewest Points in a Game', icon: 'trending-down', value: scoringRecords.fewestPtsValue ?? 0, desc: `${scoringRecords.fewestPtsTeamName} — Week ${scoringRecords.fewestPtsWeek}`, roast: 'Did they even set a lineup?', variant: 'destructive' },
-                { title: 'Most Points in a Loss', icon: 'skull', value: scoringRecords.mostPtsInLossValue ?? 0, desc: `${scoringRecords.mostPtsInLossTeamName} — Week ${scoringRecords.mostPtsInLossWeek}`, roast: 'Wrong place, wrong time', variant: 'destructive' },
                 { title: 'Fewest Points in a Win', icon: 'crown', value: scoringRecords.fewestPtsInWinValue ?? 0, desc: `${scoringRecords.fewestPtsInWinTeamName} — Week ${scoringRecords.fewestPtsInWinWeek}`, roast: 'Lucky to be alive', variant: 'secondary' },
                 { title: 'Highest Combined Matchup', icon: 'zap', value: scoringRecords.highestCombinedValue, desc: `Week ${scoringRecords.highestCombinedWeek}`, roast: 'Both teams chose violence', variant: 'primary' },
                 { title: 'Lowest Combined Matchup', icon: 'target', value: scoringRecords.lowestCombinedValue, desc: `Week ${scoringRecords.lowestCombinedWeek}`, roast: 'Nobody showed up that week', variant: 'default' },
@@ -151,18 +157,19 @@ async function getSeasonStats(leagueId: string, season: string): Promise<StatsSe
             ],
         },
         {
-            icon: 'star', title: 'Season Leaderboard', subtitle: `Who ran the ${season} season`, cols: 3,
+            icon: 'star', title: 'Season Leaderboard', subtitle: `Who ran the ${season} season`, cols: 4,
             cards: [
                 { title: 'Season Points Leader', icon: 'crown', value: Number(leaderboard.ptsLeaderValue).toLocaleString(), desc: `${leaderboard.ptsLeaderName}`, roast: 'Volume over everything this season', variant: 'primary' },
                 { title: 'Winningest Manager', icon: 'trophy', value: leaderboard.mostWinsValue, desc: `${leaderboard.mostWinsName}`, roast: 'They owned this season', variant: 'secondary' },
                 { title: 'Most Losses', icon: 'skull', value: leaderboard.mostLossesValue, desc: `${leaderboard.mostLossesName}`, roast: 'Better luck next year', variant: 'destructive' },
+                { title: 'Most Weekly Top Scores', icon: 'crown', value: thatsGottaHurt.mostTopScoresValue, desc: `${thatsGottaHurt.mostTopScoresName}`, roast: 'King of the week', variant: 'primary' },
             ],
         },
         {
             icon: 'skull', title: "That's Gotta Hurt", subtitle: `The ${season} season was not kind to everyone`, cols: 3,
             cards: [
+                { title: 'Most Points in a Loss', icon: 'skull', value: thatsGottaHurt.mostPtsInLossValue ?? 0, desc: `${thatsGottaHurt.mostPtsInLossTeamName} — Week ${thatsGottaHurt.mostPtsInLossWeek}`, roast: 'Wrong place, wrong time', variant: 'destructive' },
                 { title: 'Most Points Faced', icon: 'target', value: Number(thatsGottaHurt.mostPointsFacedValue).toLocaleString(), desc: `${thatsGottaHurt.mostPointsFacedName}`, roast: 'The universe had a vendetta this season', variant: 'destructive' },
-                { title: 'Most Weekly Top Scores', icon: 'crown', value: thatsGottaHurt.mostTopScoresValue, desc: `${thatsGottaHurt.mostTopScoresName}`, roast: 'King of the week', variant: 'primary' },
                 { title: 'Most Weekly Last Places', icon: 'skull', value: thatsGottaHurt.mostLastPlacesValue, desc: `${thatsGottaHurt.mostLastPlacesName}`, roast: 'Somebody had to hold the floor down', variant: 'destructive' },
             ],
         },
