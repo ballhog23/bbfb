@@ -10,7 +10,12 @@ const ERROR_MESSAGES: Record<number, { heading: string; message: string; }> = {
 
 const DEFAULT_ERROR = { heading: "Something Went Wrong", message: "An unexpected error occurred." };
 
-export async function handlerServeErrorPage(err: Error & { status?: number; statusCode?: number; }, _: Request, res: Response, __: NextFunction) {
+export async function handlerServeErrorPage(
+    err: Error & { status?: number; statusCode?: number; },
+    _: Request,
+    res: Response,
+    __: NextFunction
+) {
     const statusCode = err.status ?? err.statusCode ?? 500;
     const { heading, message } = ERROR_MESSAGES[statusCode] ?? DEFAULT_ERROR;
 

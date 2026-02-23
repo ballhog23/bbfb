@@ -263,9 +263,9 @@ export class BBFBInfraStack extends cdk.Stack {
             stateMachineName: 'bbfb-sync-chain',
         });
 
-        // EventBridge: trigger step function every 15 minutes (gate handles day/time/season logic)
+        // EventBridge: trigger step function every 15 minutes during season (gate handles day/time logic)
         const syncChainRule = new events.Rule(this, 'SyncChainRule', {
-            schedule: events.Schedule.rate(cdk.Duration.minutes(15)),
+            schedule: events.Schedule.cron({ minute: '0/15', month: '9-1' }),
         });
         syncChainRule.addTarget(new targets.SfnStateMachine(syncStateMachine));
 
