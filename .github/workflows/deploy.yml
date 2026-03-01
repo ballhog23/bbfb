@@ -53,8 +53,6 @@ jobs:
             --query "Command.CommandId" \
             --output text)
 
-          echo "SSM Command ID: $COMMAND_ID"
-
           # wait for the command to finish and check status
           for i in $(seq 1 30); do
             STATUS=$(aws ssm get-command-invocation \
