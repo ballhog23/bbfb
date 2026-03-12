@@ -5,7 +5,10 @@ A web application for the Bleed Blue fantasy football league that tracks histori
 ## Features
 
 - **Matchups** — Browse weekly matchups by season with scores, starters, and player-level scoring breakdowns. Toggle between regular season and playoff views.
-- **Champions Hall** — Historical league records and achievements.
+- **Champions Hall** — Historical league records and championship achievements.
+- **Sacko Hall** — Historical last-place finisher records.
+- **Rivalry Tracking** — Head-to-head records between any two teams across all seasons.
+- **League Stats** — Season-scoped statistics and league-wide analytics.
 - **Automated Data Sync** — AWS Step Functions orchestrate Lambda functions to sync league, user, roster, and matchup data from Sleeper on a schedule during the NFL season.
 - **Historical Data** — Full league history is stored in a PostgreSQL database, independent of Sleeper API availability.
 
@@ -130,6 +133,7 @@ Thanks to the [Sleeper API](https://docs.sleeper.app/) for providing free access
 | `npm run build:server` | Compile server TypeScript |
 | `npm run build:client` | Bundle client TypeScript with esbuild |
 | `npm run build:scss` | Compile Sass to CSS |
+| `npm run build:images` | Optimize static images with Sharp |
 | `npm start` | Start the production server |
 | `npm run generate` | Generate Drizzle migration files |
 | `npm run migrate` | Run database migrations |
