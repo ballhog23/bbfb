@@ -11,6 +11,8 @@ A web application for the Bleed Blue fantasy football league that tracks histori
 - **League Stats** — Season-scoped statistics and league-wide analytics.
 - **Automated Data Sync** — AWS Step Functions orchestrate Lambda functions to sync league, user, roster, and matchup data from Sleeper on a schedule during the NFL season.
 - **Historical Data** — Full league history is stored in a PostgreSQL database, independent of Sleeper API availability.
+- **Bootstrap Season** — Seed a full season's worth of data (league, users, rosters, matchups) from the Sleeper API in a single operation, enabling quick setup for new seasons or recovering from data loss.
+- **Bootstrap History** — Backfill all historical seasons in one pass, populating the database with complete league history from the very first season through the most recent.
 
 ## Tech Stack
 
