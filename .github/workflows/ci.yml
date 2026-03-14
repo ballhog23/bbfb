@@ -58,3 +58,4 @@ jobs:
           LEAGUE_SEASON: ${{ secrets.LEAGUE_SEASON }}
           PREV_LEAGUE_ID: ${{ secrets.PREV_LEAGUE_ID }}
           PREV_LEAGUE_SEASON: ${{ secrets.PREV_LEAGUE_SEASON }}
+          DB_URL: ${{ secrets.DB_URL }}
