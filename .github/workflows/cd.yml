@@ -54,7 +54,7 @@ jobs:
               "set -e",
               "cd /opt/${{ secrets.APP_NAME }}",
               "sudo -u ${{ secrets.APP_NAME }} git pull origin master",
-              "sudo -u ${{ secrets.APP_NAME }} npm i",
+              "sudo -u ${{ secrets.APP_NAME }} npm ci",
               "sudo -u ${{ secrets.APP_NAME }} npm run build",
               "sudo -u ${{ secrets.APP_NAME }} npm run migrate",
               "sudo -u ${{ secrets.APP_NAME }} npm prune --omit=dev",
