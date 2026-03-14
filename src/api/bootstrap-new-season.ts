@@ -7,25 +7,25 @@ import { syncRegularSeasonMatchups } from "../services/api/matchups-service.js";
 import { syncLeagueState } from "../services/api/league-state-service.js";
 
 export async function handlerNewSeasonBootstrap(_: Request, res: Response) {
-    console.log('SYNCING LEAGUE STATE...');
+    console.log("SYNCING LEAGUE STATE...");
     await syncLeagueState();
-    console.log('LEAGUE STATE SYNCED!');
+    console.log("LEAGUE STATE SYNCED!");
 
-    console.log('SYNCING LEAGUE...');
+    console.log("SYNCING LEAGUE...");
     await syncLeague();
-    console.log('LEAGUE SYNCED!');
+    console.log("LEAGUE SYNCED!");
 
-    console.log('SYNCING USERS...');
+    console.log("SYNCING USERS...");
     await syncUsers();
-    console.log('USERS SYNCED!');
+    console.log("USERS SYNCED!");
 
-    console.log('SYNCING ROSTERS...');
+    console.log("SYNCING ROSTERS...");
     await syncLeagueRosters();
-    console.log('ROSTERS SYNCED!');
+    console.log("ROSTERS SYNCED!");
 
-    console.log('SYNCING REGULAR SEASON MATCHUPS...');
+    console.log("SYNCING REGULAR SEASON MATCHUPS...");
     await syncRegularSeasonMatchups();
-    console.log('REGULAR SEASON MATCHUPS SYNCED!');
+    console.log("REGULAR SEASON MATCHUPS SYNCED!");
 
     respondWithJSON(res, 200, { message: "NEW SEASON BOOTSTRAP COMPLETE!" });
 }

@@ -4,4 +4,4 @@ import { handlerServeSitemap } from "../../web/sitemap.js";
 
 export const webSitemapRoute = express.Router();
 
-webSitemapRoute.get('/', asyncHandler(handlerServeSitemap));
+webSitemapRoute.get("/", asyncHandler(handlerServeSitemap));

@@ -7,7 +7,10 @@ export type RilvaryPageParams = {
     userId2: string;
 };
 
-export async function handlerApiRivalryPage(req: Request<RilvaryPageParams>, res: Response) {
+export async function handlerApiRivalryPage(
+    req: Request<RilvaryPageParams>,
+    res: Response
+) {
     const data = await assembleRivalryPageData(
         req.params.userId1,
         req.params.userId2

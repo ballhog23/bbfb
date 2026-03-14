@@ -1,8 +1,13 @@
 const htmlElement = document.documentElement;
-const hamburgerButton = htmlElement.querySelector<HTMLButtonElement>(".hamburger")!;
-const navOverlayElement = htmlElement.querySelector<HTMLElement>(".nav-overlay")!;
-const dropdownNavButton = htmlElement.querySelector<HTMLButtonElement>('.league-menu-toggle')!;
-const dropdownNav = htmlElement.querySelector<HTMLUListElement>('#league-info-menu')!;
+const hamburgerButton =
+    htmlElement.querySelector<HTMLButtonElement>(".hamburger")!;
+const navOverlayElement =
+    htmlElement.querySelector<HTMLElement>(".nav-overlay")!;
+const dropdownNavButton = htmlElement.querySelector<HTMLButtonElement>(
+    ".league-menu-toggle"
+)!;
+const dropdownNav =
+    htmlElement.querySelector<HTMLUListElement>("#league-info-menu")!;
 const MD_BREAKPOINT = 768;
 
 type NavToggle = {
@@ -19,21 +24,25 @@ const toggles: NavToggle[] = [];
 function registerToggle(toggle: NavToggle): void {
     toggles.push(toggle);
     toggle.trigger.addEventListener("click", () => {
-        toggle.isOpen() ? toggle.close() : toggle.open();
+        if (toggle.isOpen()) {
+            toggle.close();
+        } else {
+            toggle.open();
+        }
     });
 }
 
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-        toggles.forEach(
-            t => t.isOpen() ? t.close() : null
-        );
+        toggles.forEach((t) => (t.isOpen() ? t.close() : null));
     }
 });
 
 window.addEventListener("resize", () => {
-    toggles.forEach(t => {
-        t.shouldCloseOnResize() && t.isOpen() ? t.close() : null;
+    toggles.forEach((t) => {
+        if (t.shouldCloseOnResize() && t.isOpen()) {
+            t.close();
+        }
     });
 });
 

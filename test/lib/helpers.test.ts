@@ -160,6 +160,46 @@ describe("undefinedToNullDeep", () => {
         expect(output).toEqual({ b: "x" });
         expect(output).not.toHaveProperty("a");
     });
+
+    // PROTOTYPE POLLUTION SAFETY
+    test("drops __proto__ key and does not pollute Object.prototype", () => {
+        const input = JSON.parse('{"__proto__": {"polluted": true}, "safe": 1}');
+        undefinedToNullDeep(input);
+
+        expect((Object.prototype as Record<string, unknown>)["polluted"]).toBeUndefined();
+    });
+
+    test("drops constructor key", () => {
+        const input = { constructor: { name: "injected" }, safe: "value" };
+        const output = undefinedToNullDeep(input);
+
+        expect(output).not.toHaveProperty("constructor");
+        expect(output).toHaveProperty("safe", "value");
+    });
+
+    test("drops prototype key", () => {
+        const input = { prototype: { evil: true }, safe: "value" };
+        const output = undefinedToNullDeep(input);
+
+        expect(output).not.toHaveProperty("prototype");
+        expect(output).toHaveProperty("safe", "value");
+    });
+
+    test("drops unsafe keys in nested objects", () => {
+        const input = JSON.parse('{"nested": {"__proto__": {"deep": true}, "ok": 1}}');
+        undefinedToNullDeep(input);
+
+        expect((Object.prototype as Record<string, unknown>)["deep"]).toBeUndefined();
+    });
+
+    test("safe keys alongside unsafe keys are preserved", () => {
+        const input = JSON.parse('{"__proto__": {"x": 1}, "a": 2, "b": null}');
+        const output = undefinedToNullDeep(input);
+
+        expect(output).toHaveProperty("a", 2);
+        expect(output).toHaveProperty("b", null);
+        expect(output).not.toHaveProperty("__proto__");
+    });
 });
 
 describe("buildUserAvatarURLs", () => {

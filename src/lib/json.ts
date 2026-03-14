@@ -1,19 +1,19 @@
-import type { Response } from 'express';
+import type { Response } from "express";
 
 export async function respondWithJSON(
-	res: Response,
-	statusCode: number,
-	payload: any
+    res: Response,
+    statusCode: number,
+    payload: unknown
 ) {
-	res.set('Content-Type', 'application/json');
-	const body = JSON.stringify(payload);
-	res.status(statusCode).send(body);
+    res.set("Content-Type", "application/json");
+    const body = JSON.stringify(payload);
+    res.status(statusCode).send(body);
 }
 
 export async function respondWithError(
-	res: Response,
-	statusCode: number,
-	message: string
+    res: Response,
+    statusCode: number,
+    message: string
 ) {
-	respondWithJSON(res, statusCode, { error: message });
+    respondWithJSON(res, statusCode, { error: message });
 }

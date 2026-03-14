@@ -19,22 +19,27 @@ export async function handlerGetPlayers(_: Request, res: Response) {
         return teamA.localeCompare(teamB);
     });
 
-
     respondWithJSON(res, 200, {
         filteredTeam,
-        status: 'success'
+        status: "success",
     });
 }
 
 // working
-export async function handlerGetPlayer(req: Request<PlayerParams>, res: Response) {
+export async function handlerGetPlayer(
+    req: Request<PlayerParams>,
+    res: Response
+) {
     const params = req.params;
     const player = await selectNFLPlayer(params.playerId);
 
-    if (!player) throw new NotFoundError(`Player with ID: ${params.playerId} not found.`);
+    if (!player)
+        throw new NotFoundError(
+            `Player with ID: ${params.playerId} not found.`
+        );
 
     respondWithJSON(res, 200, {
         player,
-        status: 'success'
+        status: "success",
     });
 }

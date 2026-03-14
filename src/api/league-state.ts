@@ -7,15 +7,13 @@ export type LeagueParams = {
     leagueId: string;
 };
 
-
 export async function handlerGetLeagueState(_: Request, res: Response) {
     const leagueState = await selectLeagueState();
-    if (!leagueState)
-        throw new NotFoundError('League state not found');
+    if (!leagueState) throw new NotFoundError("League state not found");
 
     const data = {
         leagueState,
-        status: 'ok',
+        status: "ok",
     };
 
     respondWithJSON(res, 200, data);

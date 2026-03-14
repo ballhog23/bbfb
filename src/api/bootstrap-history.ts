@@ -12,43 +12,43 @@ import { syncNFLPlayers } from "../services/api/players-service.js";
 import { syncLeagueState } from "../services/api/league-state-service.js";
 
 export async function handlerHistoryBootstrap(_: Request, res: Response) {
-    console.log('POPULATING LEAGUE STATE TABLE...');
+    console.log("POPULATING LEAGUE STATE TABLE...");
     await syncLeagueState();
-    console.log('LEAGUE STATE TABLE POPULATED!');
+    console.log("LEAGUE STATE TABLE POPULATED!");
 
-    console.log('POPULATING LEAGUES TABLE...');
+    console.log("POPULATING LEAGUES TABLE...");
     await buildAndInsertLeagueHistory();
-    console.log('LEAGUES TABLE POPULATED!');
+    console.log("LEAGUES TABLE POPULATED!");
 
-    console.log('BUILDING SLEEPER USERS AND LEAGUE USERS HISTORY...');
+    console.log("BUILDING SLEEPER USERS AND LEAGUE USERS HISTORY...");
     const leagueUsers = await buildLeagueUsersHistory();
-    const leagueUsersIds = leagueUsers.map(u => u.userId);
+    const leagueUsersIds = leagueUsers.map((u) => u.userId);
 
     await buildAndInsertSleeperUsersHistory(leagueUsersIds);
-    console.log('SLEEPER USERS TABLE POPULATED!');
+    console.log("SLEEPER USERS TABLE POPULATED!");
 
     await buildAndInsertLeagueUserHistory(leagueUsers);
-    console.log('LEAGUE USERS TABLE POPULATED!');
+    console.log("LEAGUE USERS TABLE POPULATED!");
 
-    console.log('POPULATING LEAGUE ROSTERS TABLE...');
+    console.log("POPULATING LEAGUE ROSTERS TABLE...");
     await buildAndInsertLeagueRostersHistory();
-    console.log('LEAGUE ROSTERS TABLE POPULATED!');
+    console.log("LEAGUE ROSTERS TABLE POPULATED!");
 
-    console.log('POPULATING LEAGUE MATCHUPS TABLE...');
+    console.log("POPULATING LEAGUE MATCHUPS TABLE...");
     await buildAndInsertLeagueMatchupHistory();
-    console.log('LEAGUE MATCHUPS TABLE POPULATED!');
+    console.log("LEAGUE MATCHUPS TABLE POPULATED!");
 
-    console.log('POPULATING LEAGUE PLAYOFFS TABLE...');
+    console.log("POPULATING LEAGUE PLAYOFFS TABLE...");
     await buildAndInsertLeagueMatchupOutcomes();
-    console.log('LEAGUE PLAYOFFS TABLE POPULATED!');
+    console.log("LEAGUE PLAYOFFS TABLE POPULATED!");
 
-    console.log('POPULATING LEAGUE MATCHUPS TABLE...');
+    console.log("POPULATING LEAGUE MATCHUPS TABLE...");
     await buildAndInsertPlayoffBracketHistory();
-    console.log('LEAGUE MATCHUPS TABLE POPULATED!');
+    console.log("LEAGUE MATCHUPS TABLE POPULATED!");
 
-    console.log('POPULATING NFL PLAYERS TABLE...');
+    console.log("POPULATING NFL PLAYERS TABLE...");
     await syncNFLPlayers();
-    console.log('NFL PLAYERS TABLE POPULATED!');
+    console.log("NFL PLAYERS TABLE POPULATED!");
 
     respondWithJSON(res, 200, { message: "BOOTSTRAP COMPLETE!" });
 }

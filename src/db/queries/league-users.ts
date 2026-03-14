@@ -1,5 +1,5 @@
-import { leagueUsersTable, type StrictInsertLeagueUser } from '../schema.js';
-import { db, } from '../index.js';
+import { leagueUsersTable, type StrictInsertLeagueUser } from "../schema.js";
+import { db } from "../index.js";
 import { sql, eq, and } from "drizzle-orm";
 
 // handles initial insertion/sync
@@ -12,8 +12,8 @@ export async function insertLeagueUser(user: StrictInsertLeagueUser) {
             set: {
                 avatarId: sql`EXCLUDED.avatar_id`,
                 teamName: sql`EXCLUDED.team_name`,
-                isOwner: sql`EXCLUDED.is_owner`
-            }
+                isOwner: sql`EXCLUDED.is_owner`,
+            },
         })
         .returning();
 

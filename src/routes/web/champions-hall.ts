@@ -4,4 +4,4 @@ import { handlerServeChampionsHall } from "../../web/champions-hall.js";
 
 export const webChampionsHallRoute = express.Router();
 
-webChampionsHallRoute.get('/', asyncHandler(handlerServeChampionsHall));
+webChampionsHallRoute.get("/", asyncHandler(handlerServeChampionsHall));

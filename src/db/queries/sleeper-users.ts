@@ -1,10 +1,11 @@
 import {
-    leagueUsersTable, matchupOutcomesTable,
-    sleeperUsersTable, rostersTable,
-    type StrictInsertSleeperUser
+    leagueUsersTable,
+    matchupOutcomesTable,
+    sleeperUsersTable,
+    type StrictInsertSleeperUser,
 } from "../schema.js";
-import { db } from '../index.js';
-import { sql, eq, and, desc, } from "drizzle-orm";
+import { db } from "../index.js";
+import { sql, eq, and, desc } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 // handles initial insertion/sync
@@ -18,7 +19,7 @@ export async function insertSleeperUser(user: StrictInsertSleeperUser) {
                 avatarId: sql`EXCLUDED.avatar_id`,
                 userName: sql`EXCLUDED.user_name`,
                 displayName: sql`EXCLUDED.display_name`,
-            }
+            },
         })
         .returning();
 
@@ -59,21 +60,19 @@ export async function selectAllSleeperUsersData() {
             `,
             userId: sleeperUsersTable.userId,
             displayName: sleeperUsersTable.displayName,
-            userAvatar: sleeperUsersTable.avatarId
+            userAvatar: sleeperUsersTable.avatarId,
         })
         .from(sleeperUsersTable);
-
 
     return result;
 }
 
-export type SleeperUserData = Awaited<ReturnType<typeof selectAllSleeperUsersData>>;
-
+export type SleeperUserData = Awaited<
+    ReturnType<typeof selectAllSleeperUsersData>
+>;
 
 export async function selectAllSleeperUsers() {
-    const result = await db
-        .select()
-        .from(sleeperUsersTable);
+    const result = await db.select().from(sleeperUsersTable);
 
     return result;
 }
@@ -88,31 +87,30 @@ export async function selectSleeperUser(userId: string) {
 }
 
 // used in rivalry page stats
-export async function getHeadToHeadMatchupData(challenger: string, opponent: string) {
-    const challengerData = db.$with('challenger_data').as(
-        db
-            .select()
-            .from(matchupOutcomesTable)
-            .where(
-                eq(
-                    matchupOutcomesTable.rosterOwnerId, challenger
-                )
-            )
-    );
-    const opponentData = db.$with('opponent_data').as(
-        db
-            .select()
-            .from(matchupOutcomesTable)
-            .where(
-                eq(
-                    matchupOutcomesTable.rosterOwnerId, opponent
-                )
-            )
-    );
-    const leagueUsersChallenger = alias(leagueUsersTable, 'lu_challenger');
-    const leagueUsersOpponent = alias(leagueUsersTable, 'lu_opponent');
-    const sleeperUsersChallenger = alias(sleeperUsersTable, 'su_challenger');
-    const sleeperUsersOpponent = alias(sleeperUsersTable, 'su_opponent');
+export async function getHeadToHeadMatchupData(
+    challenger: string,
+    opponent: string
+) {
+    const challengerData = db
+        .$with("challenger_data")
+        .as(
+            db
+                .select()
+                .from(matchupOutcomesTable)
+                .where(eq(matchupOutcomesTable.rosterOwnerId, challenger))
+        );
+    const opponentData = db
+        .$with("opponent_data")
+        .as(
+            db
+                .select()
+                .from(matchupOutcomesTable)
+                .where(eq(matchupOutcomesTable.rosterOwnerId, opponent))
+        );
+    const leagueUsersChallenger = alias(leagueUsersTable, "lu_challenger");
+    const leagueUsersOpponent = alias(leagueUsersTable, "lu_opponent");
+    const sleeperUsersChallenger = alias(sleeperUsersTable, "su_challenger");
+    const sleeperUsersOpponent = alias(sleeperUsersTable, "su_opponent");
 
     const result = await db
         .with(challengerData, opponentData)
@@ -133,39 +131,42 @@ export async function getHeadToHeadMatchupData(challenger: string, opponent: str
             opponentPoints: opponentData.pointsFor,
         })
         .from(challengerData)
-        .innerJoin(opponentData,
+        .innerJoin(
+            opponentData,
             and(
                 eq(challengerData.leagueId, opponentData.leagueId),
                 eq(challengerData.matchupId, opponentData.matchupId),
                 eq(challengerData.season, opponentData.season),
-                eq(challengerData.week, opponentData.week),
+                eq(challengerData.week, opponentData.week)
             )
-
         )
-        .innerJoin(leagueUsersChallenger,
+        .innerJoin(
+            leagueUsersChallenger,
             and(
                 eq(challengerData.leagueId, leagueUsersChallenger.leagueId),
                 eq(challengerData.rosterOwnerId, leagueUsersChallenger.userId)
             )
         )
-        .innerJoin(leagueUsersOpponent,
+        .innerJoin(
+            leagueUsersOpponent,
             and(
                 eq(opponentData.leagueId, leagueUsersOpponent.leagueId),
                 eq(opponentData.rosterOwnerId, leagueUsersOpponent.userId)
             )
         )
-        .innerJoin(sleeperUsersChallenger,
+        .innerJoin(
+            sleeperUsersChallenger,
             eq(challengerData.rosterOwnerId, sleeperUsersChallenger.userId)
         )
-        .innerJoin(sleeperUsersOpponent,
+        .innerJoin(
+            sleeperUsersOpponent,
             eq(opponentData.rosterOwnerId, sleeperUsersOpponent.userId)
         )
-        .orderBy(
-            desc(challengerData.season),
-            desc(challengerData.week),
-        );
+        .orderBy(desc(challengerData.season), desc(challengerData.week));
 
     return result;
 }
 
-export type HeadToHeadData = Awaited<ReturnType<typeof getHeadToHeadMatchupData>>;
+export type HeadToHeadData = Awaited<
+    ReturnType<typeof getHeadToHeadMatchupData>
+>;

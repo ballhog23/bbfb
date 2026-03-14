@@ -4,7 +4,10 @@ import { syncLeague } from "../services/api/league-service.js";
 import { syncUsers } from "../services/api/sync-users-service.js";
 import { syncNFLPlayers } from "../services/api/players-service.js";
 import { syncLeagueRosters } from "../services/api/roster-service.js";
-import { syncRegularSeasonMatchups, syncPostSeasonMatchups } from "../services/api/matchups-service.js";
+import {
+    syncRegularSeasonMatchups,
+    syncPostSeasonMatchups,
+} from "../services/api/matchups-service.js";
 import { syncLeagueState } from "../services/api/league-state-service.js";
 
 // working
@@ -12,7 +15,7 @@ export async function handlerSyncLeague(_: Request, res: Response) {
     const currentLeagueData = await syncLeague();
 
     const data = {
-        currentLeagueData
+        currentLeagueData,
     };
 
     respondWithJSON(res, 200, data);
@@ -23,7 +26,7 @@ export async function handlerSyncUsers(_: Request, res: Response) {
     const result = await syncUsers();
 
     const data = {
-        result
+        result,
     };
 
     respondWithJSON(res, 200, data);
@@ -34,7 +37,7 @@ export async function handlerSyncNFLPlayers(_: Request, res: Response) {
     const currentNFLPlayers = await syncNFLPlayers();
 
     const data = {
-        currentNFLPlayers
+        currentNFLPlayers,
     };
 
     respondWithJSON(res, 200, data);
@@ -45,18 +48,21 @@ export async function handlerSyncRosters(_: Request, res: Response) {
     const rosters = await syncLeagueRosters();
 
     const data = {
-        rosters
+        rosters,
     };
 
     respondWithJSON(res, 200, data);
 }
 
 // working
-export async function handlerSyncRegularSeasonMatchups(_: Request, res: Response) {
+export async function handlerSyncRegularSeasonMatchups(
+    _: Request,
+    res: Response
+) {
     const matchups = await syncRegularSeasonMatchups();
 
     const data = {
-        matchups
+        matchups,
     };
 
     respondWithJSON(res, 200, data);
@@ -67,7 +73,7 @@ export async function handlerSyncPostSeasonMatchups(_: Request, res: Response) {
     const matchups = await syncPostSeasonMatchups();
 
     const data = {
-        matchups
+        matchups,
     };
 
     respondWithJSON(res, 200, data);
@@ -78,7 +84,7 @@ export async function handlerSyncLeagueState(_: Request, res: Response) {
     const leagueState = await syncLeagueState();
 
     const data = {
-        leagueState
+        leagueState,
     };
 
     respondWithJSON(res, 200, data);

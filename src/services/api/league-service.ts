@@ -1,8 +1,10 @@
 import type { SelectLeague, StrictInsertLeague } from "../../db/schema.js";
 import { Sleeper } from "../../lib/sleeper.js";
 import {
-    rawLeagueSchema, strictLeagueSchema,
-    type RawLeague, NullableRawLeague
+    rawLeagueSchema,
+    strictLeagueSchema,
+    type RawLeague,
+    NullableRawLeague,
 } from "../../lib/zod.js";
 import { insertLeague } from "../../db/queries/leagues.js";
 import { undefinedToNullDeep, normalizeString } from "../../lib/helpers.js";
@@ -52,11 +54,14 @@ export async function getAllLeagues(): Promise<RawLeague[]> {
     const rawCurrentLeague = rawLeagueSchema.parse(await sleeper.getLeague());
     const rawAllLeagues: RawLeague[] = [rawCurrentLeague];
     const seenLeagueIds = new Set<string>([rawCurrentLeague.league_id]);
-    let previousLeagueId: string | null = rawCurrentLeague.previous_league_id ?? null;
+    let previousLeagueId: string | null =
+        rawCurrentLeague.previous_league_id ?? null;
 
     while (previousLeagueId !== null) {
         if (seenLeagueIds.has(previousLeagueId)) {
-            throw new Error(`Cycle detected, League Id: ${previousLeagueId} present in membership check.`);
+            throw new Error(
+                `Cycle detected, League Id: ${previousLeagueId} present in membership check.`
+            );
         }
         seenLeagueIds.add(previousLeagueId);
 
@@ -72,7 +77,9 @@ export async function getAllLeagues(): Promise<RawLeague[]> {
 }
 
 export function normalizeLeague(rawLeague: NullableRawLeague) {
-    const previousLeagueId = rawLeague.previous_league_id ? normalizeString(rawLeague.previous_league_id) : null;
+    const previousLeagueId = rawLeague.previous_league_id
+        ? normalizeString(rawLeague.previous_league_id)
+        : null;
 
     return {
         leagueId: normalizeString(rawLeague.league_id),
@@ -87,15 +94,11 @@ export function normalizeLeague(rawLeague: NullableRawLeague) {
     } satisfies StrictInsertLeague;
 }
 
-export function rawToNormalizedLeagueData(rawLeagues: RawLeague[]): StrictInsertLeague[] {
+export function rawToNormalizedLeagueData(
+    rawLeagues: RawLeague[]
+): StrictInsertLeague[] {
     return rawLeagues
-        .map(
-            rawLeague => undefinedToNullDeep(rawLeague) as NullableRawLeague
-        )
-        .map(
-            nullableLeague => normalizeLeague(nullableLeague)
-        )
-        .map(
-            normalizedLeague => strictLeagueSchema.parse(normalizedLeague)
-        );
+        .map((rawLeague) => undefinedToNullDeep(rawLeague) as NullableRawLeague)
+        .map((nullableLeague) => normalizeLeague(nullableLeague))
+        .map((normalizedLeague) => strictLeagueSchema.parse(normalizedLeague));
 }

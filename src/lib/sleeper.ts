@@ -1,15 +1,22 @@
 import {
-    rawLeagueSchema, rawLeagueUserSchema,
-    rawNFLPlayerSchema, rawRosterSchema,
-    rawNFLStateSchema, rawBracketMatchupSchema,
-    type RawLeague, RawLeagueUser,
-    RawNFLPlayer, RawRoster,
-    RawSleeperUser, rawSleeperUserSchema,
-    RawMatchup, rawMatchupSchema,
-    RawNFLState, RawBracketMatchup
+    rawLeagueSchema,
+    rawLeagueUserSchema,
+    rawNFLPlayerSchema,
+    rawRosterSchema,
+    rawNFLStateSchema,
+    rawBracketMatchupSchema,
+    type RawLeague,
+    RawLeagueUser,
+    RawNFLPlayer,
+    RawRoster,
+    RawSleeperUser,
+    rawSleeperUserSchema,
+    RawMatchup,
+    rawMatchupSchema,
+    RawNFLState,
+    RawBracketMatchup,
 } from "./zod.js";
-import { config } from '../config.js';
-
+import { config } from "../config.js";
 
 export class Sleeper {
     readonly leagueId = config.league.id;
@@ -29,13 +36,15 @@ export class Sleeper {
         return rawLeagueSchema.parse(leagueData);
     }
 
-    async getLeagueUsers(leagueId: string = this.leagueId): Promise<RawLeagueUser[]> {
+    async getLeagueUsers(
+        leagueId: string = this.leagueId
+    ): Promise<RawLeagueUser[]> {
         const url = `${this.baseURL}league/${leagueId}/users`;
         const leagueUsers = await this.fetchJSON(url);
 
         this.assertArray(leagueUsers);
 
-        return leagueUsers.map(user => rawLeagueUserSchema.parse(user));
+        return leagueUsers.map((user) => rawLeagueUserSchema.parse(user));
     }
 
     async getAllNFLPlayers(): Promise<RawNFLPlayer[]> {
@@ -45,7 +54,9 @@ export class Sleeper {
         this.assertObject(allPlayers);
 
         const allPlayersArray = Object.values(allPlayers);
-        return allPlayersArray.map(player => rawNFLPlayerSchema.parse(player));
+        return allPlayersArray.map((player) =>
+            rawNFLPlayerSchema.parse(player)
+        );
     }
 
     async getSleeperUser(userId: string): Promise<RawSleeperUser> {
@@ -59,27 +70,35 @@ export class Sleeper {
         const url = `${this.baseURL}league/${leagueId}/rosters`;
         const rosters = await this.fetchJSON(url);
         this.assertArray(rosters);
-        return rosters.map(roster => rawRosterSchema.parse(roster));
+        return rosters.map((roster) => rawRosterSchema.parse(roster));
     }
 
-    async getWeeklyLeagueMatchups(week: number, leagueId?: string): Promise<RawMatchup[]> {
+    async getWeeklyLeagueMatchups(
+        week: number,
+        leagueId?: string
+    ): Promise<RawMatchup[]> {
         if (!leagueId) leagueId = this.leagueId;
         const url = `${this.baseURL}league/${leagueId}/matchups/${week}`;
         const leagueMatchups = await this.fetchJSON(url);
 
         this.assertArray(leagueMatchups);
 
-        return leagueMatchups.map(matchup => rawMatchupSchema.parse(matchup));
+        return leagueMatchups.map((matchup) => rawMatchupSchema.parse(matchup));
     }
 
-    async getLeaguePlayoffBracket(bracket: "winners_bracket" | "losers_bracket", leagueId?: string): Promise<RawBracketMatchup[]> {
+    async getLeaguePlayoffBracket(
+        bracket: "winners_bracket" | "losers_bracket",
+        leagueId?: string
+    ): Promise<RawBracketMatchup[]> {
         if (!leagueId) leagueId = this.leagueId;
         const url = `${this.baseURL}league/${leagueId}/${bracket}`;
         const playoffBracket = await this.fetchJSON(url);
 
         this.assertArray(playoffBracket);
 
-        return playoffBracket.map(bracket => rawBracketMatchupSchema.parse(bracket));
+        return playoffBracket.map((bracket) =>
+            rawBracketMatchupSchema.parse(bracket)
+        );
     }
 
     async getNFLState(): Promise<RawNFLState> {
@@ -89,17 +108,29 @@ export class Sleeper {
         this.assertObject(NFLState);
 
         return rawNFLStateSchema.parse(NFLState);
-    };
+    }
 
-    private assertObject<T = Record<string, unknown>>(value: unknown): asserts value is T {
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new Error(`Expected Object, received ${typeof value}: ${value}`);
+    private assertObject<T = Record<string, unknown>>(
+        value: unknown
+    ): asserts value is T {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
+            throw new Error(
+                `Expected Object, received ${typeof value}: ${value}`
+            );
         }
     }
 
-    private assertArray<T = unknown>(value: unknown): asserts value is Array<T> {
+    private assertArray<T = unknown>(
+        value: unknown
+    ): asserts value is Array<T> {
         if (!Array.isArray(value)) {
-            throw new Error(`Expected Array, received ${typeof value}: ${value}`);
+            throw new Error(
+                `Expected Array, received ${typeof value}: ${value}`
+            );
         }
     }
 
@@ -110,8 +141,8 @@ export class Sleeper {
             throw new Error(`HTTP ${response.status} at ${url}`);
         }
 
-        const contentType = response.headers.get('content-type') || '';
-        if (!contentType.includes('application/json')) {
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
             throw new Error(`Expected JSON, received ${contentType}`);
         }
 

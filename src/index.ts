@@ -1,11 +1,11 @@
-import express from 'express';
+import express from "express";
 import compression from "compression";
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { readFileSync } from "node:fs";
-import { errorHandler } from './middleware/error-handler.js';
-import { handlerServeErrorPage } from './web/error-page.js';
-import { resolveAvatarSrc } from './lib/helpers.js';
+import { errorHandler } from "./middleware/error-handler.js";
+import { handlerServeErrorPage } from "./web/error-page.js";
+import { resolveAvatarSrc } from "./lib/helpers.js";
 
 // json api
 import { apiMatchupsPageRoute } from "./routes/api/matchups-page-route.js";
@@ -36,20 +36,21 @@ import { webSackoHallRoute } from "./routes/web/sacko-hall.js";
 import { webRivalryRoute } from "./routes/web/rivalry.js";
 import { webLeagueStatsRoute } from "./routes/web/league-stats.js";
 
-
 const app = express();
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
 
 // load image manifest
-const manifestPath = join(__dirname, '../public/assets/image-manifest.json');
+const manifestPath = join(__dirname, "../public/assets/image-manifest.json");
 let imageManifest = {};
 
 try {
-    imageManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
-    console.log(`Loaded image manifest with ${Object.keys(imageManifest).length} entries.`);
+    imageManifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+    console.log(
+        `Loaded image manifest with ${Object.keys(imageManifest).length} entries.`
+    );
 } catch (err) {
-    console.warn('No image manifest found or failed to parse.', err);
+    console.warn("No image manifest found or failed to parse.", err);
 }
 // persists images on locals global vars for all templates rendered using res.render()
 app.locals.images = imageManifest;
@@ -57,10 +58,15 @@ app.locals.avatarSrc = resolveAvatarSrc;
 
 app.use(compression());
 app.use(express.json());
-app.use(express.static(join(__dirname, '../public'), {
-    maxAge: process.env.NODE_ENV === 'production' ? 1000 * 60 * 60 * 24 * 30 : 0
-}));
-app.disable('x-powered-by');
+app.use(
+    express.static(join(__dirname, "../public"), {
+        maxAge:
+            process.env.NODE_ENV === "production"
+                ? 1000 * 60 * 60 * 24 * 30
+                : 0,
+    })
+);
+app.disable("x-powered-by");
 
 app.set("view engine", "pug");
 app.set("views", join(__dirname, "../views"));

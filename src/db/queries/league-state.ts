@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "../index.js";
-import { leagueStateTable, type StrictInsertLeagueState } from '../schema.js';
+import { leagueStateTable, type StrictInsertLeagueState } from "../schema.js";
 
 export async function insertLeagueState(leagueState: StrictInsertLeagueState) {
     const [result] = await db
@@ -15,8 +15,8 @@ export async function insertLeagueState(leagueState: StrictInsertLeagueState) {
                 seasonType: sql`EXCLUDED.season_type`,
                 previousSeason: sql`EXCLUDED.previous_season`,
                 displayWeek: sql`EXCLUDED.display_week`,
-                isLeagueActive: sql`EXCLUDED.is_league_active`
-            }
+                isLeagueActive: sql`EXCLUDED.is_league_active`,
+            },
         })
         .returning();
 
@@ -24,9 +24,7 @@ export async function insertLeagueState(leagueState: StrictInsertLeagueState) {
 }
 
 export async function selectLeagueState() {
-    const [result] = await db
-        .select()
-        .from(leagueStateTable);
+    const [result] = await db.select().from(leagueStateTable);
 
     return result;
 }

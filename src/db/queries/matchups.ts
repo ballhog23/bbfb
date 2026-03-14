@@ -1,8 +1,10 @@
 import { sql, and, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../index.js";
 import {
-    leagueUsersTable, matchupsTable,
-    rostersTable, NFLPlayersTable,
+    leagueUsersTable,
+    matchupsTable,
+    rostersTable,
+    NFLPlayersTable,
     type StrictInsertMatchup,
     sleeperUsersTable,
 } from "../schema.js";
@@ -15,7 +17,7 @@ export async function insertMatchup(matchup: StrictInsertMatchup) {
             target: [
                 matchupsTable.leagueId,
                 matchupsTable.rosterId,
-                matchupsTable.week
+                matchupsTable.week,
             ],
             set: {
                 season: sql`EXCLUDED.season`,
@@ -25,7 +27,7 @@ export async function insertMatchup(matchup: StrictInsertMatchup) {
                 starters: sql`EXCLUDED.starters`,
                 startersPoints: sql`EXCLUDED.starters_points`,
                 playersPoints: sql`EXCLUDED.players_points`,
-            }
+            },
         })
         .returning();
 
@@ -43,8 +45,7 @@ export async function selectLeagueMatchups(leagueId: string) {
             owner: sleeperUsersTable.displayName,
             ownerImage: sleeperUsersTable.avatarId,
             pointsTotal: matchupsTable.points,
-            players: sql
-                `
+            players: sql`
                     jsonb_agg(
                         CASE 
                             WHEN player_scoring.player_id = ANY(${matchupsTable.starters}) 
@@ -63,26 +64,35 @@ export async function selectLeagueMatchups(leagueId: string) {
                         END
                     )   
                 `,
-
         })
         .from(matchupsTable)
-        .innerJoin(rostersTable, and(
-            eq(rostersTable.leagueId, leagueId),
-            eq(rostersTable.rosterId, matchupsTable.rosterId)
-        ))
-        .innerJoin(leagueUsersTable, and(
-            eq(leagueUsersTable.leagueId, leagueId),
-            eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
-        ))
+        .innerJoin(
+            rostersTable,
+            and(
+                eq(rostersTable.leagueId, leagueId),
+                eq(rostersTable.rosterId, matchupsTable.rosterId)
+            )
+        )
+        .innerJoin(
+            leagueUsersTable,
+            and(
+                eq(leagueUsersTable.leagueId, leagueId),
+                eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
+            )
+        )
         .leftJoinLateral(
             sql`jsonb_each_text(${matchupsTable.playersPoints}) as player_scoring(player_id, points)`,
             sql`TRUE`
         )
-        .innerJoin(NFLPlayersTable, eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`))
-        .innerJoin(sleeperUsersTable, eq(leagueUsersTable.userId, sleeperUsersTable.userId))
-        .where(
-            eq(matchupsTable.leagueId, leagueId)
+        .innerJoin(
+            NFLPlayersTable,
+            eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`)
         )
+        .innerJoin(
+            sleeperUsersTable,
+            eq(leagueUsersTable.userId, sleeperUsersTable.userId)
+        )
+        .where(eq(matchupsTable.leagueId, leagueId))
         .groupBy(
             matchupsTable.season,
             matchupsTable.week,
@@ -91,14 +101,17 @@ export async function selectLeagueMatchups(leagueId: string) {
             sleeperUsersTable.avatarId,
             leagueUsersTable.teamName,
             sleeperUsersTable.displayName,
-            matchupsTable.points,
+            matchupsTable.points
         )
         .orderBy(matchupsTable.week, matchupsTable.matchupId);
 
     return result;
 }
 
-export async function selectLeagueMatchupsByWeek(leagueId: string, week: number) {
+export async function selectLeagueMatchupsByWeek(
+    leagueId: string,
+    week: number
+) {
     const result = await db
         .select({
             season: matchupsTable.season,
@@ -107,8 +120,7 @@ export async function selectLeagueMatchupsByWeek(leagueId: string, week: number)
             team: leagueUsersTable.teamName,
             owner: sleeperUsersTable.displayName,
             points: matchupsTable.points,
-            rosterPlayers: sql
-                `
+            rosterPlayers: sql`
                     jsonb_agg(
                         CASE 
                             WHEN player_scoring.player_id = ANY(${matchupsTable.starters}) 
@@ -127,27 +139,34 @@ export async function selectLeagueMatchupsByWeek(leagueId: string, week: number)
                         END
                     )   
                 `,
-
         })
         .from(matchupsTable)
-        .innerJoin(rostersTable,
+        .innerJoin(
+            rostersTable,
             and(
                 eq(rostersTable.leagueId, leagueId),
                 eq(matchupsTable.rosterId, rostersTable.rosterId)
             )
         )
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(leagueUsersTable.leagueId, leagueId),
-                eq(leagueUsersTable.userId, rostersTable.rosterOwnerId,)
+                eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)
             )
         )
         .leftJoinLateral(
             sql`jsonb_each_text(${matchupsTable.playersPoints}) as player_scoring(player_id, points)`,
             sql`TRUE`
         )
-        .innerJoin(NFLPlayersTable, eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`))
-        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId))
+        .innerJoin(
+            NFLPlayersTable,
+            eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`)
+        )
+        .innerJoin(
+            sleeperUsersTable,
+            eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId)
+        )
         .where(
             and(
                 eq(matchupsTable.leagueId, leagueId),
@@ -160,7 +179,7 @@ export async function selectLeagueMatchupsByWeek(leagueId: string, week: number)
             matchupsTable.matchupId,
             leagueUsersTable.teamName,
             sleeperUsersTable.displayName,
-            matchupsTable.points,
+            matchupsTable.points
         )
         .orderBy(matchupsTable.matchupId);
 
@@ -271,7 +290,11 @@ export async function selectLeagueMatchupsByWeekWithoutByes(
     return result;
 }
 
-export async function selectSpecificLeagueMatchup(leagueId: string, week: number, matchupId: number,) {
+export async function selectSpecificLeagueMatchup(
+    leagueId: string,
+    week: number,
+    matchupId: number
+) {
     const result = await db
         .select({
             season: matchupsTable.season,
@@ -280,8 +303,7 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
             team: leagueUsersTable.teamName,
             owner: sleeperUsersTable.displayName,
             pointsTotal: matchupsTable.points,
-            rosterPlayers: sql
-                `
+            rosterPlayers: sql`
                     jsonb_agg(
                         CASE 
                             WHEN player_scoring.player_id = ANY(${matchupsTable.starters}) 
@@ -300,23 +322,34 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
                         END
                     )   
                 `,
-
         })
         .from(matchupsTable)
-        .innerJoin(rostersTable, and(
-            eq(rostersTable.leagueId, leagueId),
-            eq(rostersTable.rosterId, matchupsTable.rosterId)
-        ))
-        .innerJoin(leagueUsersTable, and(
-            eq(leagueUsersTable.leagueId, leagueId),
-            eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
-        ))
+        .innerJoin(
+            rostersTable,
+            and(
+                eq(rostersTable.leagueId, leagueId),
+                eq(rostersTable.rosterId, matchupsTable.rosterId)
+            )
+        )
+        .innerJoin(
+            leagueUsersTable,
+            and(
+                eq(leagueUsersTable.leagueId, leagueId),
+                eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
+            )
+        )
         .leftJoinLateral(
             sql`jsonb_each_text(${matchupsTable.playersPoints}) as player_scoring(player_id, points)`,
             sql`TRUE`
         )
-        .innerJoin(NFLPlayersTable, eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`))
-        .innerJoin(sleeperUsersTable, eq(rostersTable.rosterOwnerId, sleeperUsersTable.userId))
+        .innerJoin(
+            NFLPlayersTable,
+            eq(NFLPlayersTable.playerId, sql`player_scoring.player_id`)
+        )
+        .innerJoin(
+            sleeperUsersTable,
+            eq(rostersTable.rosterOwnerId, sleeperUsersTable.userId)
+        )
         .where(
             and(
                 eq(matchupsTable.leagueId, leagueId),
@@ -330,7 +363,7 @@ export async function selectSpecificLeagueMatchup(leagueId: string, week: number
             matchupsTable.matchupId,
             leagueUsersTable.teamName,
             sleeperUsersTable.displayName,
-            matchupsTable.points,
+            matchupsTable.points
         );
 
     return result;
@@ -345,16 +378,17 @@ export async function selectPlayoffMatchups() {
             matchupId: matchupsTable.matchupId,
             season: matchupsTable.season,
             week: matchupsTable.week,
-            homeTeam: sql<number>`MIN(${matchupsTable.rosterId})`.as('homeTeam'),
-            awayTeam: sql<number | null>`MAX(${matchupsTable.rosterId})`.as('awayTeam'),
-            isBye: sql<boolean>`FALSE`
+            homeTeam: sql<number>`MIN(${matchupsTable.rosterId})`.as(
+                "homeTeam"
+            ),
+            awayTeam: sql<number | null>`MAX(${matchupsTable.rosterId})`.as(
+                "awayTeam"
+            ),
+            isBye: sql<boolean>`FALSE`,
         })
         .from(matchupsTable)
         .where(
-            and(
-                isNotNull(matchupsTable.matchupId),
-                gte(matchupsTable.week, 15)
-            )
+            and(isNotNull(matchupsTable.matchupId), gte(matchupsTable.week, 15))
         )
         .groupBy(
             matchupsTable.leagueId,
@@ -370,15 +404,12 @@ export async function selectPlayoffMatchups() {
             season: matchupsTable.season,
             week: matchupsTable.week,
             homeTeam: matchupsTable.rosterId,
-            awayTeam: sql<number | null>`NULL::integer`.as('awayTeam'),
-            isBye: sql<boolean>`TRUE`
+            awayTeam: sql<number | null>`NULL::integer`.as("awayTeam"),
+            isBye: sql<boolean>`TRUE`,
         })
         .from(matchupsTable)
         .where(
-            and(
-                isNull(matchupsTable.matchupId),
-                gte(matchupsTable.week, 15)
-            )
+            and(isNull(matchupsTable.matchupId), gte(matchupsTable.week, 15))
         );
 
     const unionQuery = real

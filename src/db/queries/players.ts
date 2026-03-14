@@ -18,7 +18,7 @@ export async function insertNFLPlayer(players: StrictInsertNFLPlayer) {
                 number: sql`EXCLUDED.number`,
                 age: sql`EXCLUDED.age`,
                 injuryStatus: sql`EXCLUDED.injury_status`,
-            }
+            },
         })
         .returning();
 
@@ -26,9 +26,7 @@ export async function insertNFLPlayer(players: StrictInsertNFLPlayer) {
 }
 
 export async function selectAllNFLPlayers() {
-    const result = await db
-        .select()
-        .from(NFLPlayersTable);
+    const result = await db.select().from(NFLPlayersTable);
 
     return result;
 }

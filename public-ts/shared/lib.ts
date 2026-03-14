@@ -5,8 +5,8 @@ export async function fetchJSON<T>(url: string): Promise<T> {
         throw new Error(`HTTP ${response.status} at ${url}`);
     }
 
-    const contentType = response.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
         throw new Error(`Expected JSON, received ${contentType}`);
     }
 

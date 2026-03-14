@@ -1,7 +1,8 @@
 import {
     strictSleeperUserSchema,
-    type RawSleeperUser, StrictSleeperUser
-} from '../../lib/zod.js';
+    type RawSleeperUser,
+    StrictSleeperUser,
+} from "../../lib/zod.js";
 import { Sleeper } from "../../lib/sleeper.js";
 import { normalizeString } from "../../lib/helpers.js";
 import { insertSleeperUser } from "../../db/queries/sleeper-users.js";
@@ -12,7 +13,9 @@ export async function syncSleeperUsers(sleeperUserIds: string[]) {
     return await insertSleeperUsers(normalizedUsers);
 }
 
-export async function buildAndInsertSleeperUsersHistory(sleeperUserIds: string[]) {
+export async function buildAndInsertSleeperUsersHistory(
+    sleeperUserIds: string[]
+) {
     const sleeperUsers = await buildSleeperUsers(sleeperUserIds);
     const result = await insertSleeperUsers(sleeperUsers);
     return result;
@@ -41,7 +44,7 @@ export async function getAllSleeperUsersHistory(sleeperUserIds: string[]) {
     const uniqueUserIds = [...new Set(sleeperUserIds)];
 
     return await Promise.all(
-        uniqueUserIds.map(userId => sleeper.getSleeperUser(userId))
+        uniqueUserIds.map((userId) => sleeper.getSleeperUser(userId))
     );
 }
 
@@ -50,12 +53,14 @@ export function normalizeSleeperUser(rawUser: RawSleeperUser) {
         userName: normalizeString(rawUser.username),
         userId: normalizeString(rawUser.user_id),
         displayName: normalizeString(rawUser.display_name),
-        avatarId: normalizeString(`https://sleepercdn.com/avatars/${rawUser.avatar}`),
+        avatarId: normalizeString(
+            `https://sleepercdn.com/avatars/${rawUser.avatar}`
+        ),
     } satisfies StrictSleeperUser;
 }
 
 export function rawToNormalizedSleeperUsers(rawUsers: RawSleeperUser[]) {
     return rawUsers
-        .map(user => normalizeSleeperUser(user))
-        .map(user => strictSleeperUserSchema.parse(user));
+        .map((user) => normalizeSleeperUser(user))
+        .map((user) => strictSleeperUserSchema.parse(user));
 }

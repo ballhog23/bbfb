@@ -4,4 +4,4 @@ import { handlerServeSackoHall } from "../../web/sacko-hall.js";
 
 export const webSackoHallRoute = express.Router();
 
-webSackoHallRoute.get('/', asyncHandler(handlerServeSackoHall));
+webSackoHallRoute.get("/", asyncHandler(handlerServeSackoHall));

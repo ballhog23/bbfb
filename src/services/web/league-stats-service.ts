@@ -22,16 +22,15 @@ export async function getAllTimeStats() {
         pointMargins,
         leaderboard,
         streaks,
-        thatsGottaHurt
-    ] =
-        await Promise.all([
-            selectTheBigNumbers(),
-            selectScoringRecords(),
-            selectPointMargins(),
-            selectLeaderboard(),
-            selectStreaks(),
-            selectThatsGottaHurt(),
-        ]);
+        thatsGottaHurt,
+    ] = await Promise.all([
+        selectTheBigNumbers(),
+        selectScoringRecords(),
+        selectPointMargins(),
+        selectLeaderboard(),
+        selectStreaks(),
+        selectThatsGottaHurt(),
+    ]);
 
     return {
         bigNumbers: theBigNumbers,
@@ -39,13 +38,12 @@ export async function getAllTimeStats() {
         pointMargins,
         leaderboard,
         streaks,
-        thatsGottaHurt
+        thatsGottaHurt,
     };
 }
 
 export async function getSeasonStats(leagueId: string) {
-    if (!leagueId)
-        throw new BadRequestError(`League ${leagueId} not found`);
+    if (!leagueId) throw new BadRequestError(`League ${leagueId} not found`);
 
     const [
         bigNumbers,
@@ -53,16 +51,15 @@ export async function getSeasonStats(leagueId: string) {
         pointMargins,
         leaderboard,
         streaks,
-        thatsGottaHurt
-    ] =
-        await Promise.all([
-            selectSeasonBigNumbers(leagueId),
-            selectSeasonScoringRecords(leagueId),
-            selectSeasonPointMargins(leagueId),
-            selectSeasonLeaderboard(leagueId),
-            selectSeasonStreaks(leagueId),
-            selectSeasonThatsGottaHurt(leagueId),
-        ]);
+        thatsGottaHurt,
+    ] = await Promise.all([
+        selectSeasonBigNumbers(leagueId),
+        selectSeasonScoringRecords(leagueId),
+        selectSeasonPointMargins(leagueId),
+        selectSeasonLeaderboard(leagueId),
+        selectSeasonStreaks(leagueId),
+        selectSeasonThatsGottaHurt(leagueId),
+    ]);
 
     return {
         bigNumbers,
@@ -70,16 +67,15 @@ export async function getSeasonStats(leagueId: string) {
         pointMargins,
         leaderboard,
         streaks,
-        thatsGottaHurt
+        thatsGottaHurt,
     };
 }
 
 export async function assembleLeagueStatsPageData(leagueId: string) {
     const allLeagues = await selectAllLeaguesIdsAndSeasons();
-    const league = allLeagues.find(l => l.leagueId === leagueId);
+    const league = allLeagues.find((l) => l.leagueId === leagueId);
 
-    if (!league)
-        throw new NotFoundError(`League ${leagueId} not found`);
+    if (!league) throw new NotFoundError(`League ${leagueId} not found`);
 
     const season = league.season;
 

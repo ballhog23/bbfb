@@ -39,6 +39,25 @@ git commit -m "Add new migration"
 git push
 ```
 
+## Environment Variable Changes
+
+If you add or rename variables in `.env` or `src/config.ts`, update the GitHub Actions secrets to match:
+
+**Settings → Secrets and variables → Actions**
+
+| Secret | Used by |
+|---|---|
+| `PLATFORM` | CI tests |
+| `PORT` | CI tests |
+| `LEAGUE_ID` | CI tests |
+| `LEAGUE_SEASON` | CI tests |
+| `PREV_LEAGUE_ID` | CI tests |
+| `PREV_LEAGUE_SEASON` | CI tests |
+| `AWS_DEPLOY_ROLE_ARN` | CD deploy |
+| `AWS_REGION` | CD deploy |
+| `EC2_INSTANCE_ID` | CD deploy |
+| `APP_NAME` | CD deploy |
+
 ## Verify
 
 ```bash

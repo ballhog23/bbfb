@@ -1,14 +1,19 @@
 import type { Request, Response, NextFunction, RequestHandler } from "express";
-import { selectAllLeagues, selectAllCompletedLeagues } from "../db/queries/leagues.js";
+import {
+    selectAllLeagues,
+    selectAllCompletedLeagues,
+} from "../db/queries/leagues.js";
 import { selectLeagueMatchupsByWeekWithoutByes } from "../db/queries/matchups.js";
 
-export type AsyncRequestHandler<P = Record<string, any>> = (
+export type AsyncRequestHandler<P = Record<string, unknown>> = (
     req: Request<P>,
     res: Response,
     next: NextFunction
 ) => Promise<void>;
 
-export const asyncHandler = <P = Record<string, any>>(fn: AsyncRequestHandler<P>): RequestHandler => {
+export const asyncHandler = <P = Record<string, unknown>>(
+    fn: AsyncRequestHandler<P>
+): RequestHandler => {
     return (req: Request, res: Response, next: NextFunction) => {
         Promise.resolve(fn(req as Request<P>, res, next)).catch(next);
     };
@@ -17,45 +22,62 @@ export const asyncHandler = <P = Record<string, any>>(fn: AsyncRequestHandler<P>
 export function undefinedToNullDeep<T>(v: T): T {
     if (v === undefined) return null as T;
 
-    if (v === null || typeof v !== 'object') return v;
+    if (v === null || typeof v !== "object") return v;
 
     if (Array.isArray(v)) {
         return v.map((x) => undefinedToNullDeep(x)) as T;
     }
 
-    const out: Record<string, unknown> = {};
+    const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+    const out: Record<string, unknown> = Object.create(null);
     for (const [key, val] of Object.entries(v as Record<string, unknown>)) {
-        out[key] = undefinedToNullDeep(val);
+        if (!UNSAFE_KEYS.has(key)) {
+            // eslint-disable-next-line security/detect-object-injection
+            out[key] = undefinedToNullDeep(val);
+        }
     }
 
     return out as T;
 }
 
 export function normalizeString(string: string) {
-    if (typeof string !== "string") throw new TypeError(`Expected string value, recieved ${typeof string}`);
+    if (typeof string !== "string")
+        throw new TypeError(`Expected string value, recieved ${typeof string}`);
     if (string.length === 0) return "";
 
-    const invisibleCharsRegex = /[\u200B\u200C\u200D\u200E\u200F\u2060\u202F\uFEFF]/g;
+    const invisibleCharsRegex =
+        /[\u200B\u200C\u200D\u200E\u200F\u2060\u202F\uFEFF]/g;
     const removedinvisibleChars = string.replace(invisibleCharsRegex, "");
     // matches consecutive white space
     const collapedWhiteSpaceRegex = /\s+/g;
     // replace consecutive whitespaces with single space
-    const collapsedWhiteSpace = removedinvisibleChars.replace(collapedWhiteSpaceRegex, " ");
+    const collapsedWhiteSpace = removedinvisibleChars.replace(
+        collapedWhiteSpaceRegex,
+        " "
+    );
     const trimmed = collapsedWhiteSpace.trim();
     const normalized = trimmed.normalize("NFC");
     return normalized;
 }
 
-export function resolveAvatarSrc(teamAvatar: string | null, userAvatar: string, owner: string): string {
-    const isTwistedTitTeas = owner && owner.toLowerCase().includes('twistedtitteas');
-    return isTwistedTitTeas ? userAvatar : teamAvatar ?? userAvatar;
+export function resolveAvatarSrc(
+    teamAvatar: string | null,
+    userAvatar: string,
+    owner: string
+): string {
+    const isTwistedTitTeas =
+        owner && owner.toLowerCase().includes("twistedtitteas");
+    return isTwistedTitTeas ? userAvatar : (teamAvatar ?? userAvatar);
 }
 
 export function buildUserAvatarURLs(avatarId: string): AvatarURLs {
-    if (avatarId.length === 0) throw new Error('You must pass a valid string greater than 0 in length');
+    if (avatarId.length === 0)
+        throw new Error(
+            "You must pass a valid string greater than 0 in length"
+        );
     return [
         `https://sleepercdn.com/avatars/thumbs/${avatarId}`,
-        `https://sleepercdn.com/avatars/${avatarId}`
+        `https://sleepercdn.com/avatars/${avatarId}`,
     ] satisfies AvatarURLs;
 }
 
@@ -73,18 +95,22 @@ export async function buildCompletedLeaguesIds(): Promise<string[]> {
 
 export const weeks = Array.from({ length: 17 }, (v, i) => i + 1);
 
-export type MatchupsWithoutByes = Awaited<ReturnType<typeof selectLeagueMatchupsByWeekWithoutByes>>;
+export type MatchupsWithoutByes = Awaited<
+    ReturnType<typeof selectLeagueMatchupsByWeekWithoutByes>
+>;
 export type MatchupRow = MatchupsWithoutByes[number];
 export type MatchupTuple = [MatchupRow, MatchupRow];
 
-export function groupAdjacentMatchups(matchupsArray: MatchupsWithoutByes): MatchupTuple[] {
-
+export function groupAdjacentMatchups(
+    matchupsArray: MatchupsWithoutByes
+): MatchupTuple[] {
     if (matchupsArray.length % 2 !== 0)
-        throw new Error('Matchups array passed is odd numbered in length');
+        throw new Error("Matchups array passed is odd numbered in length");
 
     const matchups: MatchupTuple[] = [];
 
     for (let i = 0; i < matchupsArray.length; i += 2) {
+        // eslint-disable-next-line security/detect-object-injection
         matchups.push([matchupsArray[i], matchupsArray[i + 1]]);
     }
 

@@ -4,4 +4,4 @@ import { handlerNewSeasonBootstrap } from "../../api/bootstrap-new-season.js";
 
 export const apiBootstrapNewSeasonRoute = express.Router();
 
-apiBootstrapNewSeasonRoute.post('/', asyncHandler(handlerNewSeasonBootstrap));
+apiBootstrapNewSeasonRoute.post("/", asyncHandler(handlerNewSeasonBootstrap));

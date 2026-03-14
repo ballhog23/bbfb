@@ -1,9 +1,12 @@
-import { sql, eq, and, sum, isNotNull, desc, count, lt, gte, } from "drizzle-orm";
+import { sql, eq, and, sum, desc, lt } from "drizzle-orm";
 import { db } from "../index.js";
 import {
-    matchupOutcomesTable, matchupsTable,
-    rostersTable, leagueUsersTable,
-    sleeperUsersTable, type StrictInsertMatchupOutcome,
+    matchupOutcomesTable,
+    matchupsTable,
+    rostersTable,
+    leagueUsersTable,
+    sleeperUsersTable,
+    type StrictInsertMatchupOutcome,
 } from "../schema.js";
 
 // sleeper only accounts for total points scored as weeks 1-14 (regular season)
@@ -13,7 +16,9 @@ import {
 // you got 2 wins, if you won the matchup but scored less than median, you got 1W 1L
 
 //
-export async function insertMatchupOutcome(outcome: StrictInsertMatchupOutcome) {
+export async function insertMatchupOutcome(
+    outcome: StrictInsertMatchupOutcome
+) {
     const result = await db
         .insert(matchupOutcomesTable)
         .values(outcome)
@@ -29,8 +34,8 @@ export async function insertMatchupOutcome(outcome: StrictInsertMatchupOutcome) 
                 outcome: sql`EXCLUDED.outcome`,
                 season: sql`EXCLUDED.season`,
                 pointsFor: sql`EXCLUDED.points_for`,
-                pointsAgainst: sql`EXCLUDED.points_against`
-            }
+                pointsAgainst: sql`EXCLUDED.points_against`,
+            },
         })
         .returning();
 
@@ -38,9 +43,7 @@ export async function insertMatchupOutcome(outcome: StrictInsertMatchupOutcome) 
 }
 
 export async function selectAllLeagueMatchupOutcomes() {
-    const result = await db
-        .select()
-        .from(matchupOutcomesTable);
+    const result = await db.select().from(matchupOutcomesTable);
 
     return result;
 }
@@ -55,7 +58,10 @@ export async function selectLeagueSeasonMatchupOutcomes(leagueId: string) {
     return result;
 }
 
-export async function selectWeeklyLeagueMatchupOutcomes(leagueId: string, week: number) {
+export async function selectWeeklyLeagueMatchupOutcomes(
+    leagueId: string,
+    week: number
+) {
     const result = await db
         .select()
         .from(matchupOutcomesTable)
@@ -74,8 +80,7 @@ export async function selectLeaguePointsScoredPerUser(leagueId: string) {
         .selectDistinct({
             userId: sleeperUsersTable.userId,
             name: sleeperUsersTable.displayName,
-            points: sum(matchupOutcomesTable.pointsFor)
-
+            points: sum(matchupOutcomesTable.pointsFor),
         })
         .from(matchupOutcomesTable)
         .innerJoin(
@@ -99,15 +104,17 @@ export async function selectAllTimePointsScoredPerUser() {
         .select({
             userId: sleeperUsersTable.userId,
             name: sleeperUsersTable.displayName,
-            points: sum(matchupOutcomesTable.pointsFor)
+            points: sum(matchupOutcomesTable.pointsFor),
         })
         .from(matchupOutcomesTable)
-        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId))
+        .innerJoin(
+            sleeperUsersTable,
+            eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId)
+        )
         .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName)
         .orderBy(desc(sum(matchupOutcomesTable.pointsFor)));
 
     return result;
-
 }
 
 export async function selectLeagueRegularSeasonStats(leagueId: string) {
@@ -151,7 +158,10 @@ export async function selectLeagueRegularSeasonStats(leagueId: string) {
             losses: lossesExpr,
         })
         .from(matchupOutcomesTable)
-        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId))
+        .innerJoin(
+            sleeperUsersTable,
+            eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId)
+        )
         .innerJoin(leagueUsersTable, eq(leagueUsersTable.leagueId, leagueId))
         .where(
             and(
@@ -160,7 +170,11 @@ export async function selectLeagueRegularSeasonStats(leagueId: string) {
                 lt(matchupOutcomesTable.week, 15)
             )
         )
-        .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName, leagueUsersTable.teamName)
+        .groupBy(
+            sleeperUsersTable.userId,
+            sleeperUsersTable.displayName,
+            leagueUsersTable.teamName
+        )
         .orderBy(desc(winsExpr), desc(pointsForExpr));
 
     return result;
@@ -185,7 +199,10 @@ export async function selectAllTimeWinLossRatioPerUser() {
             `),
         })
         .from(matchupOutcomesTable)
-        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId))
+        .innerJoin(
+            sleeperUsersTable,
+            eq(sleeperUsersTable.userId, matchupOutcomesTable.rosterOwnerId)
+        )
         .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName);
 
     return result;
@@ -215,22 +232,28 @@ export async function selectLeagueMatchupOutcomes(leagueId: string) {
                         AND mo2.matchup_id = ${matchupsTable.matchupId}
                         AND mo2.roster_id != ${matchupsTable.rosterId}
                 )
-            `
-
+            `,
         })
         .from(matchupsTable)
-        .innerJoin(rostersTable, and(
-            eq(rostersTable.leagueId, leagueId),
-            eq(rostersTable.rosterId, matchupsTable.rosterId)
-        ))
-        .innerJoin(leagueUsersTable, and(
-            eq(leagueUsersTable.leagueId, leagueId),
-            eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
-        ))
-        .innerJoin(sleeperUsersTable, eq(leagueUsersTable.userId, sleeperUsersTable.userId))
-        .where(
-            eq(matchupsTable.leagueId, leagueId)
+        .innerJoin(
+            rostersTable,
+            and(
+                eq(rostersTable.leagueId, leagueId),
+                eq(rostersTable.rosterId, matchupsTable.rosterId)
+            )
         )
+        .innerJoin(
+            leagueUsersTable,
+            and(
+                eq(leagueUsersTable.leagueId, leagueId),
+                eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
+            )
+        )
+        .innerJoin(
+            sleeperUsersTable,
+            eq(leagueUsersTable.userId, sleeperUsersTable.userId)
+        )
+        .where(eq(matchupsTable.leagueId, leagueId))
         .orderBy(matchupsTable.week);
 
     return result;

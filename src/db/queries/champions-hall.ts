@@ -1,8 +1,11 @@
 import { sql, eq, and, count, countDistinct, desc, max } from "drizzle-orm";
 import { db } from "../index.js";
 import {
-    leagueUsersTable, sleeperUsersTable,
-    playoffsTable, rostersTable, matchupsTable
+    leagueUsersTable,
+    sleeperUsersTable,
+    playoffsTable,
+    rostersTable,
+    matchupsTable,
 } from "../schema.js";
 
 export async function selectChampionInfo(leagueId: string) {
@@ -55,32 +58,33 @@ export async function selectChampionInfo(leagueId: string) {
                 WHERE
                     r.league_id = ${playoffsTable.leagueId} AND
                     r.roster_id = ${playoffsTable.loserId}
-            )`
+            )`,
         })
         .from(playoffsTable)
-        .innerJoin(rostersTable,
+        .innerJoin(
+            rostersTable,
             and(
                 eq(playoffsTable.leagueId, rostersTable.leagueId),
                 eq(playoffsTable.winnerId, rostersTable.rosterId)
             )
         )
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(playoffsTable.leagueId, leagueUsersTable.leagueId),
                 eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)
             )
         )
-        .innerJoin(sleeperUsersTable,
-            eq(
-                leagueUsersTable.userId, sleeperUsersTable.userId
-            )
+        .innerJoin(
+            sleeperUsersTable,
+            eq(leagueUsersTable.userId, sleeperUsersTable.userId)
         )
         .where(
             and(
                 eq(playoffsTable.leagueId, leagueId),
                 eq(playoffsTable.week, 17),
-                eq(playoffsTable.bracketType, 'winners_bracket'),
-                eq(playoffsTable.place, 1),
+                eq(playoffsTable.bracketType, "winners_bracket"),
+                eq(playoffsTable.place, 1)
             )
         );
 
@@ -92,23 +96,25 @@ export type ChampionInfo = Awaited<ReturnType<typeof selectChampionInfo>>;
 export async function selectDistinctChamps() {
     const [result] = await db
         .select({
-            count: countDistinct(sleeperUsersTable.userId)
+            count: countDistinct(sleeperUsersTable.userId),
         })
         .from(playoffsTable)
-        .innerJoin(rostersTable,
+        .innerJoin(
+            rostersTable,
             and(
                 eq(playoffsTable.leagueId, rostersTable.leagueId),
                 eq(playoffsTable.winnerId, rostersTable.rosterId)
             )
         )
-        .innerJoin(sleeperUsersTable,
+        .innerJoin(
+            sleeperUsersTable,
             eq(rostersTable.rosterOwnerId, sleeperUsersTable.userId)
         )
         .where(
             and(
                 eq(playoffsTable.week, 17),
-                eq(playoffsTable.bracketType, 'winners_bracket'),
-                eq(playoffsTable.place, 1),
+                eq(playoffsTable.bracketType, "winners_bracket"),
+                eq(playoffsTable.place, 1)
             )
         );
 
@@ -124,29 +130,36 @@ export async function selectWinningestChamp() {
             championships: count(sleeperUsersTable.userId),
         })
         .from(playoffsTable)
-        .innerJoin(rostersTable,
+        .innerJoin(
+            rostersTable,
             and(
                 eq(playoffsTable.leagueId, rostersTable.leagueId),
                 eq(playoffsTable.winnerId, rostersTable.rosterId)
             )
         )
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
                 eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
-        .innerJoin(sleeperUsersTable,
+        .innerJoin(
+            sleeperUsersTable,
             eq(rostersTable.rosterOwnerId, sleeperUsersTable.userId)
         )
         .where(
             and(
                 eq(playoffsTable.week, 17),
-                eq(playoffsTable.bracketType, 'winners_bracket'),
-                eq(playoffsTable.place, 1),
+                eq(playoffsTable.bracketType, "winners_bracket"),
+                eq(playoffsTable.place, 1)
             )
         )
-        .groupBy(sleeperUsersTable.userId, sleeperUsersTable.displayName, sleeperUsersTable.avatarId)
+        .groupBy(
+            sleeperUsersTable.userId,
+            sleeperUsersTable.displayName,
+            sleeperUsersTable.avatarId
+        )
         .orderBy(desc(count(sleeperUsersTable.userId)))
         .limit(1);
 
@@ -163,7 +176,8 @@ export async function selectHighestScoringChampionshipGame() {
             points: matchupsTable.points,
         })
         .from(playoffsTable)
-        .innerJoin(matchupsTable,
+        .innerJoin(
+            matchupsTable,
             and(
                 eq(playoffsTable.leagueId, matchupsTable.leagueId),
                 eq(playoffsTable.winnerId, matchupsTable.rosterId),
@@ -171,26 +185,29 @@ export async function selectHighestScoringChampionshipGame() {
                 eq(playoffsTable.week, matchupsTable.week)
             )
         )
-        .innerJoin(rostersTable,
+        .innerJoin(
+            rostersTable,
             and(
                 eq(playoffsTable.leagueId, rostersTable.leagueId),
                 eq(playoffsTable.winnerId, rostersTable.rosterId)
             )
         )
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
                 eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
-        .innerJoin(sleeperUsersTable,
+        .innerJoin(
+            sleeperUsersTable,
             eq(rostersTable.rosterOwnerId, sleeperUsersTable.userId)
         )
         .where(
             and(
                 eq(playoffsTable.week, 17),
-                eq(playoffsTable.bracketType, 'winners_bracket'),
-                eq(playoffsTable.place, 1),
+                eq(playoffsTable.bracketType, "winners_bracket"),
+                eq(playoffsTable.place, 1)
             )
         )
         .orderBy(desc(matchupsTable.points))
@@ -199,4 +216,6 @@ export async function selectHighestScoringChampionshipGame() {
     return result;
 }
 
-export type HighestScoringChampionshipGame = Awaited<ReturnType<typeof selectHighestScoringChampionshipGame>>;
+export type HighestScoringChampionshipGame = Awaited<
+    ReturnType<typeof selectHighestScoringChampionshipGame>
+>;

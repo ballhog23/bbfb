@@ -4,4 +4,4 @@ import { handlerServeRivalry } from "../../web/rivalry.js";
 
 export const webRivalryRoute = express.Router();
 
-webRivalryRoute.get('/', asyncHandler(handlerServeRivalry));
+webRivalryRoute.get("/", asyncHandler(handlerServeRivalry));

@@ -7,7 +7,10 @@ export type MatchupsPageParams = {
     week: string;
 };
 
-export async function handlerApiMatchupsPage(req: Request<MatchupsPageParams>, res: Response) {
+export async function handlerApiMatchupsPage(
+    req: Request<MatchupsPageParams>,
+    res: Response
+) {
     const matchupsPage = await assembleMatchupsPageData(
         req.params.leagueId,
         req.params.week

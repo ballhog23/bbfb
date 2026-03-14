@@ -1,5 +1,12 @@
-import type { SelectLeagueState, StrictInsertLeagueState } from "../../db/schema.js";
-import { strictLeagueStateSchema, type RawNFLState, NullableRawNFLState, StrictLeagueState } from "../../lib/zod.js";
+import type {
+    SelectLeagueState,
+    StrictInsertLeagueState,
+} from "../../db/schema.js";
+import {
+    strictLeagueStateSchema,
+    type RawNFLState,
+    NullableRawNFLState,
+} from "../../lib/zod.js";
 import { Sleeper } from "../../lib/sleeper.js";
 import { normalizeString, undefinedToNullDeep } from "../../lib/helpers.js";
 import { insertLeagueState } from "../../db/queries/league-state.js";
@@ -9,7 +16,10 @@ export async function getSleeperNFLState(): Promise<RawNFLState> {
     return await sleeper.getNFLState();
 }
 
-export function normalizeLeagueState(rawNFLState: NullableRawNFLState, rawLeg: number | null): StrictInsertLeagueState {
+export function normalizeLeagueState(
+    rawNFLState: NullableRawNFLState,
+    rawLeg: number | null
+): StrictInsertLeagueState {
     // week 17 marks the end of our leagues season
     // sleeper will restart a whole season type under postseason on their api response
     // so we stop trusting their data after leg 17 which is the week of the nfl regular season,
@@ -23,22 +33,24 @@ export function normalizeLeagueState(rawNFLState: NullableRawNFLState, rawLeg: n
 
     // Determine seasonType for our strict league state
     const normalizedLeg =
-        typeof rawLeg === 'number' && rawLeg > 0 ? rawLeg : 18;
+        typeof rawLeg === "number" && rawLeg > 0 ? rawLeg : 18;
 
     // Determine seasonType for our strict league state
     const seasonType =
-        normalizedLeg <= 14 ? 'regular' : normalizedLeg <= 17 ? 'post' : 'off';
+        normalizedLeg <= 14 ? "regular" : normalizedLeg <= 17 ? "post" : "off";
 
-    const isRegularOrPostSeason = seasonType === 'regular' || seasonType === 'post';
+    const isRegularOrPostSeason =
+        seasonType === "regular" || seasonType === "post";
 
     const week = isRegularOrPostSeason
-        ? typeof rawNFLState.week === 'number' && rawNFLState.week > 0
+        ? typeof rawNFLState.week === "number" && rawNFLState.week > 0
             ? rawNFLState.week
             : normalizedLeg
         : 17;
 
     const displayWeek = isRegularOrPostSeason
-        ? typeof rawNFLState.display_week === 'number' && rawNFLState.display_week > 0
+        ? typeof rawNFLState.display_week === "number" &&
+          rawNFLState.display_week > 0
             ? rawNFLState.display_week
             : week
         : 17;
@@ -51,13 +63,22 @@ export function normalizeLeagueState(rawNFLState: NullableRawNFLState, rawLeg: n
         seasonType,
         previousSeason: rawNFLState.previous_season,
         displayWeek,
-        isLeagueActive: isRegularOrPostSeason && normalizedLeg >= 1 && normalizedLeg <= 17,
+        isLeagueActive:
+            isRegularOrPostSeason && normalizedLeg >= 1 && normalizedLeg <= 17,
     } satisfies StrictInsertLeagueState;
 }
 
-export function rawToNormalizedLeagueState(rawNFLState: RawNFLState, normalizedLeg: number) {
-    const nullableSeasonState = undefinedToNullDeep(rawNFLState) as NullableRawNFLState;
-    const normalizedSeasonState = normalizeLeagueState(nullableSeasonState, normalizedLeg);
+export function rawToNormalizedLeagueState(
+    rawNFLState: RawNFLState,
+    normalizedLeg: number
+) {
+    const nullableSeasonState = undefinedToNullDeep(
+        rawNFLState
+    ) as NullableRawNFLState;
+    const normalizedSeasonState = normalizeLeagueState(
+        nullableSeasonState,
+        normalizedLeg
+    );
     return strictLeagueStateSchema.parse(normalizedSeasonState);
 }
 
@@ -67,20 +88,31 @@ export async function syncLeagueState(): Promise<SelectLeagueState | null> {
     const rawLeg = rawNFLState.leg;
 
     // League active regular season, weeks 1–17
-    if (typeof rawLeg === 'number' && rawLeg >= 1 && rawLeg <= 17 && rawNFLState.season_type === 'regular') {
-        const normalizedLeagueState = rawToNormalizedLeagueState(rawNFLState, rawLeg);
+    if (
+        typeof rawLeg === "number" &&
+        rawLeg >= 1 &&
+        rawLeg <= 17 &&
+        rawNFLState.season_type === "regular"
+    ) {
+        const normalizedLeagueState = rawToNormalizedLeagueState(
+            rawNFLState,
+            rawLeg
+        );
         return await insertLeagueState(normalizedLeagueState);
     }
 
     // League over - force end of season snapshot for UI display
-    if (typeof rawLeg === 'number' && rawLeg > 17) {
+    if (typeof rawLeg === "number" && rawLeg > 17) {
         const endOfSeasonState: RawNFLState = {
             ...rawNFLState,
             week: 17,
             display_week: 17,
             leg: rawLeg, // needs to be clamped to 18 for final snapshot logic to update correctly
         };
-        const normalizedLeagueState = rawToNormalizedLeagueState(endOfSeasonState, rawLeg);
+        const normalizedLeagueState = rawToNormalizedLeagueState(
+            endOfSeasonState,
+            rawLeg
+        );
         return await insertLeagueState(normalizedLeagueState);
     }
 

@@ -1,10 +1,15 @@
 import { sql, eq, desc, sum, count, and, lt } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "../index.js";
-import { matchupOutcomesTable, leagueUsersTable, sleeperUsersTable, rostersTable } from "../schema.js";
+import {
+    matchupOutcomesTable,
+    leagueUsersTable,
+    sleeperUsersTable,
+    rostersTable,
+} from "../schema.js";
 const mo = matchupOutcomesTable;
-const matchupOutcomes2 = alias(matchupOutcomesTable, 'mo_2');
-const matchupPointsCTE = db.$with('matchup_points_cte').as(
+const matchupOutcomes2 = alias(matchupOutcomesTable, "mo_2");
+const matchupPointsCTE = db.$with("matchup_points_cte").as(
     db
         .select({
             leagueId: matchupOutcomesTable.leagueId,
@@ -13,44 +18,54 @@ const matchupPointsCTE = db.$with('matchup_points_cte').as(
             matchupId: matchupOutcomesTable.matchupId,
             totalPts: sql<string>`
                 ${matchupOutcomesTable.pointsFor}::numeric + ${matchupOutcomes2.pointsFor}
-            `.as('total_pts'),
-            t1PointsFor: sql<string>`${matchupOutcomesTable.pointsFor}`.as('t1_points_for'),
-            t1RosterId: sql<number>`${matchupOutcomesTable.rosterId}`.as('t1_roster_id'),
-            t1RosterOwnerId: sql<string>`${matchupOutcomesTable.rosterOwnerId}`.as('t1_roster_owner_id'),
-            t1Outcome: sql<string>`${matchupOutcomesTable.outcome}`.as('t1_outcome'),
-            t2PointsFor: sql<string>`${matchupOutcomes2.pointsFor}`.as('t2_points_for'),
-            t2RosterId: sql<number>`${matchupOutcomes2.rosterId}`.as('t2_roster_id'),
-            t2RosterOwnerId: sql<string>`${matchupOutcomes2.rosterOwnerId}`.as('t2_roster_owner_id'),
-            t2Outcome: sql<string>`${matchupOutcomes2.outcome}`.as('t2_outcome'),
-            margin: sql<string>`ABS(${matchupOutcomesTable.pointsFor}::numeric - ${matchupOutcomes2.pointsFor}::numeric)`.as('margin'),
+            `.as("total_pts"),
+            t1PointsFor: sql<string>`${matchupOutcomesTable.pointsFor}`.as(
+                "t1_points_for"
+            ),
+            t1RosterId: sql<number>`${matchupOutcomesTable.rosterId}`.as(
+                "t1_roster_id"
+            ),
+            t1RosterOwnerId:
+                sql<string>`${matchupOutcomesTable.rosterOwnerId}`.as(
+                    "t1_roster_owner_id"
+                ),
+            t1Outcome: sql<string>`${matchupOutcomesTable.outcome}`.as(
+                "t1_outcome"
+            ),
+            t2PointsFor: sql<string>`${matchupOutcomes2.pointsFor}`.as(
+                "t2_points_for"
+            ),
+            t2RosterId: sql<number>`${matchupOutcomes2.rosterId}`.as(
+                "t2_roster_id"
+            ),
+            t2RosterOwnerId: sql<string>`${matchupOutcomes2.rosterOwnerId}`.as(
+                "t2_roster_owner_id"
+            ),
+            t2Outcome: sql<string>`${matchupOutcomes2.outcome}`.as(
+                "t2_outcome"
+            ),
+            margin: sql<string>`ABS(${matchupOutcomesTable.pointsFor}::numeric - ${matchupOutcomes2.pointsFor}::numeric)`.as(
+                "margin"
+            ),
         })
         .from(matchupOutcomesTable)
-        .innerJoin(matchupOutcomes2,
+        .innerJoin(
+            matchupOutcomes2,
             and(
-                eq(
-                    matchupOutcomesTable.leagueId, matchupOutcomes2.leagueId
-                ),
-                eq(
-                    matchupOutcomesTable.week, matchupOutcomes2.week
-                ),
-                eq(
-                    matchupOutcomesTable.matchupId, matchupOutcomes2.matchupId
-                ),
+                eq(matchupOutcomesTable.leagueId, matchupOutcomes2.leagueId),
+                eq(matchupOutcomesTable.week, matchupOutcomes2.week),
+                eq(matchupOutcomesTable.matchupId, matchupOutcomes2.matchupId)
             )
         )
-        .where(
-            lt(
-                matchupOutcomesTable.rosterId, matchupOutcomes2.rosterId
-            )
-        )
+        .where(lt(matchupOutcomesTable.rosterId, matchupOutcomes2.rosterId))
 );
-const seasonWeekPointsScoredCTE = db.$with('season_week_points_total_cte').as(
+const seasonWeekPointsScoredCTE = db.$with("season_week_points_total_cte").as(
     db
         .select({
             leagueId: matchupPointsCTE.leagueId,
             season: matchupPointsCTE.season,
             week: matchupPointsCTE.week,
-            totalPts: sum(matchupPointsCTE.totalPts).as('total_pts'),
+            totalPts: sum(matchupPointsCTE.totalPts).as("total_pts"),
         })
         .from(matchupPointsCTE)
         .groupBy(
@@ -58,33 +73,27 @@ const seasonWeekPointsScoredCTE = db.$with('season_week_points_total_cte').as(
             matchupPointsCTE.season,
             matchupPointsCTE.week
         )
-        .orderBy(
-            desc(matchupPointsCTE.season),
-            matchupPointsCTE.week
-        )
+        .orderBy(desc(matchupPointsCTE.season), matchupPointsCTE.week)
 );
-const seasonPointsScoredCTE = db.$with('season_points_total_cte').as(
+const seasonPointsScoredCTE = db.$with("season_points_total_cte").as(
     db
         .select({
             leagueId: matchupPointsCTE.leagueId,
             season: matchupPointsCTE.season,
-            totalPts: sum(matchupPointsCTE.totalPts).as('total_pts'),
+            totalPts: sum(matchupPointsCTE.totalPts).as("total_pts"),
         })
         .from(matchupPointsCTE)
-        .groupBy(
-            matchupPointsCTE.leagueId,
-            matchupPointsCTE.season
-        )
-        .orderBy(
-            desc(matchupPointsCTE.season)
-        )
+        .groupBy(matchupPointsCTE.leagueId, matchupPointsCTE.season)
+        .orderBy(desc(matchupPointsCTE.season))
 );
-const allPointsScoredCTE = db.$with('points_total_cte').as(
+const allPointsScoredCTE = db.$with("points_total_cte").as(
     db
         .select({
-            totalPts: sum(matchupPointsCTE.totalPts).as('total_pts'),
-            totalGames: count().as('total_games'),
-            avgPts: sql<string>`ROUND(AVG(${matchupPointsCTE.totalPts}::numeric), 1)`.as('avg_pts'),
+            totalPts: sum(matchupPointsCTE.totalPts).as("total_pts"),
+            totalGames: count().as("total_games"),
+            avgPts: sql<string>`ROUND(AVG(${matchupPointsCTE.totalPts}::numeric), 1)`.as(
+                "avg_pts"
+            ),
         })
         .from(matchupPointsCTE)
 );
@@ -120,62 +129,82 @@ const mostPts = db
         season: mo.season,
         week: mo.week,
         rosterOwnerId: mo.rosterOwnerId,
-        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
-        pointsFor: mo.pointsFor
+        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as(
+            "team_name"
+        ),
+        pointsFor: mo.pointsFor,
     })
     .from(mo)
-    .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
+    .innerJoin(
+        lu,
+        and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId))
+    )
     .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
     .orderBy(desc(mo.pointsFor))
     .limit(1)
-    .as('most_pts');
+    .as("most_pts");
 
 const fewestPts = db
     .select({
         season: mo.season,
         week: mo.week,
         rosterOwnerId: mo.rosterOwnerId,
-        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
-        pointsFor: mo.pointsFor
+        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as(
+            "team_name"
+        ),
+        pointsFor: mo.pointsFor,
     })
     .from(mo)
-    .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
+    .innerJoin(
+        lu,
+        and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId))
+    )
     .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
     .orderBy(mo.pointsFor)
     .limit(1)
-    .as('fewest_pts');
+    .as("fewest_pts");
 
 const mostPtsInLoss = db
     .select({
         season: mo.season,
         week: mo.week,
         rosterOwnerId: mo.rosterOwnerId,
-        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
-        pointsFor: mo.pointsFor
+        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as(
+            "team_name"
+        ),
+        pointsFor: mo.pointsFor,
     })
     .from(mo)
-    .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
+    .innerJoin(
+        lu,
+        and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId))
+    )
     .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
-    .where(eq(mo.outcome, 'L'))
+    .where(eq(mo.outcome, "L"))
     .orderBy(desc(mo.pointsFor))
     .limit(1)
-    .as('most_pts_in_loss');
+    .as("most_pts_in_loss");
 
 const fewestPtsInWin = db
     .select({
         season: mo.season,
         week: mo.week,
         rosterOwnerId: mo.rosterOwnerId,
-        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
-        pointsFor: mo.pointsFor
+        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as(
+            "team_name"
+        ),
+        pointsFor: mo.pointsFor,
     })
     .from(mo)
-    .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
+    .innerJoin(
+        lu,
+        and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId))
+    )
     .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
-    .where(eq(mo.outcome, 'W'))
+    .where(eq(mo.outcome, "W"))
     .orderBy(mo.pointsFor)
     .limit(1)
-    .as('fewest_pts_in_win');
+    .as("fewest_pts_in_win");
 
 const highestCombined = db
     .select({
@@ -190,7 +219,7 @@ const highestCombined = db
     .from(matchupPointsCTE)
     .orderBy(desc(matchupPointsCTE.totalPts))
     .limit(1)
-    .as('highest_combined');
+    .as("highest_combined");
 
 const lowestCombined = db
     .select({
@@ -205,7 +234,7 @@ const lowestCombined = db
     .from(matchupPointsCTE)
     .orderBy(matchupPointsCTE.totalPts)
     .limit(1)
-    .as('lowest_combined');
+    .as("lowest_combined");
 
 export async function selectScoringRecords() {
     const [result] = await db
@@ -292,7 +321,7 @@ const largestMargin = db
     .from(matchupPointsCTE)
     .orderBy(desc(matchupPointsCTE.margin))
     .limit(1)
-    .as('largest_margin');
+    .as("largest_margin");
 
 const smallestMargin = db
     .select({
@@ -307,25 +336,25 @@ const smallestMargin = db
     .from(matchupPointsCTE)
     .orderBy(matchupPointsCTE.margin)
     .limit(1)
-    .as('smallest_margin');
+    .as("smallest_margin");
 
 const marginAggregates = db
     .select({
         gamesUnder1pt: sql<string>`
             COUNT(*) FILTER (WHERE ${matchupPointsCTE.margin}::numeric < 1)
-        `.as('games_under_1pt'),
+        `.as("games_under_1pt"),
         avgMargin: sql<string>`
             ROUND(AVG(${matchupPointsCTE.margin}::numeric), 1)
-        `.as('avg_margin'),
+        `.as("avg_margin"),
         blowoutRate: sql<string>`
             ROUND(
                 COUNT(*) FILTER (WHERE ${matchupPointsCTE.margin}::numeric > 20) * 100.0
                 / NULLIF(COUNT(*), 0),
             1)
-        `.as('blowout_rate'),
+        `.as("blowout_rate"),
     })
     .from(matchupPointsCTE)
-    .as('margin_aggregates');
+    .as("margin_aggregates");
 
 export async function selectPointMargins() {
     const [result] = await db
@@ -387,57 +416,59 @@ export async function selectPointMargins() {
 const allTimePtsLeader = db
     .select({
         rosterOwnerId: mo.rosterOwnerId,
-        totalPts: sql<string>`SUM(${mo.pointsFor}::numeric)`.as('total_pts')
+        totalPts: sql<string>`SUM(${mo.pointsFor}::numeric)`.as("total_pts"),
     })
     .from(mo)
     .groupBy(mo.rosterOwnerId)
     .orderBy(desc(sql`SUM(${mo.pointsFor}::numeric)`))
     .limit(1)
-    .as('all_time_pts_leader');
+    .as("all_time_pts_leader");
 
 const mostAllTimeWins = db
     .select({
         rosterOwnerId: mo.rosterOwnerId,
-        wins: sql<string>`COUNT(*)`.as('wins')
+        wins: sql<string>`COUNT(*)`.as("wins"),
     })
     .from(mo)
-    .where(eq(mo.outcome, 'W'))
+    .where(eq(mo.outcome, "W"))
     .groupBy(mo.rosterOwnerId)
     .orderBy(desc(sql`COUNT(*)`))
     .limit(1)
-    .as('most_all_time_wins');
+    .as("most_all_time_wins");
 
 const mostAllTimeLosses = db
     .select({
         rosterOwnerId: mo.rosterOwnerId,
-        losses: sql<string>`COUNT(*)`.as('losses')
+        losses: sql<string>`COUNT(*)`.as("losses"),
     })
     .from(mo)
-    .where(eq(mo.outcome, 'L'))
+    .where(eq(mo.outcome, "L"))
     .groupBy(mo.rosterOwnerId)
     .orderBy(desc(sql`COUNT(*)`))
     .limit(1)
-    .as('most_all_time_losses');
+    .as("most_all_time_losses");
 
 const weeklyRanksDesc = db
     .select({
         rosterOwnerId: mo.rosterOwnerId,
-        rnk: sql<number>`RANK() OVER (PARTITION BY ${mo.leagueId}, ${mo.week} ORDER BY ${mo.pointsFor} DESC)`.as('rnk')
+        rnk: sql<number>`RANK() OVER (PARTITION BY ${mo.leagueId}, ${mo.week} ORDER BY ${mo.pointsFor} DESC)`.as(
+            "rnk"
+        ),
     })
     .from(mo)
-    .as('weekly_ranks_desc');
+    .as("weekly_ranks_desc");
 
 const mostWeeklyTopScores = db
     .select({
         rosterOwnerId: weeklyRanksDesc.rosterOwnerId,
-        topScoreCount: sql<string>`COUNT(*)`.as('top_score_count')
+        topScoreCount: sql<string>`COUNT(*)`.as("top_score_count"),
     })
     .from(weeklyRanksDesc)
     .where(sql`"weekly_ranks_desc"."rnk" = 1`)
     .groupBy(weeklyRanksDesc.rosterOwnerId)
     .orderBy(desc(sql`COUNT(*)`))
     .limit(1)
-    .as('most_weekly_top_scores');
+    .as("most_weekly_top_scores");
 
 export async function selectLeaderboard() {
     const [result] = await db
@@ -512,16 +543,18 @@ const longestWinStreak = db
         streakLength: sql<string>`(
             SELECT MAX(LENGTH(m[1]))
             FROM regexp_matches(${r.record}, 'W+', 'g') m
-        )`.as('streak_length')
+        )`.as("streak_length"),
     })
     .from(r)
     .where(sql`${r.record} IS NOT NULL AND ${r.record} != ''`)
-    .orderBy(desc(sql`(
+    .orderBy(
+        desc(sql`(
         SELECT MAX(LENGTH(m[1]))
         FROM regexp_matches(${r.record}, 'W+', 'g') m
-    )`))
+    )`)
+    )
     .limit(1)
-    .as('longest_win_streak');
+    .as("longest_win_streak");
 
 const longestLossStreak = db
     .select({
@@ -531,16 +564,18 @@ const longestLossStreak = db
         streakLength: sql<string>`(
             SELECT MAX(LENGTH(m[1]))
             FROM regexp_matches(${r.record}, 'L+', 'g') m
-        )`.as('streak_length')
+        )`.as("streak_length"),
     })
     .from(r)
     .where(sql`${r.record} IS NOT NULL AND ${r.record} != ''`)
-    .orderBy(desc(sql`(
+    .orderBy(
+        desc(sql`(
         SELECT MAX(LENGTH(m[1]))
         FROM regexp_matches(${r.record}, 'L+', 'g') m
-    )`))
+    )`)
+    )
     .limit(1)
-    .as('longest_loss_streak');
+    .as("longest_loss_streak");
 
 export async function selectStreaks() {
     const [result] = await db
@@ -580,34 +615,38 @@ export async function selectStreaks() {
 const mostPointsFaced = db
     .select({
         rosterOwnerId: mo.rosterOwnerId,
-        totalPointsFaced: sql<string>`SUM(${mo.pointsAgainst}::numeric)`.as('total_points_faced')
+        totalPointsFaced: sql<string>`SUM(${mo.pointsAgainst}::numeric)`.as(
+            "total_points_faced"
+        ),
     })
     .from(mo)
     .where(sql`${mo.pointsAgainst} IS NOT NULL`)
     .groupBy(mo.rosterOwnerId)
     .orderBy(desc(sql`SUM(${mo.pointsAgainst}::numeric)`))
     .limit(1)
-    .as('most_points_faced');
+    .as("most_points_faced");
 
 const weeklyRanksAsc = db
     .select({
         rosterOwnerId: mo.rosterOwnerId,
-        rnk: sql<number>`RANK() OVER (PARTITION BY ${mo.leagueId}, ${mo.week} ORDER BY ${mo.pointsFor} ASC)`.as('rnk')
+        rnk: sql<number>`RANK() OVER (PARTITION BY ${mo.leagueId}, ${mo.week} ORDER BY ${mo.pointsFor} ASC)`.as(
+            "rnk"
+        ),
     })
     .from(mo)
-    .as('weekly_ranks_asc');
+    .as("weekly_ranks_asc");
 
 const mostWeeklyLastPlaces = db
     .select({
         rosterOwnerId: weeklyRanksAsc.rosterOwnerId,
-        lastPlaceCount: sql<string>`COUNT(*)`.as('last_place_count')
+        lastPlaceCount: sql<string>`COUNT(*)`.as("last_place_count"),
     })
     .from(weeklyRanksAsc)
     .where(sql`"weekly_ranks_asc"."rnk" = 1`)
     .groupBy(weeklyRanksAsc.rosterOwnerId)
     .orderBy(desc(sql`COUNT(*)`))
     .limit(1)
-    .as('most_weekly_last_places');
+    .as("most_weekly_last_places");
 
 export async function selectThatsGottaHurt() {
     const [result] = await db
@@ -651,34 +690,55 @@ export async function selectThatsGottaHurt() {
 // ── Season-scoped queries ──
 
 function buildSeasonCTE(leagueId: string) {
-    return db.$with('matchup_points_cte').as(
+    return db.$with("matchup_points_cte").as(
         db
             .select({
                 leagueId: mo.leagueId,
                 season: mo.season,
                 week: mo.week,
                 matchupId: mo.matchupId,
-                totalPts: sql<string>`${mo.pointsFor}::numeric + ${matchupOutcomes2.pointsFor}`.as('total_pts'),
-                t1PointsFor: sql<string>`${mo.pointsFor}`.as('t1_points_for'),
-                t1RosterId: sql<number>`${mo.rosterId}`.as('t1_roster_id'),
-                t1RosterOwnerId: sql<string>`${mo.rosterOwnerId}`.as('t1_roster_owner_id'),
-                t1Outcome: sql<string>`${mo.outcome}`.as('t1_outcome'),
-                t2PointsFor: sql<string>`${matchupOutcomes2.pointsFor}`.as('t2_points_for'),
-                t2RosterId: sql<number>`${matchupOutcomes2.rosterId}`.as('t2_roster_id'),
-                t2RosterOwnerId: sql<string>`${matchupOutcomes2.rosterOwnerId}`.as('t2_roster_owner_id'),
-                t2Outcome: sql<string>`${matchupOutcomes2.outcome}`.as('t2_outcome'),
-                margin: sql<string>`ABS(${mo.pointsFor}::numeric - ${matchupOutcomes2.pointsFor}::numeric)`.as('margin'),
+                totalPts:
+                    sql<string>`${mo.pointsFor}::numeric + ${matchupOutcomes2.pointsFor}`.as(
+                        "total_pts"
+                    ),
+                t1PointsFor: sql<string>`${mo.pointsFor}`.as("t1_points_for"),
+                t1RosterId: sql<number>`${mo.rosterId}`.as("t1_roster_id"),
+                t1RosterOwnerId: sql<string>`${mo.rosterOwnerId}`.as(
+                    "t1_roster_owner_id"
+                ),
+                t1Outcome: sql<string>`${mo.outcome}`.as("t1_outcome"),
+                t2PointsFor: sql<string>`${matchupOutcomes2.pointsFor}`.as(
+                    "t2_points_for"
+                ),
+                t2RosterId: sql<number>`${matchupOutcomes2.rosterId}`.as(
+                    "t2_roster_id"
+                ),
+                t2RosterOwnerId:
+                    sql<string>`${matchupOutcomes2.rosterOwnerId}`.as(
+                        "t2_roster_owner_id"
+                    ),
+                t2Outcome: sql<string>`${matchupOutcomes2.outcome}`.as(
+                    "t2_outcome"
+                ),
+                margin: sql<string>`ABS(${mo.pointsFor}::numeric - ${matchupOutcomes2.pointsFor}::numeric)`.as(
+                    "margin"
+                ),
             })
             .from(mo)
-            .innerJoin(matchupOutcomes2, and(
-                eq(mo.leagueId, matchupOutcomes2.leagueId),
-                eq(mo.week, matchupOutcomes2.week),
-                eq(mo.matchupId, matchupOutcomes2.matchupId),
-            ))
-            .where(and(
-                lt(mo.rosterId, matchupOutcomes2.rosterId),
-                eq(mo.leagueId, leagueId),
-            ))
+            .innerJoin(
+                matchupOutcomes2,
+                and(
+                    eq(mo.leagueId, matchupOutcomes2.leagueId),
+                    eq(mo.week, matchupOutcomes2.week),
+                    eq(mo.matchupId, matchupOutcomes2.matchupId)
+                )
+            )
+            .where(
+                and(
+                    lt(mo.rosterId, matchupOutcomes2.rosterId),
+                    eq(mo.leagueId, leagueId)
+                )
+            )
     );
 }
 
@@ -698,45 +758,99 @@ export async function selectSeasonBigNumbers(leagueId: string) {
 export async function selectSeasonScoringRecords(leagueId: string) {
     const cte = buildSeasonCTE(leagueId);
 
-    const sMostPts = db.select({
-        season: mo.season, week: mo.week, rosterOwnerId: mo.rosterOwnerId,
-        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
-        pointsFor: mo.pointsFor,
-    }).from(mo)
-        .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
+    const sMostPts = db
+        .select({
+            season: mo.season,
+            week: mo.week,
+            rosterOwnerId: mo.rosterOwnerId,
+            teamName:
+                sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as(
+                    "team_name"
+                ),
+            pointsFor: mo.pointsFor,
+        })
+        .from(mo)
+        .innerJoin(
+            lu,
+            and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId))
+        )
         .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
         .where(eq(mo.leagueId, leagueId))
-        .orderBy(desc(mo.pointsFor)).limit(1).as('most_pts');
+        .orderBy(desc(mo.pointsFor))
+        .limit(1)
+        .as("most_pts");
 
-    const sFewestPts = db.select({
-        season: mo.season, week: mo.week, rosterOwnerId: mo.rosterOwnerId,
-        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
-        pointsFor: mo.pointsFor,
-    }).from(mo)
-        .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
+    const sFewestPts = db
+        .select({
+            season: mo.season,
+            week: mo.week,
+            rosterOwnerId: mo.rosterOwnerId,
+            teamName:
+                sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as(
+                    "team_name"
+                ),
+            pointsFor: mo.pointsFor,
+        })
+        .from(mo)
+        .innerJoin(
+            lu,
+            and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId))
+        )
         .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
         .where(eq(mo.leagueId, leagueId))
-        .orderBy(mo.pointsFor).limit(1).as('fewest_pts');
+        .orderBy(mo.pointsFor)
+        .limit(1)
+        .as("fewest_pts");
 
-    const sFewestPtsInWin = db.select({
-        season: mo.season, week: mo.week, rosterOwnerId: mo.rosterOwnerId,
-        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
-        pointsFor: mo.pointsFor,
-    }).from(mo)
-        .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
+    const sFewestPtsInWin = db
+        .select({
+            season: mo.season,
+            week: mo.week,
+            rosterOwnerId: mo.rosterOwnerId,
+            teamName:
+                sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as(
+                    "team_name"
+                ),
+            pointsFor: mo.pointsFor,
+        })
+        .from(mo)
+        .innerJoin(
+            lu,
+            and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId))
+        )
         .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
-        .where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, 'W')))
-        .orderBy(mo.pointsFor).limit(1).as('fewest_pts_in_win');
+        .where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, "W")))
+        .orderBy(mo.pointsFor)
+        .limit(1)
+        .as("fewest_pts_in_win");
 
-    const sHighestCombined = db.select({
-        season: cte.season, week: cte.week, matchupId: cte.matchupId, totalPts: cte.totalPts,
-        t1RosterOwnerId: cte.t1RosterOwnerId, t2RosterOwnerId: cte.t2RosterOwnerId,
-    }).from(cte).orderBy(desc(cte.totalPts)).limit(1).as('highest_combined');
+    const sHighestCombined = db
+        .select({
+            season: cte.season,
+            week: cte.week,
+            matchupId: cte.matchupId,
+            totalPts: cte.totalPts,
+            t1RosterOwnerId: cte.t1RosterOwnerId,
+            t2RosterOwnerId: cte.t2RosterOwnerId,
+        })
+        .from(cte)
+        .orderBy(desc(cte.totalPts))
+        .limit(1)
+        .as("highest_combined");
 
-    const sLowestCombined = db.select({
-        season: cte.season, week: cte.week, matchupId: cte.matchupId, totalPts: cte.totalPts,
-        t1RosterOwnerId: cte.t1RosterOwnerId, t2RosterOwnerId: cte.t2RosterOwnerId,
-    }).from(cte).orderBy(cte.totalPts).limit(1).as('lowest_combined');
+    const sLowestCombined = db
+        .select({
+            season: cte.season,
+            week: cte.week,
+            matchupId: cte.matchupId,
+            totalPts: cte.totalPts,
+            t1RosterOwnerId: cte.t1RosterOwnerId,
+            t2RosterOwnerId: cte.t2RosterOwnerId,
+        })
+        .from(cte)
+        .orderBy(cte.totalPts)
+        .limit(1)
+        .as("lowest_combined");
 
     const [result] = await db
         .with(cte)
@@ -804,23 +918,52 @@ export async function selectSeasonScoringRecords(leagueId: string) {
 export async function selectSeasonPointMargins(leagueId: string) {
     const cte = buildSeasonCTE(leagueId);
 
-    const sLargestMargin = db.select({
-        season: cte.season, week: cte.week, matchupId: cte.matchupId,
-        leagueId: cte.leagueId, margin: cte.margin,
-        t1RosterOwnerId: cte.t1RosterOwnerId, t2RosterOwnerId: cte.t2RosterOwnerId,
-    }).from(cte).orderBy(desc(cte.margin)).limit(1).as('largest_margin');
+    const sLargestMargin = db
+        .select({
+            season: cte.season,
+            week: cte.week,
+            matchupId: cte.matchupId,
+            leagueId: cte.leagueId,
+            margin: cte.margin,
+            t1RosterOwnerId: cte.t1RosterOwnerId,
+            t2RosterOwnerId: cte.t2RosterOwnerId,
+        })
+        .from(cte)
+        .orderBy(desc(cte.margin))
+        .limit(1)
+        .as("largest_margin");
 
-    const sSmallestMargin = db.select({
-        season: cte.season, week: cte.week, matchupId: cte.matchupId,
-        leagueId: cte.leagueId, margin: cte.margin,
-        t1RosterOwnerId: cte.t1RosterOwnerId, t2RosterOwnerId: cte.t2RosterOwnerId,
-    }).from(cte).orderBy(cte.margin).limit(1).as('smallest_margin');
+    const sSmallestMargin = db
+        .select({
+            season: cte.season,
+            week: cte.week,
+            matchupId: cte.matchupId,
+            leagueId: cte.leagueId,
+            margin: cte.margin,
+            t1RosterOwnerId: cte.t1RosterOwnerId,
+            t2RosterOwnerId: cte.t2RosterOwnerId,
+        })
+        .from(cte)
+        .orderBy(cte.margin)
+        .limit(1)
+        .as("smallest_margin");
 
-    const sMarginAggregates = db.select({
-        gamesUnder1pt: sql<string>`COUNT(*) FILTER (WHERE ${cte.margin}::numeric < 1)`.as('games_under_1pt'),
-        avgMargin: sql<string>`ROUND(AVG(${cte.margin}::numeric), 1)`.as('avg_margin'),
-        blowoutRate: sql<string>`ROUND(COUNT(*) FILTER (WHERE ${cte.margin}::numeric > 20) * 100.0 / NULLIF(COUNT(*), 0), 1)`.as('blowout_rate'),
-    }).from(cte).as('margin_aggregates');
+    const sMarginAggregates = db
+        .select({
+            gamesUnder1pt:
+                sql<string>`COUNT(*) FILTER (WHERE ${cte.margin}::numeric < 1)`.as(
+                    "games_under_1pt"
+                ),
+            avgMargin: sql<string>`ROUND(AVG(${cte.margin}::numeric), 1)`.as(
+                "avg_margin"
+            ),
+            blowoutRate:
+                sql<string>`ROUND(COUNT(*) FILTER (WHERE ${cte.margin}::numeric > 20) * 100.0 / NULLIF(COUNT(*), 0), 1)`.as(
+                    "blowout_rate"
+                ),
+        })
+        .from(cte)
+        .as("margin_aggregates");
 
     const [result] = await db
         .with(cte)
@@ -873,21 +1016,55 @@ export async function selectSeasonPointMargins(leagueId: string) {
 }
 
 export async function selectSeasonStreaks(leagueId: string) {
-    const sWinStreak = db.select({
-        rosterOwnerId: r.rosterOwnerId, leagueId: r.leagueId, season: r.season,
-        streakLength: sql<string>`(SELECT MAX(LENGTH(m[1])) FROM regexp_matches(${r.record}, 'W+', 'g') m)`.as('streak_length'),
-    }).from(r)
-        .where(and(eq(r.leagueId, leagueId), sql`${r.record} IS NOT NULL AND ${r.record} != ''`))
-        .orderBy(desc(sql`(SELECT MAX(LENGTH(m[1])) FROM regexp_matches(${r.record}, 'W+', 'g') m)`))
-        .limit(1).as('longest_win_streak');
+    const sWinStreak = db
+        .select({
+            rosterOwnerId: r.rosterOwnerId,
+            leagueId: r.leagueId,
+            season: r.season,
+            streakLength:
+                sql<string>`(SELECT MAX(LENGTH(m[1])) FROM regexp_matches(${r.record}, 'W+', 'g') m)`.as(
+                    "streak_length"
+                ),
+        })
+        .from(r)
+        .where(
+            and(
+                eq(r.leagueId, leagueId),
+                sql`${r.record} IS NOT NULL AND ${r.record} != ''`
+            )
+        )
+        .orderBy(
+            desc(
+                sql`(SELECT MAX(LENGTH(m[1])) FROM regexp_matches(${r.record}, 'W+', 'g') m)`
+            )
+        )
+        .limit(1)
+        .as("longest_win_streak");
 
-    const sLossStreak = db.select({
-        rosterOwnerId: r.rosterOwnerId, leagueId: r.leagueId, season: r.season,
-        streakLength: sql<string>`(SELECT MAX(LENGTH(m[1])) FROM regexp_matches(${r.record}, 'L+', 'g') m)`.as('streak_length'),
-    }).from(r)
-        .where(and(eq(r.leagueId, leagueId), sql`${r.record} IS NOT NULL AND ${r.record} != ''`))
-        .orderBy(desc(sql`(SELECT MAX(LENGTH(m[1])) FROM regexp_matches(${r.record}, 'L+', 'g') m)`))
-        .limit(1).as('longest_loss_streak');
+    const sLossStreak = db
+        .select({
+            rosterOwnerId: r.rosterOwnerId,
+            leagueId: r.leagueId,
+            season: r.season,
+            streakLength:
+                sql<string>`(SELECT MAX(LENGTH(m[1])) FROM regexp_matches(${r.record}, 'L+', 'g') m)`.as(
+                    "streak_length"
+                ),
+        })
+        .from(r)
+        .where(
+            and(
+                eq(r.leagueId, leagueId),
+                sql`${r.record} IS NOT NULL AND ${r.record} != ''`
+            )
+        )
+        .orderBy(
+            desc(
+                sql`(SELECT MAX(LENGTH(m[1])) FROM regexp_matches(${r.record}, 'L+', 'g') m)`
+            )
+        )
+        .limit(1)
+        .as("longest_loss_streak");
 
     const [result] = await db
         .select({
@@ -918,29 +1095,43 @@ export async function selectSeasonStreaks(leagueId: string) {
 }
 
 export async function selectSeasonLeaderboard(leagueId: string) {
-    const sPtsLeader = db.select({
-        rosterOwnerId: mo.rosterOwnerId,
-        totalPts: sql<string>`SUM(${mo.pointsFor}::numeric)`.as('total_pts'),
-    }).from(mo).where(eq(mo.leagueId, leagueId))
+    const sPtsLeader = db
+        .select({
+            rosterOwnerId: mo.rosterOwnerId,
+            totalPts: sql<string>`SUM(${mo.pointsFor}::numeric)`.as(
+                "total_pts"
+            ),
+        })
+        .from(mo)
+        .where(eq(mo.leagueId, leagueId))
         .groupBy(mo.rosterOwnerId)
         .orderBy(desc(sql`SUM(${mo.pointsFor}::numeric)`))
-        .limit(1).as('season_pts_leader');
+        .limit(1)
+        .as("season_pts_leader");
 
-    const sMostWins = db.select({
-        rosterOwnerId: mo.rosterOwnerId,
-        wins: sql<string>`COUNT(*)`.as('wins'),
-    }).from(mo).where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, 'W')))
+    const sMostWins = db
+        .select({
+            rosterOwnerId: mo.rosterOwnerId,
+            wins: sql<string>`COUNT(*)`.as("wins"),
+        })
+        .from(mo)
+        .where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, "W")))
         .groupBy(mo.rosterOwnerId)
         .orderBy(desc(sql`COUNT(*)`))
-        .limit(1).as('season_most_wins');
+        .limit(1)
+        .as("season_most_wins");
 
-    const sMostLosses = db.select({
-        rosterOwnerId: mo.rosterOwnerId,
-        losses: sql<string>`COUNT(*)`.as('losses'),
-    }).from(mo).where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, 'L')))
+    const sMostLosses = db
+        .select({
+            rosterOwnerId: mo.rosterOwnerId,
+            losses: sql<string>`COUNT(*)`.as("losses"),
+        })
+        .from(mo)
+        .where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, "L")))
         .groupBy(mo.rosterOwnerId)
         .orderBy(desc(sql`COUNT(*)`))
-        .limit(1).as('season_most_losses');
+        .limit(1)
+        .as("season_most_losses");
 
     const [result] = await db
         .select({
@@ -979,52 +1170,89 @@ export async function selectSeasonLeaderboard(leagueId: string) {
 }
 
 export async function selectSeasonThatsGottaHurt(leagueId: string) {
-    const sMostPtsInLoss = db.select({
-        season: mo.season, week: mo.week, rosterOwnerId: mo.rosterOwnerId,
-        teamName: sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as('team_name'),
-        pointsFor: mo.pointsFor,
-    }).from(mo)
-        .innerJoin(lu, and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId)))
+    const sMostPtsInLoss = db
+        .select({
+            season: mo.season,
+            week: mo.week,
+            rosterOwnerId: mo.rosterOwnerId,
+            teamName:
+                sql<string>`COALESCE(${lu.teamName}, ${su.displayName})`.as(
+                    "team_name"
+                ),
+            pointsFor: mo.pointsFor,
+        })
+        .from(mo)
+        .innerJoin(
+            lu,
+            and(eq(mo.rosterOwnerId, lu.userId), eq(mo.leagueId, lu.leagueId))
+        )
         .innerJoin(su, eq(mo.rosterOwnerId, su.userId))
-        .where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, 'L')))
-        .orderBy(desc(mo.pointsFor)).limit(1).as('most_pts_in_loss');
+        .where(and(eq(mo.leagueId, leagueId), eq(mo.outcome, "L")))
+        .orderBy(desc(mo.pointsFor))
+        .limit(1)
+        .as("most_pts_in_loss");
 
-    const sMostPointsFaced = db.select({
-        rosterOwnerId: mo.rosterOwnerId,
-        totalPointsFaced: sql<string>`SUM(${mo.pointsAgainst}::numeric)`.as('total_points_faced'),
-    }).from(mo)
-        .where(and(eq(mo.leagueId, leagueId), sql`${mo.pointsAgainst} IS NOT NULL`))
+    const sMostPointsFaced = db
+        .select({
+            rosterOwnerId: mo.rosterOwnerId,
+            totalPointsFaced: sql<string>`SUM(${mo.pointsAgainst}::numeric)`.as(
+                "total_points_faced"
+            ),
+        })
+        .from(mo)
+        .where(
+            and(eq(mo.leagueId, leagueId), sql`${mo.pointsAgainst} IS NOT NULL`)
+        )
         .groupBy(mo.rosterOwnerId)
         .orderBy(desc(sql`SUM(${mo.pointsAgainst}::numeric)`))
-        .limit(1).as('most_points_faced');
+        .limit(1)
+        .as("most_points_faced");
 
-    const sWeeklyRanksDesc = db.select({
-        rosterOwnerId: mo.rosterOwnerId,
-        rnk: sql<number>`RANK() OVER (PARTITION BY ${mo.week} ORDER BY ${mo.pointsFor} DESC)`.as('rnk'),
-    }).from(mo).where(eq(mo.leagueId, leagueId)).as('weekly_ranks_desc');
+    const sWeeklyRanksDesc = db
+        .select({
+            rosterOwnerId: mo.rosterOwnerId,
+            rnk: sql<number>`RANK() OVER (PARTITION BY ${mo.week} ORDER BY ${mo.pointsFor} DESC)`.as(
+                "rnk"
+            ),
+        })
+        .from(mo)
+        .where(eq(mo.leagueId, leagueId))
+        .as("weekly_ranks_desc");
 
-    const sMostTopScores = db.select({
-        rosterOwnerId: sWeeklyRanksDesc.rosterOwnerId,
-        topScoreCount: sql<string>`COUNT(*)`.as('top_score_count'),
-    }).from(sWeeklyRanksDesc)
+    const sMostTopScores = db
+        .select({
+            rosterOwnerId: sWeeklyRanksDesc.rosterOwnerId,
+            topScoreCount: sql<string>`COUNT(*)`.as("top_score_count"),
+        })
+        .from(sWeeklyRanksDesc)
         .where(sql`"weekly_ranks_desc"."rnk" = 1`)
         .groupBy(sWeeklyRanksDesc.rosterOwnerId)
         .orderBy(desc(sql`COUNT(*)`))
-        .limit(1).as('most_weekly_top_scores');
+        .limit(1)
+        .as("most_weekly_top_scores");
 
-    const sWeeklyRanksAsc = db.select({
-        rosterOwnerId: mo.rosterOwnerId,
-        rnk: sql<number>`RANK() OVER (PARTITION BY ${mo.week} ORDER BY ${mo.pointsFor} ASC)`.as('rnk'),
-    }).from(mo).where(eq(mo.leagueId, leagueId)).as('weekly_ranks_asc');
+    const sWeeklyRanksAsc = db
+        .select({
+            rosterOwnerId: mo.rosterOwnerId,
+            rnk: sql<number>`RANK() OVER (PARTITION BY ${mo.week} ORDER BY ${mo.pointsFor} ASC)`.as(
+                "rnk"
+            ),
+        })
+        .from(mo)
+        .where(eq(mo.leagueId, leagueId))
+        .as("weekly_ranks_asc");
 
-    const sMostLastPlaces = db.select({
-        rosterOwnerId: sWeeklyRanksAsc.rosterOwnerId,
-        lastPlaceCount: sql<string>`COUNT(*)`.as('last_place_count'),
-    }).from(sWeeklyRanksAsc)
+    const sMostLastPlaces = db
+        .select({
+            rosterOwnerId: sWeeklyRanksAsc.rosterOwnerId,
+            lastPlaceCount: sql<string>`COUNT(*)`.as("last_place_count"),
+        })
+        .from(sWeeklyRanksAsc)
         .where(sql`"weekly_ranks_asc"."rnk" = 1`)
         .groupBy(sWeeklyRanksAsc.rosterOwnerId)
         .orderBy(desc(sql`COUNT(*)`))
-        .limit(1).as('most_weekly_last_places');
+        .limit(1)
+        .as("most_weekly_last_places");
 
     const [result] = await db
         .select({

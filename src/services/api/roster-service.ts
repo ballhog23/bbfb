@@ -1,7 +1,9 @@
 import { Sleeper } from "../../lib/sleeper.js";
 import {
     strictRosterSchema,
-    type RawRoster, NullableRawRoster, StrictRoster
+    type RawRoster,
+    NullableRawRoster,
+    StrictRoster,
 } from "../../lib/zod.js";
 import { undefinedToNullDeep, normalizeString } from "../../lib/helpers.js";
 import { selectAllLeagues } from "../../db/queries/leagues.js";
@@ -10,12 +12,12 @@ import { config } from "../../config.js";
 import type { SelectRoster, StrictInsertRoster } from "../../db/schema.js";
 
 export type LeaguesMap = {
-    leagueId: string,
+    leagueId: string;
     season: string;
 };
 
 type RawLeagueRecord = {
-    season: string,
+    season: string;
     rosters: RawRoster[];
 };
 
@@ -33,13 +35,15 @@ export async function buildAndInsertLeagueRostersHistory() {
     return result;
 }
 
-async function insertLeagueRosters(leagueRosters: StrictInsertRoster[]): Promise<SelectRoster[]> {
+async function insertLeagueRosters(
+    leagueRosters: StrictInsertRoster[]
+): Promise<SelectRoster[]> {
     const successfulRosters: SelectRoster[] = [];
     const BATCH_SIZE = 12; // 12 rosters per league season
 
     for (let i = 0; i < leagueRosters.length; i += BATCH_SIZE) {
         const chunk = leagueRosters.slice(i, i + BATCH_SIZE);
-        const currentInsert = chunk.map(roster => insertLeagueRoster(roster));
+        const currentInsert = chunk.map((roster) => insertLeagueRoster(roster));
         const result = await Promise.all(currentInsert);
         successfulRosters.push(...result);
     }
@@ -59,10 +63,10 @@ async function buildCurrentLeagueRosters(): Promise<StrictInsertRoster[]> {
 }
 
 export async function buildLeagueHistoryMap(): Promise<LeaguesMap[]> {
-    return (
-        await selectAllLeagues()).map(
-            ({ leagueId, season }) => ({ leagueId, season })
-        );
+    return (await selectAllLeagues()).map(({ leagueId, season }) => ({
+        leagueId,
+        season,
+    }));
 }
 
 async function buildLeagueRostersHistory(): Promise<StrictInsertRoster[]> {
@@ -80,26 +84,42 @@ async function buildLeagueRostersHistory(): Promise<StrictInsertRoster[]> {
     return normalizedLeagueRosters;
 }
 
-async function getAllRosters(leaguesMap: LeaguesMap[]): Promise<RawLeagueRecord[]> {
+async function getAllRosters(
+    leaguesMap: LeaguesMap[]
+): Promise<RawLeagueRecord[]> {
     const sleeper = new Sleeper();
 
     const allRostersByLeague = await Promise.all(
-        leaguesMap.map(
-            async ({ leagueId, season }) => ({ season, rosters: await sleeper.getLeagueRosters(leagueId) })
-        )
+        leaguesMap.map(async ({ leagueId, season }) => ({
+            season,
+            rosters: await sleeper.getLeagueRosters(leagueId),
+        }))
     );
 
     return allRostersByLeague;
 }
 
-function normalizeRoster(roster: NullableRawRoster, seasonYear: string): StrictRoster {
+function normalizeRoster(
+    roster: NullableRawRoster,
+    seasonYear: string
+): StrictRoster {
     // im not sure if an edge case is that a league user could drop all players on their roster and it could be empty
-    const starters = roster.starters ? roster.starters.map(playerId => normalizeString(playerId)) : [];
-    const players = roster.players ? roster.players.map(playerId => normalizeString(playerId)) : [];
-    const injuredReserve = roster.reserve ? roster.reserve.map(playerId => normalizeString(playerId)) : null;
+    const starters = roster.starters
+        ? roster.starters.map((playerId) => normalizeString(playerId))
+        : [];
+    const players = roster.players
+        ? roster.players.map((playerId) => normalizeString(playerId))
+        : [];
+    const injuredReserve = roster.reserve
+        ? roster.reserve.map((playerId) => normalizeString(playerId))
+        : null;
     // check for streak and record, returns null when new season and no drafted players
-    const streak = roster.metadata?.streak ? normalizeString(roster.metadata.streak) : null;
-    const record = roster.metadata?.record ? normalizeString(roster.metadata.record) : null;
+    const streak = roster.metadata?.streak
+        ? normalizeString(roster.metadata.streak)
+        : null;
+    const record = roster.metadata?.record
+        ? normalizeString(roster.metadata.record)
+        : null;
     const fptsAgainst = roster.settings.fpts_against ?? 0;
 
     return {
@@ -117,14 +137,16 @@ function normalizeRoster(roster: NullableRawRoster, seasonYear: string): StrictR
         reserve: injuredReserve,
         streak,
         record,
-        division: roster.settings.division
+        division: roster.settings.division,
     } satisfies StrictRoster;
-
 }
 
-function rawToNormalizedRosters(rawRosters: RawRoster[], seasonYear: string): StrictRoster[] {
+function rawToNormalizedRosters(
+    rawRosters: RawRoster[],
+    seasonYear: string
+): StrictRoster[] {
     return rawRosters
-        .map(roster => undefinedToNullDeep(roster) as NullableRawRoster)
-        .map(roster => normalizeRoster(roster, seasonYear))
-        .map(roster => strictRosterSchema.parse(roster));
+        .map((roster) => undefinedToNullDeep(roster) as NullableRawRoster)
+        .map((roster) => normalizeRoster(roster, seasonYear))
+        .map((roster) => strictRosterSchema.parse(roster));
 }

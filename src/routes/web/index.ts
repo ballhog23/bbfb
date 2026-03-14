@@ -4,4 +4,4 @@ import { handlerServeIndex } from "../../web/index.js";
 
 export const webIndexRoute = express.Router();
 
-webIndexRoute.get('/', asyncHandler(handlerServeIndex));
+webIndexRoute.get("/", asyncHandler(handlerServeIndex));

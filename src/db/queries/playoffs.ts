@@ -1,12 +1,18 @@
 import { sql, eq, and, desc, isNotNull } from "drizzle-orm";
 import { db } from "../index.js";
 import {
-    leagueUsersTable, matchupsTable, sleeperUsersTable,
-    playoffsTable, rostersTable, NFLPlayersTable,
-    type StrictInsertPlayoffMatchup
+    leagueUsersTable,
+    matchupsTable,
+    sleeperUsersTable,
+    playoffsTable,
+    rostersTable,
+    NFLPlayersTable,
+    type StrictInsertPlayoffMatchup,
 } from "../schema.js";
 
-export async function insertPlayoffMatchup(matchup: StrictInsertPlayoffMatchup) {
+export async function insertPlayoffMatchup(
+    matchup: StrictInsertPlayoffMatchup
+) {
     const [result] = await db
         .insert(playoffsTable)
         .values(matchup)
@@ -14,7 +20,7 @@ export async function insertPlayoffMatchup(matchup: StrictInsertPlayoffMatchup) 
             target: [
                 playoffsTable.leagueId,
                 playoffsTable.bracketType,
-                playoffsTable.bracketMatchupId
+                playoffsTable.bracketMatchupId,
             ],
             set: {
                 matchupId: sql`EXCLUDED.matchup_id`,
@@ -28,8 +34,8 @@ export async function insertPlayoffMatchup(matchup: StrictInsertPlayoffMatchup) 
                 t1FromWinner: sql`EXCLUDED.t1_from_winner`,
                 t1FromLoser: sql`EXCLUDED.t1_from_loser`,
                 t2FromWinner: sql`EXCLUDED.t2_from_winner`,
-                t2FromLoser: sql`EXCLUDED.t2_from_loser`
-            }
+                t2FromLoser: sql`EXCLUDED.t2_from_loser`,
+            },
         })
         .returning();
 
@@ -37,9 +43,7 @@ export async function insertPlayoffMatchup(matchup: StrictInsertPlayoffMatchup) 
 }
 
 export async function selectAllPlayoffMatchups() {
-    const result = await db
-        .select()
-        .from(playoffsTable);
+    const result = await db.select().from(playoffsTable);
 
     return result;
 }
@@ -48,9 +52,7 @@ export async function selectPlayoffMatchupsPerSeason(leagueId: string) {
     const result = await db
         .select()
         .from(playoffsTable)
-        .where(
-            eq(playoffsTable.leagueId, leagueId)
-        )
+        .where(eq(playoffsTable.leagueId, leagueId))
         .orderBy(
             desc(playoffsTable.bracketType),
             playoffsTable.week,
@@ -61,9 +63,7 @@ export async function selectPlayoffMatchupsPerSeason(leagueId: string) {
 }
 
 // using for matchups page
-export async function selectPlayoffMatchupsWithDetails(
-    leagueId: string
-) {
+export async function selectPlayoffMatchupsWithDetails(leagueId: string) {
     const playerJson = sql<{
         playerName: string;
         position: string;
@@ -83,7 +83,7 @@ export async function selectPlayoffMatchupsWithDetails(
     `;
 
     // Build the team roster subquery as a CTE
-    const t1Data = db.$with('t1_data').as(
+    const t1Data = db.$with("t1_data").as(
         db
             .select({
                 rosterId: matchupsTable.rosterId,
@@ -91,24 +91,28 @@ export async function selectPlayoffMatchupsWithDetails(
                 week: matchupsTable.week,
                 season: matchupsTable.season,
                 team: leagueUsersTable.teamName,
-                teamImage: sql<string>`${leagueUsersTable.avatarId}`.as('t1_team_image'),
+                teamImage: sql<string>`${leagueUsersTable.avatarId}`.as(
+                    "t1_team_image"
+                ),
                 owner: sleeperUsersTable.displayName,
-                ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as('t1_owner_image'),
+                ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as(
+                    "t1_owner_image"
+                ),
                 points: matchupsTable.points,
                 startingRoster: sql<(typeof playerJson)[] | null>`
                     jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
                     FILTER (
                         WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
                     )
-                `.as('t1_starting_roster'),
+                `.as("t1_starting_roster"),
                 benchRoster: sql<(typeof playerJson)[] | null>`
                     jsonb_agg(${playerJson})
                     FILTER (
                         WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.players})
                         AND ${NFLPlayersTable.playerId} <> ALL(${matchupsTable.starters})
                     )
-                `.as('t1_bench_roster'),
-                reserveRoster: sql<null>`NULL`.as('t1_reserve_roster'),
+                `.as("t1_bench_roster"),
+                reserveRoster: sql<null>`NULL`.as("t1_reserve_roster"),
             })
             .from(matchupsTable)
             .innerJoin(
@@ -159,7 +163,7 @@ export async function selectPlayoffMatchupsWithDetails(
             )
     );
 
-    const t2Data = db.$with('t2_data').as(
+    const t2Data = db.$with("t2_data").as(
         db
             .select({
                 rosterId: matchupsTable.rosterId,
@@ -167,24 +171,28 @@ export async function selectPlayoffMatchupsWithDetails(
                 week: matchupsTable.week,
                 season: matchupsTable.season,
                 team: leagueUsersTable.teamName,
-                teamImage: sql<string>`${leagueUsersTable.avatarId}`.as('t2_team_image'),
+                teamImage: sql<string>`${leagueUsersTable.avatarId}`.as(
+                    "t2_team_image"
+                ),
                 owner: sleeperUsersTable.displayName,
-                ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as('t2_owner_image'),
+                ownerImage: sql<string>`${sleeperUsersTable.avatarId}`.as(
+                    "t2_owner_image"
+                ),
                 points: matchupsTable.points,
                 startingRoster: sql<(typeof playerJson)[] | null>`
                     jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
                     FILTER (
                         WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
                     )
-                `.as('t2_starting_roster'),
+                `.as("t2_starting_roster"),
                 benchRoster: sql<(typeof playerJson)[] | null>`
                     jsonb_agg(${playerJson})
                     FILTER (
                         WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.players})
                         AND ${NFLPlayersTable.playerId} <> ALL(${matchupsTable.starters})
                     )
-                `.as('t2_bench_roster'),
-                reserveRoster: sql<null>`NULL`.as('t2_reserve_roster'),
+                `.as("t2_bench_roster"),
+                reserveRoster: sql<null>`NULL`.as("t2_reserve_roster"),
             })
             .from(matchupsTable)
             .innerJoin(
@@ -321,13 +329,15 @@ export async function selectLeagueWinner(leagueId: string) {
             avatar: leagueUsersTable.avatarId,
         })
         .from(playoffsTable)
-        .innerJoin(rostersTable,
+        .innerJoin(
+            rostersTable,
             and(
                 eq(playoffsTable.leagueId, rostersTable.leagueId),
                 eq(playoffsTable.winnerId, rostersTable.rosterId)
             )
         )
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(playoffsTable.leagueId, leagueUsersTable.leagueId),
                 eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)
@@ -337,7 +347,7 @@ export async function selectLeagueWinner(leagueId: string) {
             and(
                 eq(playoffsTable.leagueId, leagueId),
                 eq(playoffsTable.week, 17),
-                eq(playoffsTable.bracketType, 'winners_bracket'),
+                eq(playoffsTable.bracketType, "winners_bracket"),
                 eq(playoffsTable.place, 1)
             )
         );
@@ -352,13 +362,15 @@ export async function selectLeagueLoser(leagueId: string) {
             avatar: leagueUsersTable.avatarId,
         })
         .from(playoffsTable)
-        .innerJoin(rostersTable,
+        .innerJoin(
+            rostersTable,
             and(
                 eq(playoffsTable.leagueId, rostersTable.leagueId),
                 eq(playoffsTable.loserId, rostersTable.rosterId)
             )
         )
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(playoffsTable.leagueId, leagueUsersTable.leagueId),
                 eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)
@@ -368,7 +380,7 @@ export async function selectLeagueLoser(leagueId: string) {
             and(
                 eq(playoffsTable.leagueId, leagueId),
                 eq(playoffsTable.week, 16),
-                eq(playoffsTable.bracketType, 'losers_bracket'),
+                eq(playoffsTable.bracketType, "losers_bracket"),
                 eq(playoffsTable.place, 5)
             )
         );

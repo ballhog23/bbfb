@@ -4,4 +4,4 @@ import { handlerHistoryBootstrap } from "../../api/bootstrap-history.js";
 
 export const apiBootstrapRoute = express.Router();
 
-apiBootstrapRoute.post('/', asyncHandler(handlerHistoryBootstrap));
+apiBootstrapRoute.post("/", asyncHandler(handlerHistoryBootstrap));

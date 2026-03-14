@@ -150,3 +150,5 @@ Pushes to `master` trigger a GitHub Actions workflow that:
 3. Sends an SSM command to the app server to pull, build, migrate, and restart
 
 For initial infrastructure provisioning and setup, see [infra/DEPLOYMENT.md](infra/DEPLOYMENT.md).
+
+For ongoing updates including environment variable / secrets management, see [infra/UPDATES.md](infra/UPDATES.md).

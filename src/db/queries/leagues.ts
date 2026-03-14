@@ -1,6 +1,6 @@
 import { sql, eq, ne, desc } from "drizzle-orm";
 import { db } from "../index.js";
-import { leaguesTable, type StrictInsertLeague } from '../schema.js';
+import { leaguesTable, type StrictInsertLeague } from "../schema.js";
 
 export async function insertLeague(league: StrictInsertLeague) {
     const [result] = await db
@@ -16,8 +16,8 @@ export async function insertLeague(league: StrictInsertLeague) {
                 previousLeagueId: sql`EXCLUDED.previous_league_id`,
                 draftId: sql`EXCLUDED.draft_id`,
                 rosterPositions: sql`EXCLUDED.roster_positions`,
-                totalRosters: sql`EXCLUDED.total_rosters`
-            }
+                totalRosters: sql`EXCLUDED.total_rosters`,
+            },
         })
         .returning();
 
@@ -37,11 +37,7 @@ export async function selectAllCompletedLeagues() {
     const rows = await db
         .select()
         .from(leaguesTable)
-        .where(
-            eq(
-                leaguesTable.status, "complete"
-            )
-        )
+        .where(eq(leaguesTable.status, "complete"))
         .orderBy(desc(leaguesTable.season));
 
     return rows;
@@ -51,7 +47,7 @@ export async function selectAllLeaguesIdsAndSeasons() {
     const rows = await db
         .select({
             leagueId: leaguesTable.leagueId,
-            season: leaguesTable.season
+            season: leaguesTable.season,
         })
         .from(leaguesTable)
         .orderBy(desc(leaguesTable.season));
@@ -72,7 +68,7 @@ export async function selectCurrentLeague() {
     const [result] = await db
         .select()
         .from(leaguesTable)
-        .where(ne(leaguesTable.status, 'completed'));
+        .where(ne(leaguesTable.status, "completed"));
 
     return result;
 }

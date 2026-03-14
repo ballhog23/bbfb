@@ -1,6 +1,12 @@
 import { sql, and, eq, desc } from "drizzle-orm";
 import { db } from "../index.js";
-import { leagueUsersTable, rostersTable, NFLPlayersTable, type StrictInsertRoster, sleeperUsersTable } from '../schema.js';
+import {
+    leagueUsersTable,
+    rostersTable,
+    NFLPlayersTable,
+    type StrictInsertRoster,
+    sleeperUsersTable,
+} from "../schema.js";
 
 export async function insertLeagueRoster(leagueRosters: StrictInsertRoster) {
     const [result] = await db
@@ -21,8 +27,8 @@ export async function insertLeagueRoster(leagueRosters: StrictInsertRoster) {
                 players: sql`EXCLUDED.players`,
                 streak: sql`EXCLUDED.streak`,
                 record: sql`EXCLUDED.record`,
-                division: sql`EXCLUDED.division`
-            }
+                division: sql`EXCLUDED.division`,
+            },
         })
         .returning();
 
@@ -38,8 +44,7 @@ export async function selectAllRosters() {
             season: rostersTable.season,
             wins: rostersTable.wins,
             losses: rostersTable.losses,
-            players: sql
-                `
+            players: sql`
                     jsonb_agg(
                         jsonb_build_object(
                             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
@@ -49,13 +54,17 @@ export async function selectAllRosters() {
                 `,
         })
         .from(rostersTable)
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
                 eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
-        .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
+        .innerJoin(
+            NFLPlayersTable,
+            sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`
+        )
         .groupBy(
             leagueUsersTable.userId,
             leagueUsersTable.teamName,
@@ -77,8 +86,7 @@ export async function selectUserRosters(userId: string) {
             season: rostersTable.season,
             wins: rostersTable.wins,
             losses: rostersTable.losses,
-            players: sql
-                `
+            players: sql`
                     jsonb_agg(
                         jsonb_build_object(
                             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
@@ -88,13 +96,17 @@ export async function selectUserRosters(userId: string) {
                 `,
         })
         .from(rostersTable)
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
                 eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
-        .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
+        .innerJoin(
+            NFLPlayersTable,
+            sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`
+        )
         .where(eq(rostersTable.rosterOwnerId, userId))
         .groupBy(
             leagueUsersTable.userId,
@@ -186,12 +198,12 @@ export async function selectLeagueRosters(leagueId: string) {
             rostersTable.fpts,
             rostersTable.fptsAgainst,
             rostersTable.wins,
-            rostersTable.losses,
+            rostersTable.losses
         )
         .orderBy(
             desc(rostersTable.wins),
             desc(rostersTable.fpts),
-            desc(rostersTable.fptsAgainst),
+            desc(rostersTable.fptsAgainst)
         );
 
     return result;
@@ -207,24 +219,27 @@ export async function selectLeagueUserRoster(leagueId: string, userId: string) {
             wins: rostersTable.wins,
             losses: rostersTable.losses,
             rosterId: rostersTable.rosterId,
-            players: sql
-                `
+            players: sql`
                     jsonb_agg(
                         jsonb_build_object(
                             'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
                             'position', ${NFLPlayersTable.position}
                         )
                     ) as player_metadata
-                `
+                `,
         })
         .from(rostersTable)
-        .innerJoin(leagueUsersTable,
+        .innerJoin(
+            leagueUsersTable,
             and(
                 eq(rostersTable.leagueId, leagueUsersTable.leagueId),
                 eq(rostersTable.rosterOwnerId, leagueUsersTable.userId)
             )
         )
-        .innerJoin(NFLPlayersTable, sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`)
+        .innerJoin(
+            NFLPlayersTable,
+            sql`${NFLPlayersTable.playerId} = ANY(${rostersTable.players})`
+        )
         .where(
             and(
                 eq(rostersTable.leagueId, leagueId),
@@ -237,7 +252,7 @@ export async function selectLeagueUserRoster(leagueId: string, userId: string) {
             rostersTable.season,
             rostersTable.wins,
             rostersTable.losses,
-            rostersTable.rosterId,
+            rostersTable.rosterId
         );
     return result;
 }

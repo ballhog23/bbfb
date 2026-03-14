@@ -10,8 +10,11 @@ const outputDir = path.join(inputDir, "optimized");
 const BREAKPOINTS = [400, 600, 800, 1200];
 
 function isStale(sourcePath: string, outputPath: string): boolean {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- path is built from process.cwd(), not user input
     if (!fs.existsSync(outputPath)) return true;
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
     const srcMtime = fs.statSync(sourcePath).mtimeMs;
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
     const outMtime = fs.statSync(outputPath).mtimeMs;
     return srcMtime > outMtime;
 }
@@ -29,9 +32,9 @@ async function processImage(file: string) {
     const aspectRatio = originalHeight / originalWidth;
 
     // Only keep breakpoints smaller than original
-    const validWidths = BREAKPOINTS.filter(w => w <= originalWidth);
+    const validWidths = BREAKPOINTS.filter((w) => w <= originalWidth);
 
-    const variants: { width: number; height: number; path: string; }[] = [];
+    const variants: { width: number; height: number; path: string }[] = [];
 
     // If original image is smaller than smallest breakpoint, just copy it
     if (validWidths.length === 0) {
@@ -48,7 +51,7 @@ async function processImage(file: string) {
         variants.push({
             width: originalWidth,
             height: originalHeight,
-            path: `/assets/optimized/${outputName}`
+            path: `/assets/optimized/${outputName}`,
         });
 
         return { variants };
@@ -62,7 +65,10 @@ async function processImage(file: string) {
         const outputPath = path.join(outputDir, outputName);
 
         if (isStale(inputPath, outputPath)) {
-            await sharp(inputPath).resize(width, height).webp({ quality: 75 }).toFile(outputPath);
+            await sharp(inputPath)
+                .resize(width, height)
+                .webp({ quality: 75 })
+                .toFile(outputPath);
             console.log(`  generated ${outputName}`);
         } else {
             console.log(`  skipped ${outputName} (unchanged)`);
@@ -71,7 +77,7 @@ async function processImage(file: string) {
         variants.push({
             width,
             height,
-            path: `/assets/optimized/${outputName}`
+            path: `/assets/optimized/${outputName}`,
         });
     }
 
@@ -83,15 +89,16 @@ async function run() {
         fs.mkdirSync(outputDir);
     }
 
-    const files = fs.readdirSync(inputDir).filter(file =>
-        /\.(jpg|jpeg|png|webp)$/i.test(file)
-    );
+    const files = fs
+        .readdirSync(inputDir)
+        .filter((file) => /\.(jpg|jpeg|png|webp)$/i.test(file));
 
     const manifest: Record<string, ImageEntry> = {};
 
     for (const file of files) {
         const result = await processImage(file);
         if (result) {
+            // eslint-disable-next-line security/detect-object-injection
             manifest[file] = result;
         }
     }
@@ -101,7 +108,9 @@ async function run() {
         JSON.stringify(manifest, null, 2)
     );
 
-    console.log(`Image optimization complete. ${Object.keys(manifest).length} images processed.`);
+    console.log(
+        `Image optimization complete. ${Object.keys(manifest).length} images processed.`
+    );
 }
 
 run();
