@@ -1,7 +1,7 @@
 import type { StrictInsertLeague } from "../../../src/db/schema.js";
 import * as raw2025League from "./raw/league-2025.json";
 import type { NullableRawLeague, RawLeague, StrictLeague } from "../../../src/lib/zod.js";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as raw2024League from "./raw/league-2024.json";
 import * as normalized2025League from "./normalized/league-2025.json";
 import * as rawLeagueHistory from "./raw/league-history.json";
@@ -13,7 +13,6 @@ import {
 import { strictLeagueSchema } from "../../../src/lib/zod.js";
 import { undefinedToNullDeep } from "../../../src/lib/helpers.js";
 import { Sleeper } from "../../../src/lib/sleeper.js";
-import { NotFoundError } from "../../../src/lib/errors.js";
 
 // Test could break if new fields are added to leagues on Sleepers side, but the expected mapping is dynamic so it’s mostly future-proof.
 const rawAllLeagues: RawLeague[] = Reflect.get(rawLeagueHistory, 'default');
@@ -32,7 +31,7 @@ describe("league normalization tests", () => {
             season: "2025",
             name: "Test League",
             avatar: "avatar123",
-            previous_league_id: null, // edge case you want to test
+            previous_league_id: null,
             draft_id: "draft123",
             roster_positions: ["QB", "RB", "WR"],
             total_rosters: 10,
