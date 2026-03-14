@@ -2,7 +2,7 @@ import type { RawLeague, RawLeagueUser } from "../../../src/lib/zod.js";
 import { http, HttpResponse } from 'msw';
 import * as allLeagueUsersHistory from "../users/raw/raw-league-user-by-year.json";
 import * as rawLeagueHistory from "../leagues/raw/league-history.json";
-import { config } from "../../../src/config.js";
+// import { config } from "../../../src/config.js";
 
 const leagueHistory: RawLeague[] = Reflect.get(rawLeagueHistory, "default");
 const usersByLeague: Map<string, RawLeagueUser[]> = new Map(
@@ -24,7 +24,7 @@ export const handlers = [
     }),
     // all league users per league season
     http.get(`${baseURL}league/:leagueId/users`, ({ params }) => {
-        const leagueId: string = Array.isArray(params.leagueId) ? params.leagueId[0] : params.leagueId ?? config.league.id;
+        const leagueId: string = Array.isArray(params.leagueId) ? params.leagueId[0] : params.leagueId ?? '1257436036187824128';
         const leagueUsers = usersByLeague.get(leagueId) ?? null;
 
         if (!leagueUsers) {
