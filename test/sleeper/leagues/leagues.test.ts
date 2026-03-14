@@ -1,6 +1,8 @@
 import * as raw2025League from "./raw/league-2025.json";
 import type { NullableRawLeague, RawLeague, StrictLeague } from "../../../src/lib/zod.js";
 import { describe, expect, it } from "vitest";
+import { http, HttpResponse } from "msw";
+import { server } from "../sleeper-mocks/node.js";
 import * as raw2024League from "./raw/league-2024.json";
 import * as normalized2025League from "./normalized/league-2025.json";
 import * as rawLeagueHistory from "./raw/league-history.json";
@@ -147,4 +149,50 @@ describe("Sleeper.getLeague (MSW intercepted)", () => {
     //     const response = await getAllLeagues();
     //     expect(response).toEqual(rawAllLeagues);
     // });
+});
+
+describe("getAllLeagues (MSW intercepted)", () => {
+    it("walks the previous_league_id chain and returns all leagues", async () => {
+        const result = await getAllLeagues();
+        expect(result).toEqual(rawAllLeagues);
+    });
+
+    it("returns leagues starting from the current season", async () => {
+        const result = await getAllLeagues();
+        expect(result[0].league_id).toBe("1322699788034011136");
+    });
+
+    it("ends at the oldest league with no previous_league_id", async () => {
+        const result = await getAllLeagues();
+        const oldest = result[result.length - 1];
+        expect(oldest.previous_league_id).toBeFalsy();
+    });
+
+    it("throws on a cycle in previous_league_id", async () => {
+        const baseURL = `https://api.sleeper.app/v1/`;
+        server.use(
+            http.get(`${baseURL}league/734440532654313472`, () =>
+                HttpResponse.json({ ...rawAllLeagues[5], previous_league_id: "1322699788034011136" }),
+                { once: true }
+            )
+        );
+        await expect(getAllLeagues()).rejects.toThrow("Cycle detected");
+    });
+});
+
+describe("buildLeagueHistory (MSW intercepted)", () => {
+    it("returns all leagues normalized", async () => {
+        const result = await buildLeagueHistory();
+        expect(result).toEqual(normalizedAllLeagues);
+    });
+
+    it("each league has camelCase fields", async () => {
+        const result = await buildLeagueHistory();
+        for (const league of result) {
+            expect(league).toHaveProperty("leagueId");
+            expect(league).toHaveProperty("leagueName");
+            expect(league).toHaveProperty("previousLeagueId");
+            expect(league).not.toHaveProperty("league_id");
+        }
+    });
 });

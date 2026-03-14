@@ -1,0 +1,39 @@
+[
+    {
+        "owner_id": "730912754680061952",
+        "league_id": "1118232706736807936",
+        "roster_id": 1,
+        "starters": ["player1", "player2", "player3"],
+        "settings": {
+            "division": 1,
+            "wins": 9,
+            "ties": 0,
+            "losses": 4,
+            "fpts_against": 1450,
+            "fpts": 1632
+        },
+        "players": ["player1", "player2", "player3", "player4", "player5"],
+        "reserve": null,
+        "metadata": {
+            "streak": "W3",
+            "record": "9-4-0"
+        }
+    },
+    {
+        "owner_id": "726512017078317056",
+        "league_id": "1118232706736807936",
+        "roster_id": 2,
+        "starters": ["player6", "player7", "player8"],
+        "settings": {
+            "division": 1,
+            "wins": 7,
+            "ties": 0,
+            "losses": 6,
+            "fpts_against": 1520,
+            "fpts": 1501
+        },
+        "players": ["player6", "player7", "player8", "player9", "player10"],
+        "reserve": null,
+        "metadata": null
+    }
+]

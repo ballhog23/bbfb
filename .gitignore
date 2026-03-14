@@ -13,7 +13,7 @@ simulate-week16.sql
 simulate-week17.sql
 simulate-offseason.sql
 seed-league-state-2025-off.sql
-
+coverage/
 
 # Logs
 logs
@@ -39,5 +39,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-/test
 .claude

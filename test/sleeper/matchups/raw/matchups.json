@@ -1,0 +1,28 @@
+[
+    {
+        "points": 142.56,
+        "players": ["player1", "player2", "player3"],
+        "roster_id": 1,
+        "matchup_id": 1,
+        "starters": ["player1", "player2", "player3"],
+        "starters_points": [42.1, 55.3, 45.16],
+        "players_points": {
+            "player1": 42.1,
+            "player2": 55.3,
+            "player3": 45.16
+        }
+    },
+    {
+        "points": 118.4,
+        "players": ["player6", "player7", "player8"],
+        "roster_id": 2,
+        "matchup_id": 1,
+        "starters": ["player6", "player7", "player8"],
+        "starters_points": [38.2, 44.0, 36.2],
+        "players_points": {
+            "player6": 38.2,
+            "player7": 44.0,
+            "player8": 36.2
+        }
+    }
+]

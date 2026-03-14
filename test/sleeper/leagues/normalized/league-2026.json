@@ -1,0 +1,29 @@
+{
+    "leagueId": "1322699788034011136",
+    "status": "pre_draft",
+    "season": "2026",
+    "leagueName": "BleedBlue2k25",
+    "avatarId": "594e9841023952c43fe07a45de40e151",
+    "previousLeagueId": "1257436036187824128",
+    "draftId": "1322699788046594048",
+    "rosterPositions": [
+        "QB",
+        "RB",
+        "RB",
+        "WR",
+        "WR",
+        "TE",
+        "FLEX",
+        "FLEX",
+        "DEF",
+        "BN",
+        "BN",
+        "BN",
+        "BN",
+        "BN",
+        "BN"
+    ],
+    "totalRosters": 12,
+    "createdAt": "2026-02-13T03:47:53.243Z",
+    "updatedAt": "2026-02-13T10:04:31.650Z"
+}

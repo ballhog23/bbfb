@@ -1,0 +1,38 @@
+[
+    {
+        "player_id": "1234",
+        "first_name": "Patrick",
+        "last_name": "Mahomes",
+        "active": true,
+        "fantasy_positions": ["QB"],
+        "position": "QB",
+        "team": "KC",
+        "number": 15,
+        "age": 29,
+        "injury_status": null
+    },
+    {
+        "player_id": "5678",
+        "first_name": "Justin",
+        "last_name": "Jefferson",
+        "active": true,
+        "fantasy_positions": ["WR"],
+        "position": "WR",
+        "team": "MIN",
+        "number": 18,
+        "age": 25,
+        "injury_status": null
+    },
+    {
+        "player_id": "9999",
+        "first_name": "Retired",
+        "last_name": "Player",
+        "active": false,
+        "fantasy_positions": null,
+        "position": null,
+        "team": null,
+        "number": null,
+        "age": 38,
+        "injury_status": null
+    }
+]
