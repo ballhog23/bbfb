@@ -53,6 +53,7 @@ jobs:
             --parameters 'commands=[
               "set -e",
               "cd /opt/${{ secrets.APP_NAME }}",
+              "sudo -u ${{ secrets.APP_NAME }} git checkout -- package-lock.json",
               "sudo -u ${{ secrets.APP_NAME }} git pull origin master",
               "sudo -u ${{ secrets.APP_NAME }} npm ci",
               "sudo -u ${{ secrets.APP_NAME }} npm run build",
