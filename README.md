@@ -88,7 +88,7 @@ Internet
 ## Project Goals
 
 - Manage third-party data from the Sleeper API with runtime validation (Zod)
-- Practice database design and maintain historical data integrity
+- Design a normalized database schema and maintain historical data integrity across seasons
 - Build and operate a production AWS environment with CDK
 - Keep costs minimal (~$10-15/month)
 
