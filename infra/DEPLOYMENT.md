@@ -80,7 +80,7 @@ aws ec2-instance-connect ssh --instance-id <DB_INSTANCE_ID>
    ~/setup-db-instance.sh
    ```
 
-5. **Remove the temporary outbound HTTPS rule** from the DB security group. The database does not need internet access during normal operation.
+4. **Remove the temporary outbound HTTPS rule** from the DB security group. The database does not need internet access during normal operation.
 
 ### Step 4: Configure App Instance
 
@@ -219,7 +219,7 @@ sudo tail -f /var/lib/pgsql/data/log/postgresql-*.log
 
 ## Future Deployments
 
-For code updates or schema changes:
+Code deployments are handled automatically by GitHub Actions via SSM when changes are pushed to `master`. The steps below are a manual fallback if the automated workflow is unavailable.
 
 ### Database Schema Changes
 
@@ -227,11 +227,9 @@ For code updates or schema changes:
 # On local machine:
 npm run generate  # Generate new migrations
 git commit -m "Add new migration"
-git push
+git push  # GitHub Actions will deploy automatically
 
-# Deploy code to app instance (via S3, git pull, etc.)
-
-# On app instance:
+# If running manually on app instance:
 cd /opt/<APP_NAME>
 sudo -u <APP_NAME> npm run migrate
 sudo systemctl restart <APP_NAME>
@@ -240,8 +238,8 @@ sudo systemctl restart <APP_NAME>
 ### Application Code Updates
 
 ```bash
-# Deploy new code to /opt/<APP_NAME>
-# Then:
+# Normally handled by GitHub Actions on push to master.
+# If deploying manually on app instance:
 cd /opt/<APP_NAME>
 sudo -u <APP_NAME> npm ci --omit=dev
 sudo -u <APP_NAME> npm run build
@@ -377,7 +375,7 @@ sudo tail -f /var/log/nginx/error.log
 ```bash
 sudo journalctl -u <APP_NAME> -f
 sudo journalctl -u <APP_NAME> --since "1 hour ago"
-sudo journalctl -u your-service-name -p err # only error-level entry
+sudo journalctl -u <APP_NAME> -p err # only error-level entry
 ```
 
 **PostgreSQL logs:**

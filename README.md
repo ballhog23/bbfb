@@ -24,7 +24,7 @@ A web application for the Bleed Blue fantasy football league that tracks histori
 | Validation | Zod |
 | Client JS | TypeScript bundled with esbuild |
 | Styling | Sass |
-| Testing | Vitest, MSW, Jest for Infra |
+| Testing | Vitest, MSW |
 
 ## Project Structure
 
@@ -116,7 +116,7 @@ Thanks to the [Sleeper API](https://docs.sleeper.app/) for providing free access
 
 3. **Set up the database:**
    ```bash
-   createdb bbfb
+   createdb <APP_NAME>
    npm run migrate
    ```
 
