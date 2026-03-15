@@ -1,9 +1,7 @@
 # Bleed Blue Fantasy Football
 
 A web application for the Bleed Blue fantasy football league that tracks historical and current season data from the [Sleeper API](https://docs.sleeper.app/). View matchups, standings, and league records across every season.
-## Quick Start
-## Usage
-## Contributing
+
 ## Motivation
 I built this to implement a cost-optimized, 3-tier AWS architecture for real-time data ingestion. The project solves the challenge of maintaining long-term historical data from the Sleeper API by implementing a persistent PostgreSQL-backed synchronization pipeline.
 
