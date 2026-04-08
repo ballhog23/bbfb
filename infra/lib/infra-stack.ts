@@ -9,7 +9,6 @@ import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import * as path from 'node:path';
 
-import { FckNatInstanceProvider } from 'cdk-fck-nat';
 import { Construct } from 'constructs';
 import { GithubActionsOidc } from './cicd/cicd';
 
@@ -21,10 +20,13 @@ export class BBFBInfraStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
-        // nat instance
-        const natGatewayProvider = new FckNatInstanceProvider({
+        // nat instance (fck-nat AMI in non-HA mode, no ASG)
+        const natGatewayProvider = new ec2.NatInstanceProviderV2({
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
-            enableSsm: true,
+            machineImage: new ec2.LookupMachineImage({
+                name: 'fck-nat-al2023-*-arm64-ebs',
+                owners: ['568608671756'],
+            }),
         });
 
         const vpc = new ec2.Vpc(this, 'bbfb-vpc', {
@@ -51,11 +53,6 @@ export class BBFBInfraStack extends cdk.Stack {
                     subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
                 },
             ],
-        });
-
-        // rename the NAT instance via ASG tags
-        natGatewayProvider.autoScalingGroups.forEach(asg => {
-            cdk.Tags.of(asg).add('Name', `${this.stackName}/NatInstance`);
         });
 
         // restricts nat instance to accept only traffic from private subnets
@@ -86,7 +83,8 @@ export class BBFBInfraStack extends cdk.Stack {
             vpc,
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
             machineImage: ec2.MachineImage.latestAmazonLinux2023({
-                cpuType: ec2.AmazonLinuxCpuType.ARM_64
+                cpuType: ec2.AmazonLinuxCpuType.ARM_64,
+                cachedInContext: true,
             }),
             vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
             securityGroup: reverseProxySecurityGroup,
@@ -104,7 +102,8 @@ export class BBFBInfraStack extends cdk.Stack {
             vpc,
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
             machineImage: ec2.MachineImage.latestAmazonLinux2023({
-                cpuType: ec2.AmazonLinuxCpuType.ARM_64
+                cpuType: ec2.AmazonLinuxCpuType.ARM_64,
+                cachedInContext: true,
             }),
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
             securityGroup: appSecurityGroup,
@@ -123,7 +122,8 @@ export class BBFBInfraStack extends cdk.Stack {
             vpc,
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
             machineImage: ec2.MachineImage.latestAmazonLinux2023({
-                cpuType: ec2.AmazonLinuxCpuType.ARM_64
+                cpuType: ec2.AmazonLinuxCpuType.ARM_64,
+                cachedInContext: true,
             }),
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
             securityGroup: dbSecurityGroup,

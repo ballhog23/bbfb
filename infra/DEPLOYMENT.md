@@ -122,6 +122,21 @@ The script will:
 - Create and start systemd service
 - Bootstrap the database with historical data
 
+**If deploying during the NFL offseason**, the league state sync will return null and the homepage will 404. You must manually seed the `league_state` table on the DB instance:
+
+```bash
+# Connect to the DB instance
+aws ec2-instance-connect ssh --instance-id <DB_INSTANCE_ID>
+
+# Insert the offseason league state
+# season = last completed season year, previous_season = the year before that
+sudo -u postgres psql -d <DB_NAME> -c \
+  "INSERT INTO league_state (id, week, leg, season, season_type, previous_season, display_week, is_league_active)
+   VALUES (1, 17, 18, '<LAST_SEASON_YEAR>', 'off', '<YEAR_BEFORE_THAT>', 17, false);"
+```
+
+This is only needed for initial deployment — once the NFL season starts, the daily sync will populate it automatically.
+
 **Verify app is running:**
 ```bash
 sudo systemctl status <APP_NAME>
@@ -184,7 +199,32 @@ dig bleedblue.football
 nslookup bleedblue.football
 ```
 
-### Step 7: Verify Deployment
+### Step 7: Configure GitHub Actions Secrets
+
+After CDK deployment, configure the secrets required by CI/CD in your GitHub repository:
+
+**Settings → Secrets and variables → Actions**
+
+| Secret | Value | Used by |
+|---|---|---|
+| `AWS_DEPLOY_ROLE_ARN` | ARN of the `bbfb-github-actions-deploy` role created by CDK | CD deploy |
+| `AWS_REGION` | Your AWS region (e.g. `us-east-1`) | CD deploy |
+| `EC2_INSTANCE_ID` | App instance ID from Step 2 | CD deploy |
+| `APP_NAME` | Application name (e.g. `bbfb`) | CD deploy |
+| `PLATFORM` | `ci` | CI tests |
+| `PORT` | `3000` | CI tests |
+| `DB_URL` | `postgres://test:test@localhost:5432/test` (dummy value for CI) | CI tests |
+| `LEAGUE_ID` | League ID | CI tests |
+| `LEAGUE_SEASON` | League season | CI tests |
+| `PREV_LEAGUE_ID` | Previous league ID | CI tests |
+| `PREV_LEAGUE_SEASON` | Previous league season | CI tests |
+
+To get the deploy role ARN:
+```bash
+aws iam get-role --role-name bbfb-github-actions-deploy --query 'Role.Arn' --output text
+```
+
+### Step 8: Verify Deployment
 
 **Test HTTP → HTTPS redirect:**
 ```bash
@@ -231,7 +271,11 @@ git push  # GitHub Actions will deploy automatically
 
 # If running manually on app instance:
 cd /opt/<APP_NAME>
+sudo -u <APP_NAME> git pull origin master
+sudo -u <APP_NAME> npm ci
+sudo -u <APP_NAME> npm run build
 sudo -u <APP_NAME> npm run migrate
+sudo -u <APP_NAME> npm prune --omit=dev
 sudo systemctl restart <APP_NAME>
 ```
 
@@ -241,8 +285,11 @@ sudo systemctl restart <APP_NAME>
 # Normally handled by GitHub Actions on push to master.
 # If deploying manually on app instance:
 cd /opt/<APP_NAME>
-sudo -u <APP_NAME> npm ci --omit=dev
+sudo -u <APP_NAME> git pull origin master
+sudo -u <APP_NAME> npm ci
 sudo -u <APP_NAME> npm run build
+sudo -u <APP_NAME> npm run migrate
+sudo -u <APP_NAME> npm prune --omit=dev
 sudo systemctl restart <APP_NAME>
 ```
 
