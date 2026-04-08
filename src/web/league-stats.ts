@@ -6,7 +6,7 @@ import {
 import { getLeaguesForDropdown } from "../services/web/matchups-page-service.js";
 import { selectLeagueState } from "../db/queries/league-state.js";
 import { BadRequestError, NotFoundError } from "../lib/errors.js";
-import type { LeagueStatsPageParams } from "src/api/league-stats-page.js";
+import type { LeagueStatsPageParams } from "../api/league-stats-page.js";
 
 export async function handlerServeLeagueStats(_: Request, res: Response) {
     const leagueState = await selectLeagueState();
