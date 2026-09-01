@@ -103,7 +103,7 @@ Thanks to the [Sleeper API](https://docs.sleeper.app/) for providing free access
 
 ### Prerequisites
 
-- Node.js 24+
+- Node.js 26+
 - PostgreSQL 17
 - npm
 
