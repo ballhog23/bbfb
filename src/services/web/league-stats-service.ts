@@ -61,6 +61,21 @@ export async function getSeasonStats(leagueId: string) {
         selectSeasonThatsGottaHurt(leagueId),
     ]);
 
+    // Every section but bigNumbers is driven by a subquery that yields no row
+    // until the season has a completed matchup, so drizzle hands back undefined.
+    const sections = [
+        scoringRecords,
+        pointMargins,
+        leaderboard,
+        streaks,
+        thatsGottaHurt,
+    ];
+    const hasSeasonData =
+        Number(bigNumbers?.totalGames ?? 0) > 0 &&
+        sections.every((section) => section != null);
+
+    if (!hasSeasonData) return null;
+
     return {
         bigNumbers,
         scoringRecords,
@@ -71,13 +86,13 @@ export async function getSeasonStats(leagueId: string) {
     };
 }
 
-export async function assembleLeagueStatsPageData(leagueId: string) {
+export async function assembleLeagueStatsPageData(rawLeagueId: string) {
     const allLeagues = await selectAllLeaguesIdsAndSeasons();
-    const league = allLeagues.find((l) => l.leagueId === leagueId);
+    const league = allLeagues.find((l) => l.leagueId === rawLeagueId);
 
-    if (!league) throw new NotFoundError(`League ${leagueId} not found`);
+    if (!league) throw new NotFoundError(`League ${rawLeagueId} not found`);
 
-    const season = league.season;
+    const { leagueId, season } = league;
 
     return {
         stats: await getSeasonStats(leagueId),

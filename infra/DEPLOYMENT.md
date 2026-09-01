@@ -175,7 +175,13 @@ aws ec2-instance-connect ssh --instance-id <REVERSE_PROXY_INSTANCE_ID> --connect
 
 5. Set up SSL auto-renewal:
    ```bash
-   echo '0 0,12 * * * root /opt/certbot/bin/python -c "import random; import time; time.sleep(random.random() * 3600)" && sudo certbot renew -q' | sudo tee -a /etc/crontab > /dev/null
+   echo '0 0,12 * * * root /opt/certbot/bin/python -c "import random; import time; time.sleep(random.random() * 3600)" && /opt/certbot/bin/certbot renew -q' | sudo tee -a /etc/crontab > /dev/null
+   ```
+
+6. **Verify renewal actually works** — `setup-reverse-proxy.sh` installs and enables `cronie`/`crond`, but don't skip this check. A broken renewal (cron not running, certbot venv broken, etc.) fails silently and the cert just expires ~90 days later with no warning:
+   ```bash
+   sudo systemctl status crond --no-pager
+   sudo /opt/certbot/bin/certbot renew --dry-run
    ```
 
 ### Step 6: Configure DNS

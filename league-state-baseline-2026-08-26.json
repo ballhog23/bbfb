@@ -1,0 +1,518 @@
+{
+  "captured_at_utc": "2026-08-26T06:34:22.848919+00:00",
+  "league": {
+    "avatar": "594e9841023952c43fe07a45de40e151",
+    "bracket_id": null,
+    "bracket_overrides_id": null,
+    "company_id": null,
+    "draft_id": "1322699788046594048",
+    "group_id": null,
+    "last_author_avatar": null,
+    "last_author_display_name": "sys",
+    "last_author_id": "166666666666666666",
+    "last_author_is_bot": true,
+    "last_message_attachment": null,
+    "last_message_id": "1397657891049099264",
+    "last_message_text_map": null,
+    "last_message_time": 1787590117755,
+    "last_pinned_message_id": null,
+    "last_read_id": null,
+    "league_id": "1322699788034011136",
+    "loser_bracket_id": null,
+    "loser_bracket_overrides_id": null,
+    "metadata": {
+      "auto_continue": "on",
+      "division_1": "Division 1",
+      "division_2": "Division 2",
+      "keeper_deadline": "0",
+      "squad_id": "785650243470618624"
+    },
+    "name": "BleedBlue2k26",
+    "previous_league_id": "1257436036187824128",
+    "roster_positions": [
+      "QB",
+      "RB",
+      "RB",
+      "WR",
+      "WR",
+      "TE",
+      "FLEX",
+      "FLEX",
+      "DEF",
+      "BN",
+      "BN",
+      "BN",
+      "BN",
+      "BN",
+      "BN"
+    ],
+    "scoring_settings": {
+      "blk_kick": 2.0,
+      "def_st_ff": 1.0,
+      "def_st_fum_rec": 1.0,
+      "def_st_td": 6.0,
+      "def_td": 6.0,
+      "ff": 1.0,
+      "fgm_0_19": 3.0,
+      "fgm_20_29": 3.0,
+      "fgm_30_39": 3.0,
+      "fgm_40_49": 4.0,
+      "fgm_50p": 5.0,
+      "fgmiss": -1.0,
+      "fum": -1.0,
+      "fum_lost": -2.0,
+      "fum_rec": 2.0,
+      "fum_rec_td": 6.0,
+      "int": 2.0,
+      "pass_2pt": 2.0,
+      "pass_int": -1.0,
+      "pass_td": 4.0,
+      "pass_yd": 0.03999999910593033,
+      "pts_allow_0": 10.0,
+      "pts_allow_14_20": 1.0,
+      "pts_allow_1_6": 7.0,
+      "pts_allow_21_27": 0.0,
+      "pts_allow_28_34": -1.0,
+      "pts_allow_35p": -4.0,
+      "pts_allow_7_13": 4.0,
+      "rec": 1.0,
+      "rec_2pt": 2.0,
+      "rec_td": 6.0,
+      "rec_yd": 0.10000000149011612,
+      "rush_2pt": 2.0,
+      "rush_td": 6.0,
+      "rush_yd": 0.10000000149011612,
+      "sack": 1.0,
+      "safe": 2.0,
+      "st_ff": 1.0,
+      "st_fum_rec": 1.0,
+      "st_td": 6.0,
+      "xpm": 1.0,
+      "xpmiss": -1.0
+    },
+    "season": "2026",
+    "season_type": "regular",
+    "settings": {
+      "bench_lock": 0,
+      "best_ball": 0,
+      "capacity_override": 0,
+      "commissioner_direct_invite": 0,
+      "daily_waivers": 0,
+      "daily_waivers_days": 1093,
+      "daily_waivers_hour": 0,
+      "daily_waivers_last_ran": 22,
+      "disable_adds": 0,
+      "disable_trades": 0,
+      "divisions": 2,
+      "draft_rounds": 3,
+      "faab_suggestions": 0,
+      "league_average_match": 1,
+      "leg": 1,
+      "max_keepers": 1,
+      "max_subs": 0,
+      "num_teams": 12,
+      "offseason_adds": 0,
+      "pick_trading": 0,
+      "playoff_round_type": 0,
+      "playoff_seed_type": 0,
+      "playoff_teams": 6,
+      "playoff_type": 1,
+      "playoff_week_start": 15,
+      "reserve_allow_cov": 1,
+      "reserve_allow_dnr": 0,
+      "reserve_allow_doubtful": 0,
+      "reserve_allow_na": 0,
+      "reserve_allow_out": 1,
+      "reserve_allow_sus": 0,
+      "reserve_slots": 1,
+      "squads": 1,
+      "start_week": 1,
+      "sub_lock_if_starter_active": 0,
+      "sub_start_time_eligibility": 0,
+      "taxi_allow_vets": 0,
+      "taxi_deadline": 0,
+      "taxi_slots": 0,
+      "taxi_years": 0,
+      "trade_deadline": 11,
+      "trade_review_days": 0,
+      "type": 0,
+      "veto_auto_poll": 0,
+      "veto_show_votes": 0,
+      "veto_votes_needed": 6,
+      "waiver_budget": 100,
+      "waiver_clear_days": 2,
+      "waiver_day_of_week": 2,
+      "waiver_type": 2
+    },
+    "shard": 613,
+    "sport": "nfl",
+    "status": "in_season",
+    "total_rosters": 12
+  },
+  "league_id": "1322699788034011136",
+  "losers_bracket": [
+    {
+      "l": null,
+      "m": 1,
+      "r": 1,
+      "t1": 5,
+      "t2": 7,
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 2,
+      "r": 1,
+      "t1": 10,
+      "t2": 2,
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 3,
+      "r": 2,
+      "t1": 12,
+      "t2": null,
+      "t2_from": {
+        "w": 1
+      },
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 4,
+      "r": 2,
+      "t1": 8,
+      "t2": null,
+      "t2_from": {
+        "w": 2
+      },
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 5,
+      "p": 5,
+      "r": 2,
+      "t1": null,
+      "t1_from": {
+        "l": 1
+      },
+      "t2": null,
+      "t2_from": {
+        "l": 2
+      },
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 6,
+      "p": 1,
+      "r": 3,
+      "t1": null,
+      "t1_from": {
+        "w": 3
+      },
+      "t2": null,
+      "t2_from": {
+        "w": 4
+      },
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 7,
+      "p": 3,
+      "r": 3,
+      "t1": null,
+      "t1_from": {
+        "l": 3
+      },
+      "t2": null,
+      "t2_from": {
+        "l": 4
+      },
+      "w": null
+    }
+  ],
+  "nfl_state": {
+    "display_week": 3,
+    "league_create_season": "2026",
+    "league_season": "2026",
+    "leg": 0,
+    "previous_season": "2025",
+    "season": "2026",
+    "season_has_scores": true,
+    "season_start_date": "2026-08-06",
+    "season_type": "pre",
+    "week": 3
+  },
+  "purpose": "Baseline for the league-state theory. Re-capture after our league week 1 completes (first Tuesday after MNF) and diff.",
+  "rosters": [
+    {
+      "owner_id": "726223114991685632",
+      "roster_id": 1,
+      "settings": {
+        "division": 1,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 3,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "728042185152389120",
+      "roster_id": 2,
+      "settings": {
+        "division": 2,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 9,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "205536533820743680",
+      "roster_id": 3,
+      "settings": {
+        "division": 1,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 5,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "734515720674725888",
+      "roster_id": 4,
+      "settings": {
+        "division": 2,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 2,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "726514895868203008",
+      "roster_id": 5,
+      "settings": {
+        "division": 1,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 10,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "730912754680061952",
+      "roster_id": 6,
+      "settings": {
+        "division": 2,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 1,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "728043838215675904",
+      "roster_id": 7,
+      "settings": {
+        "division": 1,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 11,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "726906315338768384",
+      "roster_id": 8,
+      "settings": {
+        "division": 1,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 8,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "726308671558070272",
+      "roster_id": 9,
+      "settings": {
+        "division": 2,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 4,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "730905441533558784",
+      "roster_id": 10,
+      "settings": {
+        "division": 2,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 12,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "726512017078317056",
+      "roster_id": 11,
+      "settings": {
+        "division": 1,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 6,
+        "wins": 0
+      }
+    },
+    {
+      "owner_id": "734514251284230144",
+      "roster_id": 12,
+      "settings": {
+        "division": 2,
+        "fpts": 0,
+        "fpts_decimal": 0,
+        "losses": 0,
+        "ties": 0,
+        "total_moves": 0,
+        "waiver_budget_used": 0,
+        "waiver_position": 7,
+        "wins": 0
+      }
+    }
+  ],
+  "winners_bracket": [
+    {
+      "l": null,
+      "m": 1,
+      "r": 1,
+      "t1": 9,
+      "t2": 3,
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 2,
+      "r": 1,
+      "t1": 11,
+      "t2": 4,
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 3,
+      "r": 2,
+      "t1": 6,
+      "t2": null,
+      "t2_from": {
+        "w": 1
+      },
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 4,
+      "r": 2,
+      "t1": 1,
+      "t2": null,
+      "t2_from": {
+        "w": 2
+      },
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 5,
+      "p": 5,
+      "r": 2,
+      "t1": null,
+      "t1_from": {
+        "l": 1
+      },
+      "t2": null,
+      "t2_from": {
+        "l": 2
+      },
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 6,
+      "p": 1,
+      "r": 3,
+      "t1": null,
+      "t1_from": {
+        "w": 3
+      },
+      "t2": null,
+      "t2_from": {
+        "w": 4
+      },
+      "w": null
+    },
+    {
+      "l": null,
+      "m": 7,
+      "p": 3,
+      "r": 3,
+      "t1": null,
+      "t1_from": {
+        "l": 3
+      },
+      "t2": null,
+      "t2_from": {
+        "l": 4
+      },
+      "w": null
+    }
+  ]
+}

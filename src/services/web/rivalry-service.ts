@@ -1,6 +1,7 @@
-import { NotFoundError } from "../../lib/errors.js";
+import { BadRequestError, NotFoundError } from "../../lib/errors.js";
 import {
     selectAllSleeperUsersData,
+    selectSleeperUser,
     getHeadToHeadMatchupData,
     type HeadToHeadData,
 } from "../../db/queries/sleeper-users.js";
@@ -17,10 +18,25 @@ export async function buildDropDownTeams() {
 }
 
 export async function assembleRivalryPageData(
-    challenger: RilvaryPageParams["userId1"],
-    opponent: RilvaryPageParams["userId2"]
+    rawChallengerId: RilvaryPageParams["userId1"],
+    rawOpponentId: RilvaryPageParams["userId2"]
 ) {
-    const headToHeadData = await getHeadToHeadMatchupData(challenger, opponent);
+    if (rawChallengerId === rawOpponentId)
+        throw new BadRequestError("A team cannot battle itself");
+
+    const [challenger, opponent] = await Promise.all([
+        selectSleeperUser(rawChallengerId),
+        selectSleeperUser(rawOpponentId),
+    ]);
+
+    if (!challenger) throw new NotFoundError("Challenger UserId not found");
+
+    if (!opponent) throw new NotFoundError("Opponent UserId not found");
+
+    const headToHeadData = await getHeadToHeadMatchupData(
+        challenger.userId,
+        opponent.userId
+    );
     const matchupData = assembleMatchupData(headToHeadData);
     return matchupData;
 }

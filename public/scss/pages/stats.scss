@@ -250,3 +250,41 @@
 		gap: 1.5rem;
 	}
 }
+
+// ---------- empty state ----------
+
+.stats-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 1rem;
+	padding: 4rem 1.5rem;
+	background: $bg-row-hover;
+	border: 1px solid $border-default;
+	border-radius: 1rem;
+
+	&__icon svg {
+		width: 3rem;
+		height: 3rem;
+		color: $accent-cyan;
+		opacity: 0.6;
+	}
+
+	h2 {
+		font-size: 1.5rem;
+		margin-bottom: 0;
+
+		@media only screen and (min-width: $md-breakpoint-up) {
+			font-size: 1.875rem;
+		}
+	}
+
+	p {
+		font-size: 0.9375rem;
+		color: $text-muted;
+		max-width: 32rem;
+		line-height: 1.6;
+		margin: 0;
+	}
+}
