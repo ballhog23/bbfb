@@ -75,7 +75,7 @@ export async function handlerGetLeagueUserRoster(
     const params = req.params;
     const { leagueId, userId } = params;
 
-    if (!leagueId && !userId)
+    if (!leagueId || !userId)
         throw new BadRequestError("You must provide a League ID and User ID");
 
     const rosters = await selectLeagueUserRoster(leagueId, userId);

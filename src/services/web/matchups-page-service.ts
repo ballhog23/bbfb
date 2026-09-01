@@ -20,29 +20,43 @@ export async function getLeaguesForDropdown(leagueState: SelectLeagueState) {
         : allLeagues;
 }
 
+type LeagueOptions = Awaited<ReturnType<typeof getLeaguesForDropdown>>;
+
+type MatchupsPageContext = {
+    leagueState: SelectLeagueState;
+    allLeagues: LeagueOptions;
+    leagueId: string;
+    season: string;
+    isCurrentLeague: boolean;
+    week: number;
+};
+
 export async function assembleMatchupsPageData(
-    leagueIdParam: MatchupsPageParams["leagueId"],
+    rawLeagueId: MatchupsPageParams["leagueId"],
     weekParam: MatchupsPageParams["week"]
 ) {
     const leagueState = await selectLeagueState();
     if (!leagueState) throw new NotFoundError("League state not found");
 
-    const currentLeagueId = leagueIdParam ?? config.league.id;
-    const isCurrentLeague = currentLeagueId === config.league.id;
-    const parsedWeek = weekParam ? parseInt(weekParam, 10) : NaN;
-    const weekNanCheck = isNaN(parsedWeek);
+    const allLeagues = await getLeaguesForDropdown(leagueState);
+    const league = allLeagues.find(
+        (l) => l.leagueId === (rawLeagueId ?? config.league.id)
+    );
+
+    if (!league) throw new NotFoundError("League not found");
+
+    const { leagueId, season } = league;
+    const isCurrentLeague = leagueId === config.league.id;
+    const requestedWeek = parseInt(weekParam, 10);
 
     if (
-        weekNanCheck ||
-        !Number.isInteger(parsedWeek) ||
-        parsedWeek <= 0 ||
-        parsedWeek > 17
+        !Number.isInteger(requestedWeek) ||
+        requestedWeek <= 0 ||
+        requestedWeek > 17
     )
         throw new BadRequestError(
             "You must provide a valid week number. Ranging 1-17"
         );
-
-    const requestedWeek = weekNanCheck ? leagueState.displayWeek : parsedWeek;
 
     // Current league: browse regular season weeks (1-14) freely,
     // but clamp playoff weeks (15+) to displayWeek
@@ -53,49 +67,36 @@ export async function assembleMatchupsPageData(
 
     const matchupsView = effectiveWeek < 15 ? "regular" : "post";
 
-    if (matchupsView === "regular") {
-        return assembleRegularSeasonMatchupsData(
-            leagueState,
-            currentLeagueId,
-            isCurrentLeague,
-            effectiveWeek
-        );
-    }
-
-    return assemblePostSeasonMatchupsData(
+    const context: MatchupsPageContext = {
         leagueState,
-        currentLeagueId,
+        allLeagues,
+        leagueId,
+        season,
         isCurrentLeague,
-        effectiveWeek
-    );
+        week: effectiveWeek,
+    };
+
+    return matchupsView === "regular"
+        ? assembleRegularSeasonMatchupsData(context)
+        : assemblePostSeasonMatchupsData(context);
 }
 
-async function assemblePostSeasonMatchupsData(
-    leagueState: SelectLeagueState,
-    currentLeagueId: string,
-    isCurrentLeague: boolean,
-    currentWeek: number
-) {
-    const [allLeagues, playoffResults, rosters] = await Promise.all([
-        getLeaguesForDropdown(leagueState),
-        selectPlayoffMatchupsWithDetails(currentLeagueId),
-        selectLeagueRosters(currentLeagueId),
+async function assemblePostSeasonMatchupsData(context: MatchupsPageContext) {
+    const { leagueState, allLeagues, leagueId, season, isCurrentLeague, week } =
+        context;
+
+    const [playoffResults, rosters] = await Promise.all([
+        selectPlayoffMatchupsWithDetails(leagueId),
+        selectLeagueRosters(leagueId),
     ]);
 
-    const currentLeague = allLeagues.find(
-        (l) => l.leagueId === currentLeagueId
-    );
-    if (!currentLeague)
-        throw new NotFoundError(`League ${currentLeagueId} not found`);
-
-    const currentLeagueSeason = currentLeague.season;
     const matchups = transformPlayoffDataForView(playoffResults);
 
     return {
         allLeagues,
-        currentLeagueId,
-        currentLeagueSeason,
-        currentWeek,
+        currentLeagueId: leagueId,
+        currentLeagueSeason: season,
+        currentWeek: week,
         isCurrentLeague,
         isPostSeason: leagueState.displayWeek >= 15,
         matchups,
@@ -142,32 +143,22 @@ function transformPlayoffDataForView(queryResults: PlayoffMatchupResults) {
     return { winnersBracket, losersBracket };
 }
 
-async function assembleRegularSeasonMatchupsData(
-    leagueState: SelectLeagueState,
-    currentLeagueId: string,
-    isCurrentLeague: boolean,
-    currentWeek: number
-) {
-    const [allLeagues, orderedMatchups, rosters] = await Promise.all([
-        getLeaguesForDropdown(leagueState),
-        selectLeagueMatchupsByWeekWithoutByes(currentLeagueId, currentWeek),
-        selectLeagueRosters(currentLeagueId),
+async function assembleRegularSeasonMatchupsData(context: MatchupsPageContext) {
+    const { leagueState, allLeagues, leagueId, season, isCurrentLeague, week } =
+        context;
+
+    const [orderedMatchups, rosters] = await Promise.all([
+        selectLeagueMatchupsByWeekWithoutByes(leagueId, week),
+        selectLeagueRosters(leagueId),
     ]);
 
-    const currentLeague = allLeagues.find(
-        (l) => l.leagueId === currentLeagueId
-    );
-    if (!currentLeague)
-        throw new NotFoundError(`League ${currentLeagueId} not found`);
-
-    const currentLeagueSeason = currentLeague.season;
     const matchups = groupAdjacentMatchups(orderedMatchups);
 
     return {
         allLeagues,
-        currentLeagueId,
-        currentLeagueSeason,
-        currentWeek,
+        currentLeagueId: leagueId,
+        currentLeagueSeason: season,
+        currentWeek: week,
         isCurrentLeague,
         isPostSeason: leagueState.displayWeek >= 15,
         matchups,
