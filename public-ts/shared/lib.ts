@@ -1,5 +1,10 @@
+// stop a request that hangs, so the page shows an error instead of waiting
+export const FETCH_TIMEOUT_MS = 10_000;
+
 export async function fetchJSON<T>(url: string): Promise<T> {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
 
     if (!response.ok) {
         throw new Error(`HTTP ${response.status} at ${url}`);

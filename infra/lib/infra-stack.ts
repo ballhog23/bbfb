@@ -3,6 +3,7 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
+import * as logs from 'aws-cdk-lib/aws-logs';
 import * as scheduler from 'aws-cdk-lib/aws-scheduler';
 import * as schedulerTargets from 'aws-cdk-lib/aws-scheduler-targets';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
@@ -27,6 +28,7 @@ export class BBFBInfraStack extends cdk.Stack {
                 name: 'fck-nat-al2023-*-arm64-ebs',
                 owners: ['568608671756'],
             }),
+            defaultAllowedTraffic: ec2.NatTrafficDirection.OUTBOUND_ONLY
         });
 
         const vpc = new ec2.Vpc(this, 'bbfb-vpc', {
@@ -163,26 +165,32 @@ export class BBFBInfraStack extends cdk.Stack {
                 APP_URL: `http://${appInstance.instancePrivateIp}:${this.APP_PORT}`,
             },
             bundling: { minify: true },
+            memorySize: 128,
+            timeout: cdk.Duration.seconds(15),
         };
 
-        const makeLambda = (id: string, file: string, description: string) =>
-            new nodejs.NodejsFunction(this, id, {
+        const makeLambda = (id: string, file: string, description: string, timeout = lambdaDefaults.timeout) => {
+            const fn = new nodejs.NodejsFunction(this, id, {
                 ...lambdaDefaults,
+                timeout,
                 entry: path.join(__dirname, `./lambda-handlers/${file}.ts`),
                 handler: 'handler',
                 description,
                 retryAttempts: 0, // step function handles retries
             });
+            // keep the logs of the last two weekly runs. the logRetention prop would add a custom resource lambda instead
+            (fn.logGroup.node.defaultChild as logs.CfnLogGroup).retentionInDays = logs.RetentionDays.TWO_WEEKS;
+            return fn;
+        };
 
-        // step function chain: league state → leagues → users → rosters → matchups
+        // step function chain: league state → leagues → users → rosters → matchups → players
         const syncLeagueStateLambda = makeLambda('syncLeagueStateLambda', 'syncLeagueStateHandler', 'sync league state from sleeper api');
         const syncLeagueLambda = makeLambda('syncLeagueLambda', 'syncLeagueHandler', 'sync leagues from sleeper api');
         const syncUsersLambda = makeLambda('syncUsersLambda', 'syncUsersHandler', 'sync users from sleeper api');
         const syncRostersLambda = makeLambda('syncRostersLambda', 'syncRostersHandler', 'sync rosters from sleeper api');
         const syncMatchupsLambda = makeLambda('syncMatchupsLambda', 'syncMatchupsHandler', 'sync matchups from sleeper api based on league state');
-
-        // independent lambda: players (daily schedule, not in step function)
-        const syncPlayersLambda = makeLambda('syncPlayersLambda', 'syncPlayersHandler', 'sync players from sleeper api');
+        // the full player list takes about 17 seconds to sync
+        const syncPlayersLambda = makeLambda('syncPlayersLambda', 'syncPlayersHandler', 'sync players from sleeper api', cdk.Duration.seconds(30));
 
         // allow app instance to accept traffic from all lambdas
         const allLambdas = [
@@ -194,10 +202,10 @@ export class BBFBInfraStack extends cdk.Stack {
             appInstance.connections.allowFrom(fn, ec2.Port.tcp(this.APP_PORT));
         });
 
-        // retry config for step function tasks: 3 attempts with backoff, catch all error types
+        // retry config for step function tasks: up to 2 retries with backoff, catch all error types
         const retryPolicy: sfn.RetryProps = {
             errors: ['States.ALL'],
-            maxAttempts: 3,
+            maxAttempts: 2,
             interval: cdk.Duration.seconds(10),
             backoffRate: 2,
         };
@@ -227,12 +235,20 @@ export class BBFBInfraStack extends cdk.Stack {
             resultPath: sfn.JsonPath.DISCARD,
         }).addRetry(retryPolicy);
 
+        const syncPlayersStep = new tasks.LambdaInvoke(this, 'SyncPlayers', {
+            lambdaFunction: syncPlayersLambda,
+            resultPath: sfn.JsonPath.DISCARD,
+        }).addRetry(retryPolicy);
+
+        // players run last, so a players failure does not stop the matchups sync
         const definition = syncLeagueStateStep
             .next(syncLeagueStep)
             .next(syncUsersStep)
             .next(syncRostersStep)
-            .next(syncMatchupsStep);
+            .next(syncMatchupsStep)
+            .next(syncPlayersStep);
 
+        // a normal run takes about 30 seconds. stop the run after 5 minutes, even if retries continue
         const syncStateMachine = new sfn.StateMachine(this, 'SyncStateMachine', {
             definitionBody: sfn.DefinitionBody.fromChainable(definition),
             timeout: cdk.Duration.minutes(5),
@@ -249,17 +265,6 @@ export class BBFBInfraStack extends cdk.Stack {
                 timeZone: cdk.TimeZone.AMERICA_CHICAGO,
             }),
             target: new schedulerTargets.StepFunctionsStartExecution(syncStateMachine, {}),
-        });
-
-        // EventBridge Scheduler: run players sync daily at 0800 chicago time during the season
-        new scheduler.Schedule(this, 'DailyPlayersSyncSchedule', {
-            schedule: scheduler.ScheduleExpression.cron({
-                minute: '0',
-                hour: '8',
-                month: '9-12,1',
-                timeZone: cdk.TimeZone.AMERICA_CHICAGO,
-            }),
-            target: new schedulerTargets.LambdaInvoke(syncPlayersLambda, {}),
         });
 
         // GitHub Actions OIDC: allows deploy workflow to run commands on the app instance via SSM

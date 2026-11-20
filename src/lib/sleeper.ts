@@ -18,6 +18,9 @@ import {
 } from "./zod.js";
 import { config } from "../config.js";
 
+// stop a Sleeper request that hangs, so a sync does not keep running after its Lambda gives up
+export const SLEEPER_FETCH_TIMEOUT_MS = 15_000;
+
 export class Sleeper {
     readonly leagueId = config.league.id;
     readonly baseURL = `https://api.sleeper.app/v1/`;
@@ -135,7 +138,9 @@ export class Sleeper {
     }
 
     private async fetchJSON(url: string): Promise<unknown> {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            signal: AbortSignal.timeout(SLEEPER_FETCH_TIMEOUT_MS),
+        });
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status} at ${url}`);
