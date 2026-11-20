@@ -3,8 +3,8 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as nodejs from "aws-cdk-lib/aws-lambda-nodejs";
-import * as events from 'aws-cdk-lib/aws-events';
-import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as scheduler from 'aws-cdk-lib/aws-scheduler';
+import * as schedulerTargets from 'aws-cdk-lib/aws-scheduler-targets';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import * as path from 'node:path';
@@ -174,25 +174,15 @@ export class BBFBInfraStack extends cdk.Stack {
                 retryAttempts: 0, // step function handles retries
             });
 
-        // step function chain: leagues → users → rosters → matchups
+        // step function chain: league state → leagues → users → rosters → matchups
+        const syncLeagueStateLambda = makeLambda('syncLeagueStateLambda', 'syncLeagueStateHandler', 'sync league state from sleeper api');
         const syncLeagueLambda = makeLambda('syncLeagueLambda', 'syncLeagueHandler', 'sync leagues from sleeper api');
         const syncUsersLambda = makeLambda('syncUsersLambda', 'syncUsersHandler', 'sync users from sleeper api');
         const syncRostersLambda = makeLambda('syncRostersLambda', 'syncRostersHandler', 'sync rosters from sleeper api');
         const syncMatchupsLambda = makeLambda('syncMatchupsLambda', 'syncMatchupsHandler', 'sync matchups from sleeper api based on league state');
 
-        // independent lambdas: players and league state (daily schedule, not in step function)
+        // independent lambda: players (daily schedule, not in step function)
         const syncPlayersLambda = makeLambda('syncPlayersLambda', 'syncPlayersHandler', 'sync players from sleeper api');
-        const syncLeagueStateLambda = makeLambda('syncLeagueStateLambda', 'syncLeagueStateHandler', 'sync league state from sleeper api');
-
-        // schedule gate lambda (no VPC needed, just checks date/time)
-        const scheduleGateLambda = new nodejs.NodejsFunction(this, 'scheduleGateLambda', {
-            runtime: lambda.Runtime.NODEJS_LATEST,
-            entry: path.join(__dirname, './lambda-handlers/scheduleGateHandler.ts'),
-            handler: 'handler',
-            description: 'checks if sync should run based on day/time/season',
-            retryAttempts: 0,
-            bundling: { minify: true },
-        });
 
         // allow app instance to accept traffic from all lambdas
         const allLambdas = [
@@ -212,12 +202,10 @@ export class BBFBInfraStack extends cdk.Stack {
             backoffRate: 2,
         };
 
-        // step function definition
-        // gate needs resultPath to feed the Choice state, all others discard output
-        const gateStep = new tasks.LambdaInvoke(this, 'ScheduleGate', {
-            lambdaFunction: scheduleGateLambda,
-            resultPath: '$.gate',
-        });
+        const syncLeagueStateStep = new tasks.LambdaInvoke(this, 'SyncLeagueState', {
+            lambdaFunction: syncLeagueStateLambda,
+            resultPath: sfn.JsonPath.DISCARD,
+        }).addRetry(retryPolicy);
 
         const syncLeagueStep = new tasks.LambdaInvoke(this, 'SyncLeagues', {
             lambdaFunction: syncLeagueLambda,
@@ -239,23 +227,11 @@ export class BBFBInfraStack extends cdk.Stack {
             resultPath: sfn.JsonPath.DISCARD,
         }).addRetry(retryPolicy);
 
-        const skipExecution = new sfn.Succeed(this, 'SkipExecution');
-
-        // gate → choice: if shouldRun, chain the syncs; otherwise skip
-        const shouldRunChoice = new sfn.Choice(this, 'ShouldRun')
-            .when(
-                sfn.Condition.booleanEquals('$.gate.Payload.shouldRun', false),
-                skipExecution
-            )
-            .otherwise(syncLeagueStep);
-
-        // chain: leagues → users → rosters → matchups
-        syncLeagueStep
+        const definition = syncLeagueStateStep
+            .next(syncLeagueStep)
             .next(syncUsersStep)
             .next(syncRostersStep)
             .next(syncMatchupsStep);
-
-        const definition = gateStep.next(shouldRunChoice);
 
         const syncStateMachine = new sfn.StateMachine(this, 'SyncStateMachine', {
             definitionBody: sfn.DefinitionBody.fromChainable(definition),
@@ -263,18 +239,28 @@ export class BBFBInfraStack extends cdk.Stack {
             stateMachineName: 'bbfb-sync-chain',
         });
 
-        // EventBridge: trigger step function every 15 minutes during season (gate handles day/time logic)
-        const syncChainRule = new events.Rule(this, 'SyncChainRule', {
-            schedule: events.Schedule.cron({ minute: '0/15', month: '9-1' }),
+        // EventBridge Scheduler: run the chain tuesdays at 0400 chicago time during the season
+        new scheduler.Schedule(this, 'WeeklySyncSchedule', {
+            schedule: scheduler.ScheduleExpression.cron({
+                minute: '0',
+                hour: '4',
+                weekDay: 'TUE',
+                month: '9-12,1',
+                timeZone: cdk.TimeZone.AMERICA_CHICAGO,
+            }),
+            target: new schedulerTargets.StepFunctionsStartExecution(syncStateMachine, {}),
         });
-        syncChainRule.addTarget(new targets.SfnStateMachine(syncStateMachine));
 
-        // EventBridge: players + league state run once daily during the season
-        const dailySyncRule = new events.Rule(this, 'DailySyncRule', {
-            schedule: events.Schedule.cron({ minute: '0', hour: '14', month: '9-1' }),
+        // EventBridge Scheduler: run players sync daily at 0800 chicago time during the season
+        new scheduler.Schedule(this, 'DailyPlayersSyncSchedule', {
+            schedule: scheduler.ScheduleExpression.cron({
+                minute: '0',
+                hour: '8',
+                month: '9-12,1',
+                timeZone: cdk.TimeZone.AMERICA_CHICAGO,
+            }),
+            target: new schedulerTargets.LambdaInvoke(syncPlayersLambda, {}),
         });
-        dailySyncRule.addTarget(new targets.LambdaFunction(syncPlayersLambda));
-        dailySyncRule.addTarget(new targets.LambdaFunction(syncLeagueStateLambda));
 
         // GitHub Actions OIDC: allows deploy workflow to run commands on the app instance via SSM
         new GithubActionsOidc(this, 'GithubActionsOidc', appInstance.instanceId);
