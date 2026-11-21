@@ -67,6 +67,49 @@ export class BBFBInfraStack extends cdk.Stack {
             );
         });
 
+        // second layer for the public subnet: block SSH and RDP from the internet even if a security group opens them.
+        // allow everything else, because a nacl is stateless and a missing return port breaks the nat and the site
+        const publicNacl = new ec2.NetworkAcl(this, 'PublicSubnetNacl', {
+            vpc,
+            subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
+        });
+        // the EIC endpoint connects from inside the vpc
+        publicNacl.addEntry('AllowSshFromVpc', {
+            ruleNumber: 90,
+            cidr: ec2.AclCidr.ipv4(vpc.vpcCidrBlock),
+            traffic: ec2.AclTraffic.tcpPort(22),
+            direction: ec2.TrafficDirection.INGRESS,
+            ruleAction: ec2.Action.ALLOW,
+        });
+        publicNacl.addEntry('DenySshFromInternet', {
+            ruleNumber: 100,
+            cidr: ec2.AclCidr.anyIpv4(),
+            traffic: ec2.AclTraffic.tcpPort(22),
+            direction: ec2.TrafficDirection.INGRESS,
+            ruleAction: ec2.Action.DENY,
+        });
+        publicNacl.addEntry('DenyRdpFromInternet', {
+            ruleNumber: 110,
+            cidr: ec2.AclCidr.anyIpv4(),
+            traffic: ec2.AclTraffic.tcpPort(3389),
+            direction: ec2.TrafficDirection.INGRESS,
+            ruleAction: ec2.Action.DENY,
+        });
+        publicNacl.addEntry('AllowAllInbound', {
+            ruleNumber: 200,
+            cidr: ec2.AclCidr.anyIpv4(),
+            traffic: ec2.AclTraffic.allTraffic(),
+            direction: ec2.TrafficDirection.INGRESS,
+            ruleAction: ec2.Action.ALLOW,
+        });
+        publicNacl.addEntry('AllowAllOutbound', {
+            ruleNumber: 100,
+            cidr: ec2.AclCidr.anyIpv4(),
+            traffic: ec2.AclTraffic.allTraffic(),
+            direction: ec2.TrafficDirection.EGRESS,
+            ruleAction: ec2.Action.ALLOW,
+        });
+
         // define security groups for instances
         const appSecurityGroup = new ec2.SecurityGroup(this, 'AppSg', {
             vpc,
