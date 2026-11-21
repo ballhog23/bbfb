@@ -14,10 +14,9 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
             throw new Error(`Roster sync failed with status ${res.status}`);
         }
 
-        return {
-            statusCode: res.status,
-            body: await res.text(),
-        };
+        // return only the status. the app response can be larger than the 256 KB step functions limit
+        await res.body?.cancel();
+        return { statusCode: res.status };
 
     } catch (error) {
         console.error('Failed to sync rosters:', error);
