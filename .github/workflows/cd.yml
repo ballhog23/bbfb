@@ -10,6 +10,11 @@ permissions:
   id-token: write   # needed for OIDC token request
   contents: read     # needed to checkout code
 
+# run one deploy at a time. the app instance runs out of memory when two npm ci runs overlap
+concurrency:
+  group: deploy-ec2
+  cancel-in-progress: false
+
 jobs:
   build:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
