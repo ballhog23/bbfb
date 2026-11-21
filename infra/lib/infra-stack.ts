@@ -12,6 +12,7 @@ import * as path from 'node:path';
 
 import { Construct } from 'constructs';
 import { GithubActionsOidc } from './cicd/cicd';
+import { Observability } from './observability/observability';
 
 // should look into splitting code into separate stacks for testing?
 export class BBFBInfraStack extends cdk.Stack {
@@ -24,6 +25,7 @@ export class BBFBInfraStack extends cdk.Stack {
         // nat instance (fck-nat AMI in non-HA mode, no ASG)
         const natGatewayProvider = new ec2.NatInstanceProviderV2({
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
+            creditSpecification: ec2.CpuCredits.STANDARD, // slow the CPU at baseline instead of charging for extra CPU
             machineImage: new ec2.LookupMachineImage({
                 name: 'fck-nat-al2023-*-arm64-ebs',
                 owners: ['568608671756'],
@@ -84,6 +86,7 @@ export class BBFBInfraStack extends cdk.Stack {
         const reverseProxy = new ec2.Instance(this, 'ReverseProxyInstance', {
             vpc,
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
+            creditSpecification: ec2.CpuCredits.STANDARD, // slow the CPU at baseline instead of charging for extra CPU
             machineImage: ec2.MachineImage.latestAmazonLinux2023({
                 cpuType: ec2.AmazonLinuxCpuType.ARM_64,
                 cachedInContext: true,
@@ -100,9 +103,16 @@ export class BBFBInfraStack extends cdk.Stack {
             )
         );
 
+        // keep the same public IP when the reverse proxy stops or is replaced, so the DNS records stay correct
+        const reverseProxyEip = new ec2.CfnEIP(this, 'ReverseProxyEip', {
+            instanceId: reverseProxy.instanceId,
+        });
+        new cdk.CfnOutput(this, 'ReverseProxyPublicIp', { value: reverseProxyEip.attrPublicIp });
+
         const appInstance = new ec2.Instance(this, 'AppInstance', {
             vpc,
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
+            creditSpecification: ec2.CpuCredits.STANDARD, // slow the CPU at baseline instead of charging for extra CPU
             machineImage: ec2.MachineImage.latestAmazonLinux2023({
                 cpuType: ec2.AmazonLinuxCpuType.ARM_64,
                 cachedInContext: true,
@@ -123,6 +133,7 @@ export class BBFBInfraStack extends cdk.Stack {
         const dbInstance = new ec2.Instance(this, 'DbInstance', {
             vpc,
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.NANO),
+            creditSpecification: ec2.CpuCredits.STANDARD, // slow the CPU at baseline instead of charging for extra CPU
             machineImage: ec2.MachineImage.latestAmazonLinux2023({
                 cpuType: ec2.AmazonLinuxCpuType.ARM_64,
                 cachedInContext: true,
@@ -269,5 +280,11 @@ export class BBFBInfraStack extends cdk.Stack {
 
         // GitHub Actions OIDC: allows deploy workflow to run commands on the app instance via SSM
         new GithubActionsOidc(this, 'GithubActionsOidc', appInstance.instanceId);
+
+        new Observability(this, 'Observability', {
+            syncStateMachine,
+            natInstanceId: natGatewayProvider.configuredGateways[0].gatewayId,
+            reverseProxyInstanceId: reverseProxy.instanceId,
+        });
     }
 }
