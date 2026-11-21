@@ -39,3 +39,8 @@ dist-ssr
 *.sln
 *.sw?
 .claude
+
+# new-frontend build output
+new-frontend/.astro/
+new-frontend/dist/
+new-frontend/node_modules/
