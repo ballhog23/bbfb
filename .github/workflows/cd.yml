@@ -21,14 +21,19 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write   # needed to push the build to the deploy branch
+    outputs:
+      source_sha: ${{ steps.push.outputs.source_sha }}
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
     steps:
       - name: Install prerequisites
         run: dnf install -y tar gzip git libatomic
 
+      # always build the head of master, so a rerun of an old run cannot push an old build to the deploy branch
       - name: Check out code
         uses: actions/checkout@v7
+        with:
+          ref: master
 
       - name: Set up Node
         uses: actions/setup-node@v7
@@ -44,9 +49,12 @@ jobs:
       # the app instance is too small to build, so it pulls the built files from this branch.
       # each push replaces the branch with one commit, so built files do not pile up in the history
       - name: Push build to deploy branch
+        id: push
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          SOURCE_SHA=$(git rev-parse HEAD)
+          echo "source_sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
           STAGE=$(mktemp -d)
           cp -r dist public views drizzle.config.ts package.json package-lock.json "$STAGE"/
           # drizzle-kit migrate loads drizzle.config.ts, which needs these source files
@@ -58,7 +66,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -q -m "build from ${{ github.sha }}"
+          git commit -q -m "build from $SOURCE_SHA"
           git push --force "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" deploy
 
   deploy:
@@ -76,7 +84,7 @@ jobs:
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "deploy from commit ${{ github.sha }}" \
+            --comment "deploy from commit ${{ needs.build.outputs.source_sha }}" \
             --parameters 'commands=[
               "set -e",
               "cd /opt/${{ secrets.APP_NAME }}",
