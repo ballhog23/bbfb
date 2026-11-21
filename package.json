@@ -39,7 +39,6 @@
     "@typescript-eslint/eslint-plugin": "^8.57.0",
     "@typescript-eslint/parser": "^8.57.0",
     "@vitest/coverage-v8": "^4.1.0",
-    "drizzle-kit": "^0.31.7",
     "esbuild": "^0.27.2",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
@@ -54,6 +53,7 @@
   },
   "dependencies": {
     "compression": "^1.8.1",
+    "drizzle-kit": "^0.31.7",
     "drizzle-orm": "^0.45.2",
     "express": "^5.1.0",
     "postgres": "^3.4.7",

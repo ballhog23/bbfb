@@ -19,6 +19,8 @@ jobs:
   build:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to push the build to the deploy branch
     container:
       image: public.ecr.aws/amazonlinux/amazonlinux:2023
     steps:
@@ -39,6 +41,26 @@ jobs:
       - name: Build
         run: npm run build
 
+      # the app instance is too small to build, so it pulls the built files from this branch.
+      # each push replaces the branch with one commit, so built files do not pile up in the history
+      - name: Push build to deploy branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          STAGE=$(mktemp -d)
+          cp -r dist public views drizzle.config.ts package.json package-lock.json "$STAGE"/
+          # drizzle-kit migrate loads drizzle.config.ts, which needs these source files
+          mkdir -p "$STAGE/src/db"
+          cp src/config.ts "$STAGE/src/"
+          cp -r src/db/schema.ts src/db/migrations "$STAGE/src/db/"
+          cd "$STAGE"
+          git init -q -b deploy
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "build from ${{ github.sha }}"
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" deploy
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -58,13 +80,10 @@ jobs:
             --parameters 'commands=[
               "set -e",
               "cd /opt/${{ secrets.APP_NAME }}",
-              "sudo -u ${{ secrets.APP_NAME }} git fetch origin",
-              "sudo -u ${{ secrets.APP_NAME }} git reset --hard origin/master",
-              "sudo -u ${{ secrets.APP_NAME }} npm ci",
-              "sudo -u ${{ secrets.APP_NAME }} rm -rf /opt/${{ secrets.APP_NAME }}/infra",
-              "sudo -u ${{ secrets.APP_NAME }} npm run build",
+              "sudo -u ${{ secrets.APP_NAME }} git fetch origin deploy",
+              "sudo -u ${{ secrets.APP_NAME }} git checkout -f -B deploy origin/deploy",
+              "sudo -u ${{ secrets.APP_NAME }} npm ci --omit=dev --no-audit --no-fund",
               "sudo -u ${{ secrets.APP_NAME }} npm run migrate",
-              "sudo -u ${{ secrets.APP_NAME }} npm prune --omit=dev",
               "sudo systemctl restart ${{ secrets.APP_NAME }}"
             ]' \
             --query "Command.CommandId" \
