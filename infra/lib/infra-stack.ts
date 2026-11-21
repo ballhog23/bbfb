@@ -275,7 +275,10 @@ export class BBFBInfraStack extends cdk.Stack {
                 month: '9-12,1',
                 timeZone: cdk.TimeZone.AMERICA_CHICAGO,
             }),
-            target: new schedulerTargets.StepFunctionsStartExecution(syncStateMachine, {}),
+            // retry a failed start as many times as each step retries a failed run
+            target: new schedulerTargets.StepFunctionsStartExecution(syncStateMachine, {
+                retryAttempts: retryPolicy.maxAttempts,
+            }),
         });
 
         // GitHub Actions OIDC: allows deploy workflow to run commands on the app instance via SSM
