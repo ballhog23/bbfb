@@ -221,6 +221,8 @@ export class BBFBInfraStack extends cdk.Stack {
             bundling: { minify: true },
             memorySize: 128,
             timeout: cdk.Duration.seconds(15),
+            // the lambdas only call the app instance. the app security group rules below add that one egress rule
+            allowAllOutbound: false,
         };
 
         const makeLambda = (id: string, file: string, description: string, timeout = lambdaDefaults.timeout) => {
@@ -232,8 +234,11 @@ export class BBFBInfraStack extends cdk.Stack {
                 description,
                 retryAttempts: 0, // step function handles retries
             });
-            // keep the logs of the last two weekly runs. the logRetention prop would add a custom resource lambda instead
-            (fn.logGroup.node.defaultChild as logs.CfnLogGroup).retentionInDays = logs.RetentionDays.TWO_WEEKS;
+            // keep the logs of the last two weekly runs, and delete the log group with its function.
+            // the logRetention prop would add a custom resource lambda instead
+            const cfnLogGroup = fn.logGroup.node.defaultChild as logs.CfnLogGroup;
+            cfnLogGroup.retentionInDays = logs.RetentionDays.TWO_WEEKS;
+            cfnLogGroup.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
             return fn;
         };
 
@@ -256,7 +261,8 @@ export class BBFBInfraStack extends cdk.Stack {
             appInstance.connections.allowFrom(fn, ec2.Port.tcp(this.APP_PORT));
         });
 
-        // retry config for step function tasks: up to 2 retries with backoff, catch all error types
+        // the only retry rule for every step: up to 2 retries with backoff for all errors.
+        // each step sets retryOnServiceExceptions: false, so lambda service errors follow this rule too
         const retryPolicy: sfn.RetryProps = {
             errors: ['States.ALL'],
             maxAttempts: 2,
@@ -267,31 +273,37 @@ export class BBFBInfraStack extends cdk.Stack {
         const syncLeagueStateStep = new tasks.LambdaInvoke(this, 'SyncLeagueState', {
             lambdaFunction: syncLeagueStateLambda,
             resultPath: sfn.JsonPath.DISCARD,
+            retryOnServiceExceptions: false,
         }).addRetry(retryPolicy);
 
         const syncLeagueStep = new tasks.LambdaInvoke(this, 'SyncLeagues', {
             lambdaFunction: syncLeagueLambda,
             resultPath: sfn.JsonPath.DISCARD,
+            retryOnServiceExceptions: false,
         }).addRetry(retryPolicy);
 
         const syncUsersStep = new tasks.LambdaInvoke(this, 'SyncUsers', {
             lambdaFunction: syncUsersLambda,
             resultPath: sfn.JsonPath.DISCARD,
+            retryOnServiceExceptions: false,
         }).addRetry(retryPolicy);
 
         const syncRostersStep = new tasks.LambdaInvoke(this, 'SyncRosters', {
             lambdaFunction: syncRostersLambda,
             resultPath: sfn.JsonPath.DISCARD,
+            retryOnServiceExceptions: false,
         }).addRetry(retryPolicy);
 
         const syncMatchupsStep = new tasks.LambdaInvoke(this, 'SyncMatchups', {
             lambdaFunction: syncMatchupsLambda,
             resultPath: sfn.JsonPath.DISCARD,
+            retryOnServiceExceptions: false,
         }).addRetry(retryPolicy);
 
         const syncPlayersStep = new tasks.LambdaInvoke(this, 'SyncPlayers', {
             lambdaFunction: syncPlayersLambda,
             resultPath: sfn.JsonPath.DISCARD,
+            retryOnServiceExceptions: false,
         }).addRetry(retryPolicy);
 
         // players run last, so a players failure does not stop the matchups sync
