@@ -1,0 +1,66 @@
+---
+import ChevronIcon from "@assets/icons/chevron-right.svg";
+import { fade, type FadeOptions } from "@lib/fade";
+
+type Props = {
+    href: string;
+    tone?: "blue" | "gold" | "purple";
+    fade?: FadeOptions;
+};
+
+const { href, tone = "blue", fade: fadeOptions } = Astro.props;
+---
+
+<a class:list={["cta", tone]} href={href} {...fade(fadeOptions)}>
+    <span>
+        <slot />
+    </span>
+    <ChevronIcon class="chevron" aria-hidden="true" width={20} height={20} />
+</a>
+
+<style>
+    .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-block: 0.75rem;
+        font-size: var(--fs-lg);
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: var(--ls-3);
+        text-transform: uppercase;
+        color: var(--cta-text);
+
+        &:hover,
+        &:focus-visible {
+            color: var(--cta-text);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--blue-300);
+            outline-offset: 0.375rem;
+        }
+
+        .chevron {
+            flex: none;
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        &:hover .chevron,
+        &:focus-visible .chevron {
+            transform: translateX(0.25rem);
+        }
+    }
+
+    .blue {
+        --cta-text: var(--white);
+    }
+
+    .gold {
+        --cta-text: var(--gold-400);
+    }
+
+    .purple {
+        --cta-text: var(--purple-200);
+    }
+</style>

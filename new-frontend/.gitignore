@@ -1,0 +1,7 @@
+.astro/
+dist/
+node_modules/
+
+# The repo root ignores *.css and *.js. This project needs them.
+!*.css
+!*.js

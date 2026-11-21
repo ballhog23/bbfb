@@ -1,0 +1,42 @@
+---
+import CtaLink from "@components/CtaLink.astro";
+import Lead from "@components/Lead.astro";
+import Section from "@components/Section.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import type { FadeSide } from "@lib/fade";
+
+type Props = {
+    id: string;
+    href: string;
+    linkText: string;
+    titleTone: "shout" | "score";
+    linkTone: "blue" | "gold" | "purple";
+    side: FadeSide;
+};
+
+const { id, href, linkText, titleTone, linkTone, side } = Astro.props;
+---
+
+<Section aria-labelledby={id}>
+    <SectionTitle
+        id={id}
+        tone={titleTone}
+        fade={{ in: side, stagger: 0, outStart: 0.05 }}
+    >
+        <slot name="title" />
+    </SectionTitle>
+    <Lead fade={{ in: side, stagger: 1 }}>
+        <slot />
+    </Lead>
+    <div class="link">
+        <CtaLink href={href} tone={linkTone} fade={{ in: side, stagger: 2 }}>
+            {linkText}
+        </CtaLink>
+    </div>
+</Section>
+
+<style>
+    .link {
+        margin-top: 2rem;
+    }
+</style>

@@ -1,0 +1,69 @@
+---
+import { Image } from "astro:assets";
+import { fade, type FadeOptions } from "@lib/fade";
+
+type Props = {
+    title: string;
+    team: string;
+    image: ImageMetadata;
+    alt: string;
+    tone: "winner" | "loser";
+    fade?: FadeOptions;
+};
+
+const { title, team, image, alt, tone, fade: fadeOptions } = Astro.props;
+---
+
+<div class:list={["card", tone]} {...fade(fadeOptions)}>
+    <Image src={image} alt={alt} width={416} />
+    <h3>{title}</h3>
+    <p class="team">{team}</p>
+</div>
+
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        @media (min-width: 576px) {
+            width: calc((100% - 2rem) / 2);
+        }
+
+        img {
+            width: 13rem;
+            height: 14.5rem;
+            margin-bottom: 1.5rem;
+            object-fit: cover;
+        }
+    }
+
+    h3 {
+        margin-bottom: 0.5rem;
+        font-size: clamp(1.5rem, 1.2727rem + 0.9697vw, 2rem);
+    }
+
+    .team {
+        font-size: var(--fs-lg);
+        font-weight: 700;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .winner .team {
+        background-image: linear-gradient(
+            to right,
+            var(--blue-500),
+            var(--cyan-400)
+        );
+    }
+
+    .loser .team {
+        background-image: linear-gradient(
+            to right,
+            var(--blue-500),
+            var(--blue-300)
+        );
+    }
+</style>

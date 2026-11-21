@@ -1,0 +1,34 @@
+---
+import PageHero from "@components/PageHero.astro";
+import DynastySection from "@components/champions-hall/DynastySection.astro";
+import RecordSection from "@components/champions-hall/RecordSection.astro";
+import SeasonStory from "@components/champions-hall/SeasonStory.astro";
+import UniqueChampionsSection from "@components/champions-hall/UniqueChampionsSection.astro";
+import Layout from "@layouts/Layout.astro";
+import { SAMPLE_CHAMPIONS_HALL } from "@data/sample/champions-hall";
+
+const { seasons, champions, record } = SAMPLE_CHAMPIONS_HALL;
+const years = seasons.length;
+---
+
+<Layout
+    title="Champions Hall"
+    description="Every Bleed Blue Fantasy Football champion, season by season."
+    active="champions-hall"
+>
+    <PageHero small="Hall of" blue="Champions">
+        If you ain't first, you're last, muthaf*cka. Ain't nothin' like a good
+        ol' George W.{" "}
+        {`We've been doing this shit for ${years} years. Damn, ${years} years.`}{" "}
+        I wonder how many trade requests Twisted TiT Teas has sent in that
+        amount of time.
+    </PageHero>
+
+    <UniqueChampionsSection champions={champions} />
+    <DynastySection champions={champions} />
+    <RecordSection record={record} />
+
+    {seasons.map((champion, index) => (
+        <SeasonStory champion={champion} isReigning={index === 0} />
+    ))}
+</Layout>

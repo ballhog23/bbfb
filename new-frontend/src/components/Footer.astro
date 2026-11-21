@@ -1,0 +1,125 @@
+---
+import Brand from "@components/Brand.astro";
+import ExternalLink from "@components/ExternalLink.astro";
+import { EXTERNAL_SITES, MAIN_NAV, SITE } from "@data/site";
+
+const year = new Date().getFullYear();
+---
+
+<footer>
+    <div class="container">
+        <div class="columns">
+            <div class="left">
+                <Brand />
+                <ul class="site-links">
+                    {MAIN_NAV.map((link) => (
+                        <li>
+                            <a href={link.href}>{link.label}</a>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <div class="right">
+                <h2 id="external-sites">External Sites</h2>
+                <ul class="external-links" aria-labelledby="external-sites">
+                    {EXTERNAL_SITES.map((site) => (
+                        <li>
+                            <ExternalLink href={site.href}>
+                                {site.label}
+                            </ExternalLink>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+        <p class="credit">
+            {`© ${year} Made with 🏈 `}
+            <ExternalLink href={SITE.author.href}>
+                by {SITE.author.name}
+            </ExternalLink>
+        </p>
+    </div>
+</footer>
+
+<style>
+    footer {
+        padding-block: 2.5rem;
+        background: var(--bg);
+        border-top: 1px solid var(--border);
+    }
+
+    .columns {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+
+        @media (min-width: 576px) {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+    }
+
+    .left,
+    .site-links,
+    .external-links {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .left,
+    .site-links {
+        gap: 1rem;
+    }
+
+    .site-links {
+        @media (min-width: 576px) {
+            flex-direction: row;
+        }
+    }
+
+    .site-links a,
+    .external-links a {
+        font-size: var(--fs-sm);
+        font-weight: 500;
+        color: var(--text-muted);
+
+        &:hover {
+            color: var(--link-hover);
+        }
+    }
+
+    .site-links a {
+        letter-spacing: var(--ls-1);
+        text-transform: uppercase;
+    }
+
+    h2 {
+        margin-bottom: 0.625rem;
+        font-family: var(--f-body);
+        font-size: var(--fs-2xs);
+        font-weight: 600;
+        letter-spacing: var(--ls-2);
+        text-transform: uppercase;
+        color: var(--text-faint);
+    }
+
+    .external-links {
+        gap: 0.3125rem;
+    }
+
+    .right {
+        @media (min-width: 576px) {
+            text-align: right;
+        }
+    }
+
+    .credit {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+        font-size: var(--fs-xs);
+        text-align: center;
+        color: var(--text-faint);
+    }
+</style>

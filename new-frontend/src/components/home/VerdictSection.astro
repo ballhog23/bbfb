@@ -1,0 +1,68 @@
+---
+import Section from "@components/Section.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import SignedQuote from "@components/SignedQuote.astro";
+import OutcomeCard from "@components/home/OutcomeCard.astro";
+import championMascot from "@assets/images/champion-mascot.webp";
+import sackoMascot from "@assets/images/sacko-mascot.webp";
+import type { SeasonVerdict } from "@data/sample/home";
+
+type Props = {
+    verdict: SeasonVerdict;
+};
+
+const { verdict } = Astro.props;
+---
+
+<Section container={false} aria-labelledby="verdict-title">
+    <div class="heading container">
+        <SectionTitle
+            id="verdict-title"
+            tone="plain"
+            fade={{ in: "right", stagger: 0 }}
+        >
+            {`${verdict.season} Season's Verdict`}
+        </SectionTitle>
+        <SignedQuote
+            signature="Kind regards, Caleb 🖕"
+            fade={{ in: "right", stagger: 1 }}
+        >
+            {`Congratulations ${verdict.sacko}, enjoy that nutsack trophy. ${verdict.champion}, you are still cheeks homie.`}
+        </SignedQuote>
+    </div>
+    <div class="cards container container-medium">
+        <OutcomeCard
+            title="Champion"
+            team={verdict.champion}
+            image={championMascot}
+            alt="Bleed Blue fantasy football mascot"
+            tone="winner"
+            fade={{ in: "right", stagger: 2 }}
+        />
+        <OutcomeCard
+            title="Sacko"
+            team={verdict.sacko}
+            image={sackoMascot}
+            alt="Bleed Blue fantasy football sad mascot"
+            tone="loser"
+            fade={{ in: "right", stagger: 3 }}
+        />
+    </div>
+</Section>
+
+<style>
+    .heading {
+        margin-bottom: 3rem;
+    }
+
+    .cards {
+        display: flex;
+        flex-direction: column;
+        gap: 4rem;
+
+        @media (min-width: 576px) {
+            flex-direction: row;
+            gap: 2rem;
+        }
+    }
+</style>

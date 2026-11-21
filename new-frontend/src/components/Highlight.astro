@@ -1,0 +1,31 @@
+---
+type Props = {
+    /** stat: a number. name: a team or player. accent: a purple word in a title. */
+    tone?: "stat" | "name" | "accent";
+};
+
+const { tone = "stat" } = Astro.props;
+---
+
+<span class={tone}>
+    <slot />
+</span>
+
+<style>
+    .stat {
+        color: var(--cyan-400);
+    }
+
+    .name {
+        color: var(--text);
+    }
+
+    .stat,
+    .name {
+        font-weight: 600;
+    }
+
+    .accent {
+        color: var(--purple-300);
+    }
+</style>

@@ -1,0 +1,32 @@
+---
+import type { NavLink } from "@data/site";
+
+type Props = {
+    link: NavLink;
+    active?: boolean;
+};
+
+const { link, active = false } = Astro.props;
+---
+
+<a class="nav-link" href={link.href} aria-current={active ? "page" : undefined}>
+    {link.label}
+</a>
+
+<style>
+    .nav-link {
+        font-weight: 500;
+        line-height: 1;
+        letter-spacing: var(--ls-1);
+        text-transform: uppercase;
+        color: var(--text-soft);
+
+        &:hover {
+            color: var(--link-hover);
+        }
+
+        &[aria-current="page"] {
+            color: var(--blue-500);
+        }
+    }
+</style>

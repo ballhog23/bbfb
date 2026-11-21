@@ -1,0 +1,38 @@
+---
+import { fade, type FadeOptions } from "@lib/fade";
+
+type Props = {
+    id: string;
+    /** shout: heavy uppercase. score: gold scoreboard digits. plain: normal heading. */
+    tone?: "shout" | "score" | "plain";
+    fade?: FadeOptions;
+};
+
+const { id, tone = "shout", fade: fadeOptions } = Astro.props;
+---
+
+<h2 id={id} class={tone} {...fade(fadeOptions)}>
+    <slot />
+</h2>
+
+<style>
+    h2 {
+        margin-bottom: var(--title-gap);
+        font-size: var(--fs-section-title);
+    }
+
+    .shout {
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+    }
+
+    .score {
+        font-family: var(--f-score);
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: var(--ls-4);
+        color: var(--gold-400);
+    }
+</style>

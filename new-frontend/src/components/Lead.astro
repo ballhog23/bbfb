@@ -1,0 +1,22 @@
+---
+import { fade, type FadeOptions } from "@lib/fade";
+
+type Props = {
+    fade?: FadeOptions;
+};
+
+const { fade: fadeOptions } = Astro.props;
+---
+
+<p class="lead" {...fade(fadeOptions)}>
+    <slot />
+</p>
+
+<style>
+    .lead {
+        max-width: 60ch;
+        font-size: var(--fs-lead);
+        line-height: 1.5;
+        color: var(--text-muted);
+    }
+</style>

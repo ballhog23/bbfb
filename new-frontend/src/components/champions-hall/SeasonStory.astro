@@ -1,0 +1,67 @@
+---
+import Highlight from "@components/Highlight.astro";
+import Lead from "@components/Lead.astro";
+import Section from "@components/Section.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import ShoutQuote from "@components/ShoutQuote.astro";
+import Avatar from "@components/champions-hall/Avatar.astro";
+import type { SeasonChampion } from "@data/sample/champions-hall";
+import { roastFor, seasonEyebrow } from "@lib/champions-hall";
+import { fade } from "@lib/fade";
+
+type Props = {
+    champion: SeasonChampion;
+    isReigning: boolean;
+};
+
+const { champion, isReigning } = Astro.props;
+const titleId = `season-${champion.season}-title`;
+---
+
+<Section spacious aria-labelledby={titleId}>
+    <p class="eyebrow" {...fade({ in: "left" })}>
+        {seasonEyebrow(champion.season, isReigning)}
+    </p>
+    <div class="champ" {...fade({ in: "left", stagger: 1 })}>
+        <Avatar team={champion.team} />
+        <SectionTitle id={titleId}>{champion.team}</SectionTitle>
+    </div>
+    <Lead fade={{ in: "left", stagger: 2 }}>
+        <Highlight tone="name">{champion.team}</Highlight> went{" "}
+        <Highlight>{champion.record}</Highlight> in the regular season and put
+        up <Highlight>{champion.totalPoints}</Highlight> points.{" "}
+        {roastFor(champion)} In the title game they dropped{" "}
+        <Highlight>{champion.finalsScore}</Highlight> on{" "}
+        <Highlight tone="name">{champion.defeated}</Highlight>.{" "}
+        <Highlight tone="name">{champion.mvp}</Highlight> was the MVP for this
+        roster throughout the regular season.
+    </Lead>
+    <ShoutQuote fade={{ in: "right", stagger: 3 }}>
+        {`"${champion.quote}"`}
+    </ShoutQuote>
+</Section>
+
+<style>
+    .eyebrow {
+        margin-bottom: 1.5rem;
+        font-family: var(--f-display);
+        font-size: var(--fs-lead);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--cyan-400);
+    }
+
+    .champ {
+        --title-gap: 0;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+
+        h2 {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+    }
+</style>

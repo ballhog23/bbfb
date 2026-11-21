@@ -1,0 +1,27 @@
+---
+import { fade, type FadeOptions } from "@lib/fade";
+
+type Props = {
+    fade?: FadeOptions;
+};
+
+const { fade: fadeOptions } = Astro.props;
+---
+
+<blockquote class="container container-medium" {...fade(fadeOptions)}>
+    <p>
+        <slot />
+    </p>
+</blockquote>
+
+<style>
+    blockquote {
+        margin-top: 8rem;
+        font-family: var(--f-display);
+        font-size: var(--fs-quote);
+        font-style: italic;
+        font-weight: 700;
+        line-height: 1.3;
+        text-align: center;
+    }
+</style>

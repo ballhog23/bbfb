@@ -1,0 +1,51 @@
+---
+import { Font } from "astro:assets";
+import Highlight from "@components/Highlight.astro";
+import PageHero from "@components/PageHero.astro";
+import CtaSection from "@components/home/CtaSection.astro";
+import VerdictSection from "@components/home/VerdictSection.astro";
+import Layout from "@layouts/Layout.astro";
+import { SAMPLE_VERDICT } from "@data/sample/home";
+---
+
+<Layout
+    title="Home"
+    description="Bleed Blue Fantasy Football: last season's champion and sacko, weekly matchups and rivalries."
+    active="home"
+>
+    <Font slot="head" cssVariable="--font-doto" />
+
+    <PageHero small="Bleed" blue="Blue" variant="home" />
+
+    <VerdictSection verdict={SAMPLE_VERDICT} />
+
+    <CtaSection
+        id="scoreboard-title"
+        href="/matchups"
+        linkText="View Matchups"
+        titleTone="score"
+        linkTone="blue"
+        side="left"
+    >
+        <Fragment slot="title">CHECK THE SCOREBOARD</Fragment>
+        Fantasy statistics are updated weekly at 0400 hours every Tuesday.
+        That's the power of cron jobs, f*ckers.
+    </CtaSection>
+
+    <CtaSection
+        id="battle-room-title"
+        href="/rivalry"
+        linkText="View Rivalries"
+        titleTone="shout"
+        linkTone="purple"
+        side="right"
+    >
+        <Fragment slot="title">
+            <Highlight tone="accent">1v1</Highlight> me,
+            <br />
+            b*tch
+        </Fragment>
+        You think you're good? 1v1 me on Rust, quickscopes only. Don't cry when
+        you can't leave spawn :-)
+    </CtaSection>
+</Layout>

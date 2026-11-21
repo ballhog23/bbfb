@@ -1,0 +1,108 @@
+---
+import Brand from "@components/Brand.astro";
+import LeagueInfoMenu from "@components/LeagueInfoMenu.astro";
+import MobileMenu from "@components/MobileMenu.astro";
+import NavLink from "@components/NavLink.astro";
+import { MAIN_NAV, type PageKey } from "@data/site";
+
+type Props = {
+    active?: PageKey | undefined;
+};
+
+const { active } = Astro.props;
+---
+
+<header>
+    <nav class="container" aria-label="Main">
+        <Brand />
+        <ul class="links">
+            {MAIN_NAV.map((link) => (
+                <li>
+                    <NavLink link={link} active={link.key === active} />
+                </li>
+            ))}
+            <li>
+                <LeagueInfoMenu active={active} />
+            </li>
+        </ul>
+        <button
+            id="mobile-menu-open"
+            class="hamburger"
+            type="button"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="mobile-menu"
+        >
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+</header>
+
+<MobileMenu active={active} />
+
+<style>
+    /* Fixed, not sticky: a phone's overscroll bounce pulls a sticky header
+       off the screen. The body padding in base.css makes up the space. */
+    header {
+        position: fixed;
+        top: 0;
+        inset-inline: 0;
+        z-index: 100;
+        height: var(--header-total);
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+    }
+
+    nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: var(--header-h);
+    }
+
+    .links {
+        display: none;
+        align-items: center;
+        gap: 1.5rem;
+
+        @media (min-width: 768px) {
+            display: flex;
+        }
+    }
+
+    .hamburger {
+        position: relative;
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+
+        span {
+            position: absolute;
+            left: 0.25rem;
+            right: 0.25rem;
+            height: 2px;
+            background: var(--text);
+
+            &:nth-child(1) {
+                top: 0.5rem;
+            }
+
+            &:nth-child(2) {
+                top: 1.0625rem;
+            }
+
+            &:nth-child(3) {
+                top: 1.625rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            display: none;
+        }
+    }
+</style>

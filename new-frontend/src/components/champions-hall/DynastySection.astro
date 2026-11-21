@@ -1,0 +1,37 @@
+---
+import Highlight from "@components/Highlight.astro";
+import Section from "@components/Section.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import ShoutQuote from "@components/ShoutQuote.astro";
+import NameItem from "@components/champions-hall/NameItem.astro";
+import NameList from "@components/champions-hall/NameList.astro";
+import type { Champion } from "@data/sample/champions-hall";
+import { dynastyChampions, dynastyCopy } from "@lib/champions-hall";
+
+type Props = {
+    champions: Champion[];
+};
+
+const dynasty = dynastyChampions(Astro.props.champions);
+const copy = dynastyCopy(dynasty.length);
+---
+
+{dynasty.length > 0 && (
+    <Section spacious aria-labelledby="dynasty-title">
+        <SectionTitle id="dynasty-title" fade={{ in: "left" }}>
+            {`${copy.titleStart} `}
+            <Highlight>{copy.noun}</Highlight>
+            {` ${copy.titleEnd}`}
+        </SectionTitle>
+        <NameList>
+            {dynasty.map((champion, index) => (
+                <NameItem index={index}>
+                    {champion.username} has won{" "}
+                    <Highlight>{champion.championships}</Highlight>{" "}
+                    championships
+                </NameItem>
+            ))}
+        </NameList>
+        <ShoutQuote fade={{ in: "right", stagger: 2 }}>{copy.quote}</ShoutQuote>
+    </Section>
+)}

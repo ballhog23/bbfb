@@ -1,0 +1,47 @@
+---
+import { Font } from "astro:assets";
+import Footer from "@components/Footer.astro";
+import Navbar from "@components/Navbar.astro";
+import ScrollFades from "@components/ScrollFades.astro";
+import { SITE, type PageKey } from "@data/site";
+import "@styles/base.css";
+
+type Props = {
+    title: string;
+    description: string;
+    active?: PageKey;
+};
+
+const { title, description, active } = Astro.props;
+const pageTitle = `${title} | ${SITE.fullName}`;
+---
+
+<!doctype html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content={description} />
+        <meta name="theme-color" content={SITE.themeColor} />
+        <title>{pageTitle}</title>
+        <Font cssVariable="--font-orbitron" preload />
+        <Font cssVariable="--font-inter" preload />
+        <slot name="head" />
+    </head>
+    <body>
+        <Navbar active={active} />
+        <main>
+            <slot />
+        </main>
+        <Footer />
+        <ScrollFades />
+    </body>
+</html>
+
+<style>
+    /* The body and the footer share one color. The page color goes here, so
+       a phone shows no line at the bottom of the screen. */
+    main {
+        background: var(--bg-page);
+    }
+</style>

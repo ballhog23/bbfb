@@ -1,0 +1,108 @@
+---
+import Brand from "@components/Brand.astro";
+import NavLink from "@components/NavLink.astro";
+import CloseIcon from "@assets/icons/close.svg";
+import { LEAGUE_INFO_NAV, MAIN_NAV, type PageKey } from "@data/site";
+
+type Props = {
+    active?: PageKey | undefined;
+};
+
+const { active } = Astro.props;
+const links = [...MAIN_NAV, ...LEAGUE_INFO_NAV];
+---
+
+<dialog id="mobile-menu" aria-label="Site menu">
+    <div class="bar container">
+        <Brand />
+        <button class="close" type="button" aria-label="Close menu">
+            <CloseIcon aria-hidden="true" width={28} height={28} />
+        </button>
+    </div>
+    <nav class="container" aria-label="Mobile">
+        <ul>
+            {links.map((link) => (
+                <li>
+                    <NavLink link={link} active={link.key === active} />
+                </li>
+            ))}
+        </ul>
+    </nav>
+</dialog>
+
+<style>
+    dialog {
+        width: 100%;
+        max-width: none;
+        height: 100dvh;
+        max-height: none;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: var(--bg);
+        color: var(--text);
+
+        &::backdrop {
+            background: var(--bg);
+        }
+
+        @media (min-width: 768px) {
+            display: none;
+        }
+    }
+
+    .bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: var(--header-h);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .close {
+        display: grid;
+        place-items: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--text);
+        cursor: pointer;
+    }
+
+    ul {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding-block: 2.5rem;
+        font-size: var(--fs-h4);
+    }
+</style>
+
+<script>
+    const menu = document.getElementById("mobile-menu");
+    const open = document.getElementById("mobile-menu-open");
+    const close = menu?.querySelector<HTMLButtonElement>(".close");
+
+    if (menu instanceof HTMLDialogElement && open && close) {
+        open.addEventListener("click", () => {
+            menu.showModal();
+            open.setAttribute("aria-expanded", "true");
+        });
+
+        close.addEventListener("click", () => menu.close());
+
+        menu.addEventListener("close", () => {
+            open.setAttribute("aria-expanded", "false");
+        });
+
+        // The CSS hides the menu at 768px and up. Close it too, so it does not
+        // keep focus off the screen.
+        window
+            .matchMedia("(min-width: 768px)")
+            .addEventListener("change", (event) => {
+                if (event.matches && menu.open) menu.close();
+            });
+    }
+</script>

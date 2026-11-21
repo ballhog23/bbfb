@@ -1,0 +1,26 @@
+---
+import Highlight from "@components/Highlight.astro";
+import Section from "@components/Section.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import NameItem from "@components/champions-hall/NameItem.astro";
+import NameList from "@components/champions-hall/NameList.astro";
+import type { Champion } from "@data/sample/champions-hall";
+
+type Props = {
+    champions: Champion[];
+};
+
+const { champions } = Astro.props;
+---
+
+<Section spacious aria-labelledby="unique-title">
+    <SectionTitle id="unique-title" fade={{ in: "left" }}>
+        There has been a total of <Highlight>{champions.length}</Highlight>{" "}
+        unique champions
+    </SectionTitle>
+    <NameList>
+        {champions.map((champion, index) => (
+            <NameItem index={index}>{champion.username}</NameItem>
+        ))}
+    </NameList>
+</Section>

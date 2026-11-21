@@ -1,0 +1,25 @@
+---
+import Highlight from "@components/Highlight.astro";
+import Lead from "@components/Lead.astro";
+import Section from "@components/Section.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import type { ScoringRecord } from "@data/sample/champions-hall";
+
+type Props = {
+    record: ScoringRecord;
+};
+
+const { record } = Astro.props;
+---
+
+<Section spacious aria-labelledby="record-title">
+    <SectionTitle id="record-title" fade={{ in: "left" }}>
+        {`In ${record.season}, ${record.team} scored `}
+        <Highlight>{record.points}</Highlight> points. That's actually pretty
+        f*cking good.
+    </SectionTitle>
+    <Lead fade={{ in: "left", stagger: 1 }}>
+        I bet you want a cookie for that, and you deserve it. It is my pleasure
+        to bestow upon you this scrumptious offering. 💩🍪
+    </Lead>
+</Section>

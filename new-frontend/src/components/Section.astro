@@ -1,0 +1,39 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type Props = HTMLAttributes<"section"> & {
+    /** Put the content in a .container. Turn off when the section holds its own containers. */
+    container?: boolean;
+    /** More space above and below, and under the title. */
+    spacious?: boolean;
+};
+
+const {
+    container = true,
+    spacious = false,
+    class: className,
+    ...attrs
+} = Astro.props;
+---
+
+<section
+    class:list={["section", className, { container, spacious }]}
+    {...attrs}
+>
+    <slot />
+</section>
+
+<style>
+    .section {
+        --title-gap: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: var(--screen);
+    }
+
+    .spacious {
+        --title-gap: 3rem;
+        padding-block: 4rem;
+    }
+</style>

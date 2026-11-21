@@ -1,0 +1,22 @@
+---
+import { SITE } from "@data/site";
+---
+
+<a class="brand" href="/" aria-label={`${SITE.fullName} home`}>
+    {SITE.name}
+</a>
+
+<style>
+    .brand {
+        font-family: var(--f-display);
+        font-size: var(--fs-h4);
+        font-weight: 700;
+        letter-spacing: var(--ls-3);
+        text-transform: uppercase;
+        color: var(--text);
+
+        &:hover {
+            color: var(--blue-500);
+        }
+    }
+</style>
