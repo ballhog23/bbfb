@@ -1,0 +1,28 @@
+extends ../layouts/base
+block head
+    link(rel="stylesheet" href="/css/pages/matchups.css")
+    script(type="module" src="/js/matchups.js")
+block content
+    main
+        header.page-header.container
+            h1 Matchups
+            
+        section.matchups-container.container
+            header.matchups-header
+                h2#season-header Season #{currentLeagueSeason} - #{currentWeek >= 15 ? 'Playoffs' : `Week ${currentWeek}`}
+
+                include ../partials/league-select.pug
+
+                if !isCurrentLeague || currentWeek >= 15
+                    nav.season-navigation
+                        button.btn.nav-link(data-view="regular" class=currentWeek < 15 ? 'active' : '') Regular Season
+                        button.btn.nav-link(data-view="playoffs" class=currentWeek >= 15 ? 'active' : '') Playoffs
+
+            #matchups-content(data-current-week=currentWeek)
+                if currentWeek < 15
+                    include ../partials/regular-season-matchups.pug
+                else
+                    include ../partials/post-season-matchups.pug
+
+        section.standings-container.container
+            include ../partials/standings-section.pug

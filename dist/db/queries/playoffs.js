@@ -1,0 +1,203 @@
+import { sql, eq, and, desc, isNotNull } from "drizzle-orm";
+import { db } from "../index.js";
+import { leagueUsersTable, matchupsTable, sleeperUsersTable, playoffsTable, rostersTable, NFLPlayersTable, } from "../schema.js";
+export async function insertPlayoffMatchup(matchup) {
+    const [result] = await db
+        .insert(playoffsTable)
+        .values(matchup)
+        .onConflictDoUpdate({
+        target: [
+            playoffsTable.leagueId,
+            playoffsTable.bracketType,
+            playoffsTable.bracketMatchupId,
+        ],
+        set: {
+            matchupId: sql `EXCLUDED.matchup_id`,
+            week: sql `EXCLUDED.week`,
+            round: sql `EXCLUDED.round`,
+            loserId: sql `EXCLUDED.loser_id`,
+            winnerId: sql `EXCLUDED.winner_id`,
+            place: sql `EXCLUDED.place`,
+            t1: sql `EXCLUDED.t1`,
+            t2: sql `EXCLUDED.t2`,
+            t1FromWinner: sql `EXCLUDED.t1_from_winner`,
+            t1FromLoser: sql `EXCLUDED.t1_from_loser`,
+            t2FromWinner: sql `EXCLUDED.t2_from_winner`,
+            t2FromLoser: sql `EXCLUDED.t2_from_loser`,
+        },
+    })
+        .returning();
+    return result;
+}
+export async function selectAllPlayoffMatchups() {
+    const result = await db.select().from(playoffsTable);
+    return result;
+}
+export async function selectPlayoffMatchupsPerSeason(leagueId) {
+    const result = await db
+        .select()
+        .from(playoffsTable)
+        .where(eq(playoffsTable.leagueId, leagueId))
+        .orderBy(desc(playoffsTable.bracketType), playoffsTable.week, sql `${playoffsTable.matchupId} NULLS LAST`);
+    return result;
+}
+// using for matchups page
+export async function selectPlayoffMatchupsWithDetails(leagueId) {
+    const playerJson = sql `
+        jsonb_build_object(
+            'playerName', ${NFLPlayersTable.firstName} || ' ' || ${NFLPlayersTable.lastName},
+            'position', ${NFLPlayersTable.position},
+            'points', player_scoring.points,
+            'team', ${NFLPlayersTable.team},
+            'playerImage', CASE
+                WHEN ${NFLPlayersTable.position} = 'DEF' THEN 'https\://sleepercdn.com/images/team_logos/nfl/' || lower(nfl_players.team) || '.png'
+                ELSE 'https://sleepercdn.com/content/nfl/players/' || nfl_players.player_id || '.jpg'
+                END
+        )
+    `;
+    // Build the team roster subquery as a CTE
+    const t1Data = db.$with("t1_data").as(db
+        .select({
+        rosterId: matchupsTable.rosterId,
+        leagueId: matchupsTable.leagueId,
+        week: matchupsTable.week,
+        season: matchupsTable.season,
+        team: leagueUsersTable.teamName,
+        teamImage: sql `${leagueUsersTable.avatarId}`.as("t1_team_image"),
+        owner: sleeperUsersTable.displayName,
+        ownerImage: sql `${sleeperUsersTable.avatarId}`.as("t1_owner_image"),
+        points: matchupsTable.points,
+        startingRoster: sql `
+                    jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
+                    FILTER (
+                        WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
+                    )
+                `.as("t1_starting_roster"),
+        benchRoster: sql `
+                    jsonb_agg(${playerJson})
+                    FILTER (
+                        WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.players})
+                        AND ${NFLPlayersTable.playerId} <> ALL(${matchupsTable.starters})
+                    )
+                `.as("t1_bench_roster"),
+        reserveRoster: sql `NULL`.as("t1_reserve_roster"),
+    })
+        .from(matchupsTable)
+        .innerJoin(NFLPlayersTable, sql `${NFLPlayersTable.playerId} = ANY(${matchupsTable.players})`)
+        .leftJoinLateral(sql `
+                    jsonb_each_text(${matchupsTable.playersPoints})
+                    AS player_scoring(player_id, points)
+                `, sql `${NFLPlayersTable.playerId} = player_scoring.player_id`)
+        .innerJoin(rostersTable, and(eq(matchupsTable.leagueId, rostersTable.leagueId), eq(matchupsTable.rosterId, rostersTable.rosterId)))
+        .innerJoin(leagueUsersTable, and(eq(leagueUsersTable.leagueId, matchupsTable.leagueId), eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)))
+        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId))
+        .where(and(eq(matchupsTable.leagueId, leagueId), isNotNull(matchupsTable.matchupId)))
+        .groupBy(matchupsTable.rosterId, matchupsTable.leagueId, matchupsTable.week, matchupsTable.season, leagueUsersTable.avatarId, sleeperUsersTable.avatarId, leagueUsersTable.teamName, sleeperUsersTable.displayName, matchupsTable.points));
+    const t2Data = db.$with("t2_data").as(db
+        .select({
+        rosterId: matchupsTable.rosterId,
+        leagueId: matchupsTable.leagueId,
+        week: matchupsTable.week,
+        season: matchupsTable.season,
+        team: leagueUsersTable.teamName,
+        teamImage: sql `${leagueUsersTable.avatarId}`.as("t2_team_image"),
+        owner: sleeperUsersTable.displayName,
+        ownerImage: sql `${sleeperUsersTable.avatarId}`.as("t2_owner_image"),
+        points: matchupsTable.points,
+        startingRoster: sql `
+                    jsonb_agg(${playerJson} ORDER BY array_position(${matchupsTable.starters}, ${NFLPlayersTable.playerId}))
+                    FILTER (
+                        WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.starters})
+                    )
+                `.as("t2_starting_roster"),
+        benchRoster: sql `
+                    jsonb_agg(${playerJson})
+                    FILTER (
+                        WHERE ${NFLPlayersTable.playerId} = ANY(${matchupsTable.players})
+                        AND ${NFLPlayersTable.playerId} <> ALL(${matchupsTable.starters})
+                    )
+                `.as("t2_bench_roster"),
+        reserveRoster: sql `NULL`.as("t2_reserve_roster"),
+    })
+        .from(matchupsTable)
+        .innerJoin(NFLPlayersTable, sql `${NFLPlayersTable.playerId} = ANY(${matchupsTable.players})`)
+        .leftJoinLateral(sql `
+                    jsonb_each_text(${matchupsTable.playersPoints})
+                    AS player_scoring(player_id, points)
+                `, sql `${NFLPlayersTable.playerId} = player_scoring.player_id`)
+        .innerJoin(rostersTable, and(eq(matchupsTable.leagueId, rostersTable.leagueId), eq(matchupsTable.rosterId, rostersTable.rosterId)))
+        .innerJoin(leagueUsersTable, and(eq(leagueUsersTable.leagueId, matchupsTable.leagueId), eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)))
+        .innerJoin(sleeperUsersTable, eq(sleeperUsersTable.userId, rostersTable.rosterOwnerId))
+        .where(and(eq(matchupsTable.leagueId, leagueId), isNotNull(matchupsTable.matchupId)))
+        .groupBy(matchupsTable.rosterId, matchupsTable.leagueId, matchupsTable.week, matchupsTable.season, leagueUsersTable.avatarId, sleeperUsersTable.avatarId, leagueUsersTable.teamName, sleeperUsersTable.displayName, matchupsTable.points));
+    const result = await db
+        .with(t1Data, t2Data)
+        .select({
+        // Playoff bracket info
+        bracketType: playoffsTable.bracketType,
+        bracketMatchupId: playoffsTable.bracketMatchupId,
+        week: playoffsTable.week,
+        round: playoffsTable.round,
+        matchupId: playoffsTable.matchupId,
+        winnerId: playoffsTable.winnerId,
+        loserId: playoffsTable.loserId,
+        place: playoffsTable.place,
+        // Navigation info
+        t1FromWinner: playoffsTable.t1FromWinner,
+        t1FromLoser: playoffsTable.t1FromLoser,
+        t2FromWinner: playoffsTable.t2FromWinner,
+        t2FromLoser: playoffsTable.t2FromLoser,
+        // Team 1 data
+        t1RosterId: playoffsTable.t1,
+        t1Team: t1Data.team,
+        t1Owner: t1Data.owner,
+        t1Points: t1Data.points,
+        t1Season: t1Data.season,
+        t1StartingRoster: t1Data.startingRoster,
+        t1BenchRoster: t1Data.benchRoster,
+        t1TeamImage: t1Data.teamImage,
+        t1OwnerImage: t1Data.ownerImage,
+        // Team 2 data
+        t2RosterId: playoffsTable.t2,
+        t2Team: t2Data.team,
+        t2Owner: t2Data.owner,
+        t2Points: t2Data.points,
+        t2Season: t2Data.season,
+        t2StartingRoster: t2Data.startingRoster,
+        t2BenchRoster: t2Data.benchRoster,
+        t2TeamImage: t2Data.teamImage,
+        t2OwnerImage: t2Data.ownerImage,
+    })
+        .from(playoffsTable)
+        // Left join for team 1 roster data
+        .leftJoin(t1Data, and(eq(playoffsTable.leagueId, t1Data.leagueId), eq(playoffsTable.week, t1Data.week), eq(playoffsTable.t1, t1Data.rosterId)))
+        // Left join for team 2 roster data
+        .leftJoin(t2Data, and(eq(playoffsTable.leagueId, t2Data.leagueId), eq(playoffsTable.week, t2Data.week), eq(playoffsTable.t2, t2Data.rosterId)))
+        .where(and(eq(playoffsTable.leagueId, leagueId), isNotNull(playoffsTable.matchupId)))
+        .orderBy(playoffsTable.bracketType, playoffsTable.round, playoffsTable.bracketMatchupId);
+    return result;
+}
+export async function selectLeagueWinner(leagueId) {
+    const [result] = await db
+        .select({
+        teamName: leagueUsersTable.teamName,
+        avatar: leagueUsersTable.avatarId,
+    })
+        .from(playoffsTable)
+        .innerJoin(rostersTable, and(eq(playoffsTable.leagueId, rostersTable.leagueId), eq(playoffsTable.winnerId, rostersTable.rosterId)))
+        .innerJoin(leagueUsersTable, and(eq(playoffsTable.leagueId, leagueUsersTable.leagueId), eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)))
+        .where(and(eq(playoffsTable.leagueId, leagueId), eq(playoffsTable.week, 17), eq(playoffsTable.bracketType, "winners_bracket"), eq(playoffsTable.place, 1)));
+    return result;
+}
+export async function selectLeagueLoser(leagueId) {
+    const [result] = await db
+        .select({
+        teamName: leagueUsersTable.teamName,
+        avatar: leagueUsersTable.avatarId,
+    })
+        .from(playoffsTable)
+        .innerJoin(rostersTable, and(eq(playoffsTable.leagueId, rostersTable.leagueId), eq(playoffsTable.loserId, rostersTable.rosterId)))
+        .innerJoin(leagueUsersTable, and(eq(playoffsTable.leagueId, leagueUsersTable.leagueId), eq(leagueUsersTable.userId, rostersTable.rosterOwnerId)))
+        .where(and(eq(playoffsTable.leagueId, leagueId), eq(playoffsTable.week, 16), eq(playoffsTable.bracketType, "losers_bracket"), eq(playoffsTable.place, 5)));
+    return result;
+}

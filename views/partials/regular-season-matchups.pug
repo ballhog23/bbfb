@@ -1,0 +1,6 @@
+include ../mixins/matchup-card.pug
+
+include ../partials/week-select.pug
+section.matchups-wrapper
+    each match in matchups
+        +matchupCard(match)

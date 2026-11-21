@@ -1,0 +1,143 @@
+@use 'sass:color';
+@use '../variables' as *;
+@use '../_base';
+@use '../components/_navbar';
+@use '../components/_nav-overlay';
+@use '../components/_footer';
+@use '../components/_team-select';
+@use '../components/_rivalry-cards';
+
+// Rivalry page styles
+
+@keyframes sway {
+
+	0%,
+	100% {
+		transform: rotate(-8deg);
+	}
+
+	50% {
+		transform: rotate(8deg);
+	}
+}
+
+@keyframes glow {
+
+	0%,
+	100% {
+		filter: drop-shadow(0 0 6px rgba($accent-cyan, 0.2));
+	}
+
+	50% {
+		filter: drop-shadow(0 0 18px rgba($accent-cyan, 0.6));
+	}
+}
+
+.page-header {
+	text-align: center;
+	padding-block: 0;
+	margin-block: 0 5rem;
+
+	.hero-icon {
+		svg {
+			width: 5rem;
+			height: 5rem;
+			color: $accent-cyan;
+			margin: 0 auto 1rem;
+			animation: sway 3s ease-in-out infinite, glow 6s ease-in-out infinite;
+		}
+	}
+
+	h1 {
+		color: rgba($accent-cyan, 0.8);
+		text-transform: uppercase;
+		font-weight: $font-weight-medium;
+		margin-bottom: 0.75rem;
+	}
+
+	.hero-description {
+		color: $text-muted;
+		font-size: 1.125rem;
+		max-width: 28rem;
+		margin: 0 auto;
+	}
+}
+
+.team-selectors {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2.5rem;
+	margin-bottom: 3rem;
+
+	@media only screen and (min-width: $md-breakpoint-up) {
+		flex-direction: row;
+		justify-content: center;
+		gap: 2rem;
+	}
+}
+
+.vs-divider {
+	font-family: $font-heading;
+	font-size: 2.25rem;
+	font-weight: $font-weight-bold;
+	color: $text-disabled;
+}
+
+.empty-state {
+	text-align: center;
+	padding-block: 4rem;
+
+	p {
+		font-size: 1.25rem;
+		color: $text-muted;
+	}
+}
+
+.battle-btn-wrapper {
+	text-align: center;
+	margin-bottom: 3rem;
+}
+
+.battle-btn {
+	font-family: $font-heading;
+	font-size: 1.25rem;
+	font-weight: $font-weight-bold;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: $text-primary;
+	background: linear-gradient(135deg, color.adjust($accent-cyan, $lightness: -15%), $accent-cyan);
+	border: 2px solid $accent-cyan;
+	border-radius: 0.5rem;
+	padding: 0.75rem 3rem;
+	cursor: pointer;
+	transition: opacity $transition, box-shadow $transition, border-color $transition, background $transition;
+	box-shadow: 0 0 20px rgba($accent-cyan, 0.3);
+
+	&:hover:not(:disabled) {
+		box-shadow: 0 0 35px rgba($accent-cyan, 0.6);
+	}
+
+	&:disabled {
+		opacity: 0.3;
+		cursor: not-allowed;
+		box-shadow: none;
+	}
+}
+
+@keyframes results-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(1rem);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.rivalry-results {
+	padding-block: 0 6.25rem;
+	animation: results-fade-in 0.8s ease-out both;
+}

@@ -1,0 +1,82 @@
+{
+  "favicon.png": {
+    "variants": [
+      {
+        "width": 48,
+        "height": 48,
+        "path": "/assets/optimized/favicon.png"
+      }
+    ]
+  },
+  "mascot.webp": {
+    "variants": [
+      {
+        "width": 400,
+        "height": 445,
+        "path": "/assets/optimized/mascot-400.webp"
+      },
+      {
+        "width": 600,
+        "height": 668,
+        "path": "/assets/optimized/mascot-600.webp"
+      },
+      {
+        "width": 800,
+        "height": 891,
+        "path": "/assets/optimized/mascot-800.webp"
+      }
+    ]
+  },
+  "sacko.webp": {
+    "variants": [
+      {
+        "width": 400,
+        "height": 541,
+        "path": "/assets/optimized/sacko-400.webp"
+      },
+      {
+        "width": 600,
+        "height": 811,
+        "path": "/assets/optimized/sacko-600.webp"
+      }
+    ]
+  },
+  "sad-mascot.webp": {
+    "variants": [
+      {
+        "width": 400,
+        "height": 445,
+        "path": "/assets/optimized/sad-mascot-400.webp"
+      },
+      {
+        "width": 600,
+        "height": 668,
+        "path": "/assets/optimized/sad-mascot-600.webp"
+      },
+      {
+        "width": 800,
+        "height": 891,
+        "path": "/assets/optimized/sad-mascot-800.webp"
+      }
+    ]
+  },
+  "winner-mascot.webp": {
+    "variants": [
+      {
+        "width": 400,
+        "height": 452,
+        "path": "/assets/optimized/winner-mascot-400.webp"
+      },
+      {
+        "width": 600,
+        "height": 678,
+        "path": "/assets/optimized/winner-mascot-600.webp"
+      },
+      {
+        "width": 800,
+        "height": 904,
+        "path": "/assets/optimized/winner-mascot-800.webp"
+      }
+    ]
+  }
+}

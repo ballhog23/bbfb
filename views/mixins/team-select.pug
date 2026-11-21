@@ -1,0 +1,29 @@
+include ./icons.pug
+include ./responsive-image.pug
+
+mixin teamSelect(label, selectId, teams, placeholderAvatar)
+	.team-select(class=selectId + '-select')
+		h2.team-select-label= label
+		.select-wrapper
+			label.sr-only(for=selectId)= label
+			select(id=selectId name=selectId)
+				option(value="select-team" disabled selected) Select team...
+				each team in teams
+					option(value=team.userId)= team.teamName || team.displayName
+			+iconChevronDown()
+		.avatar-container
+			+responsiveImage(
+				placeholderAvatar,
+				"lazy", "async", "lower",
+				"placeholder avatar",
+				"team-avatar placeholder-avatar"
+			)
+			each team in teams
+				img.team-avatar.team-avatar-option(
+					src=avatarSrc(team.teamAvatar, team.userAvatar, team.displayName)
+					alt=(team.teamName || team.displayName) + ' avatar'
+					data-user-id=team.userId
+					loading='lazy'
+					decoding='async'
+					fetchpriority='low'
+				)

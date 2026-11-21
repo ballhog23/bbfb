@@ -1,0 +1,42 @@
+extends ../layouts/base
+include ../mixins/icons.pug
+include ../mixins/stat-card.pug
+include ../mixins/sacko-card.pug
+include ../mixins/responsive-image
+
+block head
+	+preloadImage("sacko.webp","(max-width: 768px) 205px, 283px")
+	script(type="module" src="/js/sacko-hall.js")
+	link(rel="stylesheet" href="/css/pages/sacko-hall.css")
+
+block content
+	-
+		const statCards = [
+			{ icon: 'skull', value: stats.totalSackos, label: 'Sacko Owners', sublabel: 'Total sleeper seasons' },
+			{ icon: 'users', value: stats.uniqueLosers, label: 'Unique Losers', sublabel: 'Different last-placers' },
+			{ icon: 'skull', value: stats.sackoKing.sackos + 'x', label: 'Sacko King', sublabel: stats.sackoKing.team || stats.sackoKing.displayName },
+			{ icon: 'trending-down', value: stats.lowestFinalsScore.points, label: 'Lowest Finals Score', sublabel: stats.lowestFinalsScore.team || stats.lowestFinalsScore.displayName }
+		]
+
+	main
+		header.page-header.container
+			+responsiveImage(
+				"sacko.webp",
+				"eager", "sync", "high",
+				"bleed blue fantasy football sacko mascot",
+				"hero-image",
+				"(max-width: 768px) 205px, 283px"
+				)
+			h1
+				+iconSkull()
+				span Sacko Hall
+				+iconSkull()
+			p.hero-description Commemorating #{stats.totalSackos} seasons of pain, suffering, and terrible lineup decisions.
+
+		section.stats-grid.container
+			each stat in statCards
+				+statCard(stat)
+
+		section.sackos-grid.container
+			each sacko, i in sackos
+				+sackoCard(sacko, i === 0)

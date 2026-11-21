@@ -1,0 +1,36 @@
+@use '../_variables' as *;
+
+.rosters-modal {
+
+    header {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        margin-block: 0 3.125rem;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            flex-direction: row;
+        }
+
+        img {
+            border-radius: 50%;
+        }
+
+        h3 {
+            font-size: 2rem;
+            text-align: center;
+            text-wrap: auto;
+
+            @media only screen and (min-width: $sm-breakpoint-up) {
+                text-align: left;
+            }
+
+            @media only screen and (min-width: $md-breakpoint-up) {
+                font-size: 2.25rem;
+                text-align: center;
+            }
+        }
+    }
+}

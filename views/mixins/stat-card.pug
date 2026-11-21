@@ -1,0 +1,9 @@
+include ./icons.pug
+
+mixin statCard(stat)
+	.stat-card
+		.stat-icon
+			+icon(stat.icon)
+		.stat-value= stat.value
+		.stat-label= stat.label
+		.stat-sublabel= stat.sublabel

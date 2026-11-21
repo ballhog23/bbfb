@@ -1,0 +1,9 @@
+include ./player-row.pug
+
+mixin playerList(players, label)
+    if players && players.length > 0
+        .player-list-section
+            h4.roster-section-label= label
+            .player-list
+                each player in players
+                    +playerRow(player)

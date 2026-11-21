@@ -1,0 +1,29 @@
+mixin bracketMatchupCardBody(matchup)
+    - const hasTeamName = (team, owner) => team ? team : owner || 'TBD';
+    - const t1Pts = parseFloat(matchup.t1Points) || 0;
+    - const t2Pts = parseFloat(matchup.t2Points) || 0;
+    - const resultClass = (rosterId, myPts, oppPts) => matchup.winnerId != null ? (matchup.winnerId === rosterId ? 'winner' : 'loser') : myPts > oppPts ? 'winner' : myPts < oppPts ? 'loser' : '';
+
+    section.home-team(class=resultClass(matchup.t1RosterId, t1Pts, t2Pts))
+        img(
+            src= avatarSrc(matchup.t1TeamImage, matchup.t1OwnerImage, matchup.t1Owner) || "https://placehold.co/50",
+            alt= hasTeamName(matchup.t1Team, matchup.t1Owner) + ' team logo'
+            loading='lazy'
+            decoding='async'
+        )
+        .team-details
+            h3= hasTeamName(matchup.t1Team, matchup.t1Owner)
+            p= matchup.t1Points
+
+    span.vs vs
+
+    section.away-team(class=resultClass(matchup.t2RosterId, t2Pts, t1Pts))
+        img(
+            src= avatarSrc(matchup.t2TeamImage, matchup.t2OwnerImage, matchup.t2Owner) || "https://placehold.co/50",
+            alt= hasTeamName(matchup.t2Team, matchup.t2Owner) + ' team logo'
+            loading='lazy'
+            decoding='async'
+        )
+        .team-details
+            h3= hasTeamName(matchup.t2Team, matchup.t2Owner)
+            p= matchup.t2Points

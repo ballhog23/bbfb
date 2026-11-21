@@ -1,0 +1,42 @@
+const ERROR_MESSAGES = {
+    400: {
+        heading: "Bad Request",
+        message: "The request could not be understood.",
+    },
+    401: {
+        heading: "Unauthorized",
+        message: "You need to be authenticated to access this resource.",
+    },
+    403: {
+        heading: "Forbidden",
+        message: "You don't have permission to access this resource.",
+    },
+    404: {
+        heading: "Not Found",
+        message: "The requested resource could not be found.",
+    },
+    500: {
+        heading: "Internal Server Error",
+        message: "Something went wrong on our end.",
+    },
+};
+const DEFAULT_ERROR = {
+    heading: "Something Went Wrong",
+    message: "An unexpected error occurred.",
+};
+export async function handlerServeErrorPage(err, _, res) {
+    const statusCode = err.status ?? err.statusCode ?? 500;
+    // eslint-disable-next-line security/detect-object-injection
+    const { heading, message } = ERROR_MESSAGES[statusCode] ?? DEFAULT_ERROR;
+    if (statusCode >= 500) {
+        console.error(err.message);
+    }
+    res.status(statusCode).render("pages/error-page", {
+        title: heading,
+        page: "error",
+        description: `${statusCode} - ${heading}`,
+        statusCode,
+        heading,
+        message,
+    });
+}

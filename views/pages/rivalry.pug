@@ -1,0 +1,25 @@
+extends ../layouts/base
+include ../mixins/icons.pug
+include ../mixins/team-select.pug
+
+block head
+	link(rel="stylesheet" href="/css/pages/rivalry.css")
+	script(type="module" src="/js/rivalry.js")
+
+block content
+	main
+		header.page-header.container
+			.hero-icon
+				+iconSwords()
+			h1 Rivalry
+			p.hero-description Settle the score. Check the history. Talk your trash.
+
+		section.team-selectors.container
+			+teamSelect("Challenger", "challenger", teams, "mascot.webp")
+			.vs-divider VS
+			+teamSelect("Opponent", "opponent", teams, "sacko.webp")
+
+		.battle-btn-wrapper.container
+			button#battle-btn.battle-btn(disabled title="You must select both teams to begin a battle") BATTLE
+
+		section#rivalry-results.rivalry-results.container

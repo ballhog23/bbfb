@@ -1,0 +1,123 @@
+@use '../_variables' as *;
+
+
+table {
+    width: 100%;
+    border-spacing: 0;
+
+    th,
+    tr {
+        text-align: left;
+    }
+
+    th,
+    td {
+        padding: .75rem;
+    }
+
+    td {
+        white-space: nowrap;
+    }
+
+    thead {
+        background-color: $table-header-bg;
+
+        tr {
+
+            th {
+                &[scope="col"] {
+                    font-family: $font-heading;
+                }
+
+                &:not(:last-of-type) {
+                    min-width: 7.5rem;
+                }
+
+                &:last-of-type {
+                    min-width: 5.3125rem;
+                }
+
+                @media only screen and (min-width: $sm-breakpoint-up) {
+                    &:not(:last-of-type) {
+                        min-width: unset;
+                    }
+
+                    &:last-of-type {
+                        min-width: unset;
+                    }
+                }
+            }
+
+        }
+    }
+
+    tbody {
+        tr {
+            cursor: pointer;
+
+            &:hover {
+                a > span {
+                    color: $accent-gold;
+                }
+
+                td {
+                    color: $accent-gold;
+                }
+            }
+
+            a > span,
+            td {
+                transition: color $transition;
+            }
+        }
+
+        tr:nth-of-type(even) {
+            background-color: $table-row-alt;
+        }
+
+        th {
+            &[scope="row"] {
+                font-weight: $font-weight-normal;
+            }
+        }
+
+        .standings-row-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: inherit;
+            text-decoration: none;
+
+            &:hover,
+            &:visited,
+            &:active {
+                color: inherit;
+                text-decoration: none;
+            }
+
+            img {
+                border-radius: 50%;
+                height: 3rem;
+                width: 3rem;
+            }
+        }
+    }
+
+    caption {
+        margin-block: .625rem 1rem;
+        caption-side: bottom;
+        text-align: left;
+        text-transform: lowercase;
+
+        @media only screen and (min-width: $sm-breakpoint-up) {
+            text-align: right;
+        }
+    }
+
+    .roster-modal-cell {
+        width: 0;
+        height: 0;
+        padding: 0;
+        border: 0;
+    }
+}
