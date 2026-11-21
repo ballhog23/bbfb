@@ -2,7 +2,10 @@ import { Context, ScheduledEvent } from "aws-lambda";
 
 export const handler = async (event: ScheduledEvent, context: Context) => {
     try {
-        const stateRes = await fetch(`${process.env.APP_URL}/api/league-state`);
+        const stateRes = await fetch(`${process.env.APP_URL}/api/league-state`, {
+            // give up 1 second before the lambda timeout, so the handler can log the error
+            signal: AbortSignal.timeout(context.getRemainingTimeInMillis() - 1000),
+        });
 
         if (!stateRes.ok) {
             const body = await stateRes.text();
@@ -30,6 +33,8 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(event),
+            // give up 1 second before the lambda timeout, so the handler can log the error
+            signal: AbortSignal.timeout(context.getRemainingTimeInMillis() - 1000),
         });
 
         if (!res.ok) {

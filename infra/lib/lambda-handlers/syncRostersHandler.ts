@@ -6,6 +6,8 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(event),
+            // give up 1 second before the lambda timeout, so the handler can log the error
+            signal: AbortSignal.timeout(context.getRemainingTimeInMillis() - 1000),
         });
 
         if (!res.ok) {
