@@ -1,4 +1,5 @@
 ---
+import Section from "@components/Section.astro";
 import { fade } from "@lib/fade";
 
 type Props = {
@@ -13,7 +14,7 @@ type Props = {
 const { small, blue, variant = "page" } = Astro.props;
 ---
 
-<header class:list={["hero", "container", variant]}>
+<Section spacious class={variant}>
     <h1>
         <span class="line" {...fade({ stagger: 0 })}>
             <span class="small">{small}</span>
@@ -29,17 +30,9 @@ const { small, blue, variant = "page" } = Astro.props;
             </p>
         </div>
     )}
-</header>
+</Section>
 
 <style>
-    .hero {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        min-height: var(--screen);
-        padding-block: 4rem;
-    }
-
     h1 {
         display: flex;
         flex-direction: column;
@@ -89,7 +82,6 @@ const { small, blue, variant = "page" } = Astro.props;
     /* "Bleed Blue" keeps its own sizes. */
     .home {
         align-items: center;
-        overflow: hidden;
         text-align: center;
 
         h1 {
